@@ -1,8 +1,7 @@
-
 /* ==========================================
    NOCTURNE VOID
    COMPLETE WEBSITE SCRIPT
-   SUPABASE COMMUNITY EDITION
+   SUPABASE + PRIVATE MESSAGES
    ========================================== */
 
 (() => {
@@ -28,12 +27,18 @@
   let activeChannel = "general";
   let activeFilter = "All";
 
+  let activeView = "channel";
+  let activeConversation = null;
+
   let communitySubscription = null;
   let presenceSubscription = null;
+  let directMessageSubscription = null;
 
   let communityMessages = [];
   let communityProfiles = [];
   let onlineMembers = new Set();
+  let directMessages = [];
+  let conversationProfiles = [];
 
   /* ==========================================
      2. HELPERS
@@ -73,6 +78,45 @@
       hour: "numeric",
       minute: "2-digit"
     });
+  }
+
+  function getUsername(profile) {
+    return (
+      profile?.username ||
+      profile?.user_metadata?.username ||
+      profile?.email?.split("@")[0] ||
+      "Player"
+    );
+  }
+
+  function makeAvatar(profile, className = "hub-avatar") {
+    const avatar = document.createElement("div");
+    avatar.className = className;
+
+    if (profile?.avatar_url) {
+      const image = document.createElement("img");
+
+      image.src = profile.avatar_url;
+      image.alt = "";
+      image.loading = "lazy";
+
+      image.onerror = () => {
+        image.remove();
+        avatar.textContent = getInitial(getUsername(profile));
+      };
+
+      avatar.appendChild(image);
+    } else {
+      avatar.textContent = getInitial(getUsername(profile));
+    }
+
+    return avatar;
+  }
+
+  function getProfile(userId) {
+    return communityProfiles.find(profile => profile.id === userId) ||
+      conversationProfiles.find(profile => profile.id === userId) ||
+      null;
   }
 
   /* ==========================================
@@ -152,8 +196,7 @@
     const grid = $("#gameGrid");
     if (!grid) return;
 
-    const search = $("#gameSearch");
-    const term = search ? search.value.trim().toLowerCase() : "";
+    const term = $("#gameSearch")?.value.trim().toLowerCase() || "";
 
     const filtered = games.filter(game => {
       const matchesSearch =
@@ -189,7 +232,6 @@
       const tag = document.createElement("span");
       tag.className = "game-tag";
       tag.textContent = game.category;
-
       art.appendChild(tag);
 
       const info = document.createElement("div");
@@ -213,7 +255,6 @@
       meta.append(platform, category);
       info.append(title, description, meta);
       card.append(art, info);
-
       grid.appendChild(card);
     });
   }
@@ -268,7 +309,6 @@
 
       const level = document.createElement("small");
       level.textContent = player.level;
-
       name.appendChild(level);
 
       const score = document.createElement("div");
@@ -285,23 +325,16 @@
      ========================================== */
 
   const accountDialog = $("#accountDialog");
-
   let authMode = "login";
 
   function openAccountDialog() {
-    if (!accountDialog) return;
-
-    if (!accountDialog.open) {
+    if (accountDialog && !accountDialog.open) {
       accountDialog.showModal();
     }
   }
 
   function closeAccountDialog() {
-    if (!accountDialog) return;
-
-    if (accountDialog.open) {
-      accountDialog.close();
-    }
+    if (accountDialog?.open) accountDialog.close();
   }
 
   function setAuthMode(mode) {
@@ -329,20 +362,15 @@
     );
 
     const usernameLabel = $("#usernameLabel");
-
-    if (usernameLabel) {
-      usernameLabel.hidden = mode !== "signup";
-    }
+    if (usernameLabel) usernameLabel.hidden = mode !== "signup";
 
     const submit = $("#accountSubmit");
-
     if (submit) {
       submit.textContent =
         mode === "signup" ? "Create Account" : "Sign In";
     }
 
     const password = $("#accountPassword");
-
     if (password) {
       password.autocomplete =
         mode === "signup" ? "new-password" : "current-password";
@@ -388,27 +416,19 @@
     });
 
     accountDialog?.addEventListener("click", event => {
-      if (event.target === accountDialog) {
-        closeAccountDialog();
-      }
+      if (event.target === accountDialog) closeAccountDialog();
     });
 
-    $("#accountForm")?.addEventListener(
-      "submit",
-      handleAccountSubmit
-    );
+    $("#accountForm")?.addEventListener("submit", handleAccountSubmit);
 
     const form = $("#accountForm");
 
-    if (form) {
+    if (form && !$(".forgot-password", form)) {
       const forgot = document.createElement("button");
-
       forgot.type = "button";
       forgot.className = "forgot-password";
       forgot.textContent = "Forgot your password?";
-
       forgot.addEventListener("click", handleForgotPassword);
-
       form.appendChild(forgot);
     }
 
@@ -475,20 +495,17 @@
 
         if (error) throw error;
 
-        if (data.session) {
-          showStatus("Account created successfully!");
-        } else {
-          showStatus(
-            "Account created! Check your email for confirmation."
-          );
-        }
+        showStatus(
+          data.session
+            ? "Account created successfully!"
+            : "Account created! Check your email for confirmation."
+        );
 
       } else {
-        const { error } =
-          await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-          });
+        const { error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
 
         if (error) throw error;
 
@@ -544,8 +561,11 @@
   function showPasswordUpdateForm() {
     if (!accountDialog) return;
 
-    $("#accountForm").hidden = true;
-    $("#authTabs").hidden = true;
+    const accountForm = $("#accountForm");
+    const tabs = $("#authTabs");
+
+    if (accountForm) accountForm.hidden = true;
+    if (tabs) tabs.hidden = true;
 
     setText("accountTitle", "Create a New Password");
     setText("accountDescription", "Choose a new password.");
@@ -565,7 +585,6 @@
       firstInput.minLength = 8;
       firstInput.required = true;
       firstInput.autocomplete = "new-password";
-
       firstLabel.appendChild(firstInput);
 
       const secondLabel = document.createElement("label");
@@ -577,7 +596,6 @@
       secondInput.minLength = 8;
       secondInput.required = true;
       secondInput.autocomplete = "new-password";
-
       secondLabel.appendChild(secondInput);
 
       const submit = document.createElement("button");
@@ -614,10 +632,10 @@
           if (error) throw error;
 
           showStatus("Password updated successfully!");
-
           form.remove();
-          $("#accountForm").hidden = false;
-          $("#authTabs").hidden = false;
+
+          if (accountForm) accountForm.hidden = false;
+          if (tabs) tabs.hidden = false;
 
           setAuthMode("login");
 
@@ -640,7 +658,6 @@
 
     try {
       const { error } = await supabaseClient.auth.signOut();
-
       if (error) throw error;
 
       showStatus("You have signed out.");
@@ -672,14 +689,25 @@
           loadCurrentProfile();
           loadCommunityMessages();
           loadCommunityProfiles();
+          loadDirectMessageInbox();
           startPresence();
+          subscribeToDirectMessages();
         }, 0);
       } else {
         currentProfile = null;
         onlineMembers.clear();
+        directMessages = [];
+        conversationProfiles = [];
+        activeConversation = null;
+        activeView = "channel";
 
         stopCommunitySubscriptions();
+        stopPresence();
+        stopDirectMessageSubscription();
+
         renderCommunityMembers();
+        renderDirectMessageInbox();
+        showChannelView();
       }
     });
 
@@ -690,14 +718,15 @@
       }
 
       const user = data.session?.user || null;
-
       updateAccountUI(user);
 
       if (user) {
         loadCurrentProfile();
         loadCommunityMessages();
         loadCommunityProfiles();
+        loadDirectMessageInbox();
         startPresence();
+        subscribeToDirectMessages();
       }
 
       if (window.location.hash.includes("type=recovery")) {
@@ -716,13 +745,9 @@
       button.textContent = currentUser ? "My Account" : "Sign In";
     }
 
-    if (logout) {
-      logout.hidden = !currentUser;
-    }
+    if (logout) logout.hidden = !currentUser;
 
-    if (!currentUser) {
-      currentProfile = null;
-    }
+    if (!currentUser) currentProfile = null;
 
     renderCommunityMembers();
   }
@@ -759,9 +784,12 @@
     }
   ];
 
+  /* ==========================================
+     12. BUILD COMMUNITY INTERFACE
+     ========================================== */
+
   function initializeCommunity() {
     const section = $("#community");
-
     if (!section || $(".community-hub", section)) return;
 
     const hub = document.createElement("div");
@@ -770,14 +798,28 @@
     hub.innerHTML = `
       <aside class="hub-sidebar">
         <div class="hub-server-name">NOCTURNE VOID</div>
-        <div class="hub-category">COMMUNITY</div>
+
+        <div class="hub-category">COMMUNITY CHANNELS</div>
         <div class="hub-channels"></div>
+
+        <div class="hub-category hub-dm-category">PRIVATE MESSAGES</div>
+        <button class="hub-inbox-button" type="button">
+          <span>✉</span>
+          <span>Inbox</span>
+          <span class="hub-inbox-count" hidden></span>
+        </button>
+        <div class="hub-conversation-list"></div>
       </aside>
 
       <main class="hub-main">
         <header class="hub-header">
-          <h3 class="hub-channel-title"># general</h3>
-          <p class="hub-channel-description"></p>
+          <div class="hub-header-title">
+            <h3 class="hub-channel-title"># general</h3>
+            <p class="hub-channel-description"></p>
+          </div>
+          <button class="hub-back-button" type="button" hidden>
+            ← Channels
+          </button>
         </header>
 
         <div class="hub-messages" aria-live="polite"></div>
@@ -790,7 +832,6 @@
             placeholder="Sign in to send a message..."
             aria-label="Write a message"
           >
-
           <button type="submit">Send</button>
         </form>
       </main>
@@ -806,22 +847,25 @@
     renderCommunityChannels();
     renderCommunityMessages();
     renderCommunityMembers();
+    renderDirectMessageInbox();
 
     $(".hub-composer", hub)?.addEventListener(
       "submit",
-      handleCommunityMessage
+      handleComposerSubmit
     );
 
-    const input = $(".hub-message-input", hub);
+    $(".hub-inbox-button", hub)?.addEventListener("click", () => {
+      showInboxView();
+    });
 
-    if (input) {
-      input.addEventListener("focus", () => {
-        if (!currentUser) {
-          input.placeholder = "Sign in to send a message...";
-        }
-      });
-    }
+    $(".hub-back-button", hub)?.addEventListener("click", () => {
+      showChannelView();
+    });
   }
+
+  /* ==========================================
+     13. CHANNEL NAVIGATION
+     ========================================== */
 
   function renderCommunityChannels() {
     const container = $(".hub-channels");
@@ -837,7 +881,7 @@
       button.dataset.channel = channel.id;
       button.classList.toggle(
         "active",
-        channel.id === activeChannel
+        activeView === "channel" && channel.id === activeChannel
       );
 
       const icon = document.createElement("span");
@@ -850,8 +894,7 @@
 
       button.addEventListener("click", () => {
         activeChannel = channel.id;
-
-        renderCommunityChannels();
+        showChannelView();
         loadCommunityMessages();
       });
 
@@ -865,17 +908,39 @@
     const title = $(".hub-channel-title");
     const description = $(".hub-channel-description");
 
-    if (title) {
-      title.textContent = `# ${active.name.toLowerCase()}`;
-    }
-
-    if (description) {
-      description.textContent = active.description;
+    if (activeView === "channel") {
+      if (title) title.textContent = `# ${active.name.toLowerCase()}`;
+      if (description) description.textContent = active.description;
     }
   }
 
+  function showChannelView() {
+    activeView = "channel";
+    activeConversation = null;
+
+    const composer = $(".hub-composer");
+    const back = $(".hub-back-button");
+    const inbox = $(".hub-inbox-button");
+
+    if (composer) composer.hidden = false;
+    if (back) back.hidden = true;
+    if (inbox) inbox.classList.remove("active");
+
+    renderCommunityChannels();
+    renderCommunityMessages();
+
+    const input = $(".hub-message-input");
+    if (input) {
+      input.placeholder = currentUser
+        ? "Write a message..."
+        : "Sign in to send a message...";
+    }
+
+    stopDirectMessageSubscription();
+  }
+
   /* ==========================================
-     12. LOAD PLAYER PROFILE
+     14. PLAYER PROFILE
      ========================================== */
 
   async function loadCurrentProfile() {
@@ -891,17 +956,12 @@
       if (error) throw error;
 
       currentProfile = data;
-
       renderCommunityMembers();
 
     } catch (error) {
       console.error("Profile loading error:", error);
     }
   }
-
-  /* ==========================================
-     13. LOAD COMMUNITY MEMBERS
-     ========================================== */
 
   async function loadCommunityProfiles() {
     if (!supabaseClient) return;
@@ -915,8 +975,8 @@
       if (error) throw error;
 
       communityProfiles = data || [];
-
       renderCommunityMembers();
+      renderDirectMessageInbox();
 
     } catch (error) {
       console.error("Community member loading error:", error);
@@ -924,7 +984,7 @@
   }
 
   /* ==========================================
-     14. COMMUNITY MEMBER DISPLAY
+     15. MEMBER LIST
      ========================================== */
 
   function renderCommunityMembers() {
@@ -937,7 +997,6 @@
       const message = document.createElement("div");
       message.className = "hub-empty";
       message.textContent = "Sign in to join the community.";
-
       container.appendChild(message);
       return;
     }
@@ -946,30 +1005,30 @@
       const message = document.createElement("div");
       message.className = "hub-empty";
       message.textContent = "No members found yet.";
-
       container.appendChild(message);
       return;
     }
 
     communityProfiles.forEach(profile => {
-      const member = document.createElement("div");
-      member.className = "hub-member";
+      if (profile.id === currentUser.id) return;
+
+      const member = document.createElement("button");
+      member.type = "button";
+      member.className = "hub-member hub-member-button";
+      member.title = `Send a private message to ${profile.username}`;
 
       const avatar = document.createElement("span");
       avatar.className = "hub-member-avatar";
 
       if (profile.avatar_url) {
         const image = document.createElement("img");
-
         image.src = profile.avatar_url;
         image.alt = "";
         image.loading = "lazy";
-
         image.onerror = () => {
           image.remove();
           avatar.textContent = getInitial(profile.username);
         };
-
         avatar.appendChild(image);
       } else {
         avatar.textContent = getInitial(profile.username);
@@ -983,23 +1042,27 @@
       dot.className = "hub-online-dot";
 
       const isOnline = onlineMembers.has(profile.id);
-
       dot.classList.toggle("is-online", isOnline);
       dot.title = isOnline ? "Online" : "Offline";
 
       member.append(avatar, name, dot);
+
+      member.addEventListener("click", () => {
+        openDirectMessage(profile);
+      });
+
       container.appendChild(member);
     });
   }
 
   /* ==========================================
-     15. REAL-TIME MEMBER PRESENCE
+     16. ONLINE PRESENCE
      ========================================== */
 
   function stopPresence() {
-    if (!presenceSubscription || !supabaseClient) return;
-
-    supabaseClient.removeChannel(presenceSubscription);
+    if (presenceSubscription && supabaseClient) {
+      supabaseClient.removeChannel(presenceSubscription);
+    }
 
     presenceSubscription = null;
     onlineMembers.clear();
@@ -1010,47 +1073,42 @@
 
     stopPresence();
 
-    presenceSubscription = supabaseClient.channel(
+    const channel = supabaseClient.channel(
       "nocturne-void-presence",
       {
         config: {
-          presence: {
-            key: currentUser.id
-          }
+          presence: { key: currentUser.id }
         }
       }
     );
 
-    presenceSubscription
+    presenceSubscription = channel;
+
+    channel
       .on("presence", { event: "sync" }, () => {
-        const state = presenceSubscription.presenceState();
-
+        const state = channel.presenceState();
         onlineMembers = new Set(Object.keys(state));
-
         renderCommunityMembers();
       })
       .subscribe(async status => {
-        if (status === "SUBSCRIBED") {
-          await presenceSubscription.track({
+        if (status === "SUBSCRIBED" && currentUser) {
+          await channel.track({
             user_id: currentUser.id,
-            username:
-              currentProfile?.username ||
-              currentUser.user_metadata?.username ||
-              "Player"
+            username: getUsername(currentProfile || currentUser)
           });
         }
       });
   }
 
   /* ==========================================
-     16. LOAD SHARED MESSAGES
+     17. PUBLIC COMMUNITY MESSAGES
      ========================================== */
 
   async function loadCommunityMessages() {
     if (!supabaseClient) return;
 
     const container = $(".hub-messages");
-    if (!container) return;
+    if (!container || activeView !== "channel") return;
 
     container.textContent = "Loading messages...";
 
@@ -1065,22 +1123,15 @@
       if (error) throw error;
 
       communityMessages = data || [];
-
       renderCommunityMessages();
-
       subscribeToCommunityMessages();
 
     } catch (error) {
       console.error("Message loading error:", error);
-
       container.textContent =
         "Unable to load messages. Please refresh the page.";
     }
   }
-
-  /* ==========================================
-     17. REAL-TIME MESSAGE SUBSCRIPTION
-     ========================================== */
 
   function stopCommunitySubscriptions() {
     if (communitySubscription && supabaseClient) {
@@ -1096,7 +1147,7 @@
     stopCommunitySubscriptions();
 
     communitySubscription = supabaseClient
-      .channel("nocturne-community-messages")
+      .channel(`nocturne-community-${activeChannel}`)
       .on(
         "postgres_changes",
         {
@@ -1109,51 +1160,35 @@
           if (payload.eventType === "INSERT") {
             const incoming = payload.new;
 
-            if (!communityMessages.some(
-              message => message.id === incoming.id
-            )) {
+            if (!communityMessages.some(item => item.id === incoming.id)) {
               communityMessages.push(incoming);
-
-              communityMessages =
-                communityMessages.slice(-100);
-
+              communityMessages = communityMessages.slice(-100);
               renderCommunityMessages();
             }
           }
 
           if (payload.eventType === "DELETE") {
             communityMessages = communityMessages.filter(
-              message => message.id !== payload.old.id
+              item => item.id !== payload.old.id
             );
-
             renderCommunityMessages();
           }
         }
       )
-      .subscribe(status => {
-        if (status === "CHANNEL_ERROR") {
-          console.error("Community realtime subscription failed.");
-        }
-      });
+      .subscribe();
   }
-
-  /* ==========================================
-     18. DISPLAY COMMUNITY MESSAGES
-     ========================================== */
 
   function renderCommunityMessages() {
     const container = $(".hub-messages");
-    if (!container) return;
+    if (!container || activeView !== "channel") return;
 
     container.replaceChildren();
 
     if (!communityMessages.length) {
       const welcome = document.createElement("div");
       welcome.className = "hub-welcome";
-
       welcome.textContent =
         "Welcome to this channel. Be respectful, meet other players, and enjoy your time in Nocturne Void.";
-
       container.appendChild(welcome);
       return;
     }
@@ -1162,29 +1197,11 @@
       const row = document.createElement("div");
       row.className = "hub-message";
 
-      const avatar = document.createElement("div");
-      avatar.className = "hub-avatar";
-
-      const profile = communityProfiles.find(
-        item => item.id === message.user_id
+      const profile = getProfile(message.user_id);
+      const avatar = makeAvatar(
+        profile || { username: message.username },
+        "hub-avatar"
       );
-
-      if (profile?.avatar_url) {
-        const image = document.createElement("img");
-
-        image.src = profile.avatar_url;
-        image.alt = "";
-        image.loading = "lazy";
-
-        image.onerror = () => {
-          image.remove();
-          avatar.textContent = getInitial(message.username);
-        };
-
-        avatar.appendChild(image);
-      } else {
-        avatar.textContent = getInitial(message.username);
-      }
 
       const content = document.createElement("div");
       content.className = "hub-message-content";
@@ -1206,9 +1223,7 @@
 
       top.append(name, time);
       content.append(top, text);
-
       row.append(avatar, content);
-
       container.appendChild(row);
     });
 
@@ -1216,7 +1231,7 @@
   }
 
   /* ==========================================
-     19. SEND SHARED COMMUNITY MESSAGE
+     18. SEND PUBLIC MESSAGE
      ========================================== */
 
   async function handleCommunityMessage(event) {
@@ -1225,18 +1240,14 @@
     const input = $(".hub-message-input");
     const submit = $(".hub-composer button");
 
-    if (!input || !supabaseClient) return;
-
-    if (!currentUser) {
+    if (!input || !supabaseClient || !currentUser) {
       openAccountDialog();
       setAuthMode("login");
-
       showStatus("Please sign in before sending a message.");
       return;
     }
 
     const messageText = input.value.trim();
-
     if (!messageText) return;
 
     if (messageText.length > 1000) {
@@ -1244,11 +1255,7 @@
       return;
     }
 
-    const username =
-      currentProfile?.username ||
-      currentUser.user_metadata?.username ||
-      currentUser.email?.split("@")[0] ||
-      "Player";
+    const username = getUsername(currentProfile || currentUser);
 
     if (submit) {
       submit.disabled = true;
@@ -1271,9 +1278,512 @@
 
     } catch (error) {
       console.error("Message sending error:", error);
+      showStatus(error.message || "Your message could not be sent.", true);
 
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = "Send";
+      }
+    }
+  }
+
+  /* ==========================================
+     19. PRIVATE MESSAGE INBOX
+     ========================================== */
+
+  async function loadDirectMessageInbox() {
+    if (!currentUser || !supabaseClient) return;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("direct_messages")
+        .select("id, sender_id, recipient_id, message, created_at")
+        .or(
+          `sender_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`
+        )
+        .order("created_at", { ascending: false })
+        .limit(500);
+
+      if (error) throw error;
+
+      directMessages = data || [];
+
+      const otherIds = [
+        ...new Set(
+          directMessages.map(message =>
+            message.sender_id === currentUser.id
+              ? message.recipient_id
+              : message.sender_id
+          )
+        )
+      ];
+
+      conversationProfiles = communityProfiles.filter(profile =>
+        otherIds.includes(profile.id)
+      );
+
+      renderDirectMessageInbox();
+
+    } catch (error) {
+      console.error("Private inbox loading error:", error);
+      showInboxError(error);
+    }
+  }
+
+  function showInboxError(error) {
+    const list = $(".hub-conversation-list");
+    if (!list) return;
+
+    list.replaceChildren();
+
+    const message = document.createElement("div");
+    message.className = "hub-empty";
+    message.textContent =
+      "Your inbox could not load. Check your private message table permissions.";
+
+    list.appendChild(message);
+    console.error(error);
+  }
+
+  function renderDirectMessageInbox() {
+    const list = $(".hub-conversation-list");
+    if (!list) return;
+
+    list.replaceChildren();
+
+    if (!currentUser) {
+      const empty = document.createElement("div");
+      empty.className = "hub-empty";
+      empty.textContent = "Sign in to use private messages.";
+      list.appendChild(empty);
+      return;
+    }
+
+    const latestByUser = new Map();
+
+    directMessages.forEach(message => {
+      const otherId =
+        message.sender_id === currentUser.id
+          ? message.recipient_id
+          : message.sender_id;
+
+      if (!latestByUser.has(otherId)) {
+        latestByUser.set(otherId, message);
+      }
+    });
+
+    if (!latestByUser.size) {
+      const empty = document.createElement("div");
+      empty.className = "hub-empty";
+      empty.textContent = "No conversations yet. Select a member to message them.";
+      list.appendChild(empty);
+      return;
+    }
+
+    latestByUser.forEach((message, userId) => {
+      const profile = getProfile(userId);
+      if (!profile) return;
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "hub-conversation-button";
+
+      if (activeConversation?.id === userId) {
+        button.classList.add("active");
+      }
+
+      const avatar = makeAvatar(profile, "hub-member-avatar");
+
+      const details = document.createElement("span");
+      details.className = "hub-conversation-details";
+
+      const name = document.createElement("strong");
+      name.textContent = profile.username;
+
+      const preview = document.createElement("small");
+      const prefix =
+        message.sender_id === currentUser.id ? "You: " : "";
+
+      preview.textContent = prefix + message.message;
+
+      details.append(name, preview);
+      button.append(avatar, details);
+
+      button.addEventListener("click", () => {
+        openDirectMessage(profile);
+      });
+
+      list.appendChild(button);
+    });
+  }
+
+  function showInboxView() {
+    if (!currentUser) {
+      openAccountDialog();
+      setAuthMode("login");
+      showStatus("Sign in to use private messages.");
+      return;
+    }
+
+    activeView = "inbox";
+    activeConversation = null;
+
+    stopDirectMessageSubscription();
+
+    const title = $(".hub-channel-title");
+    const description = $(".hub-channel-description");
+    const messages = $(".hub-messages");
+    const composer = $(".hub-composer");
+    const back = $(".hub-back-button");
+    const inbox = $(".hub-inbox-button");
+
+    if (title) title.textContent = "Private Messages";
+    if (description) description.textContent = "Your personal conversations.";
+    if (composer) composer.hidden = true;
+    if (back) back.hidden = false;
+    if (inbox) inbox.classList.add("active");
+
+    if (messages) {
+      messages.replaceChildren();
+
+      const welcome = document.createElement("div");
+      welcome.className = "hub-welcome";
+      welcome.textContent =
+        "Choose a conversation from your inbox, or select a member to start a new private conversation.";
+
+      messages.appendChild(welcome);
+    }
+
+    renderCommunityChannels();
+    renderDirectMessageInbox();
+  }
+
+  /* ==========================================
+     20. OPEN A PRIVATE CONVERSATION
+     ========================================== */
+
+  async function openDirectMessage(profile) {
+    if (!currentUser) {
+      openAccountDialog();
+      setAuthMode("login");
+      showStatus("Sign in to send private messages.");
+      return;
+    }
+
+    if (!profile || profile.id === currentUser.id) return;
+
+    activeView = "dm";
+    activeConversation = profile;
+
+    const title = $(".hub-channel-title");
+    const description = $(".hub-channel-description");
+    const composer = $(".hub-composer");
+    const back = $(".hub-back-button");
+    const inbox = $(".hub-inbox-button");
+    const input = $(".hub-message-input");
+
+    if (title) title.textContent = profile.username;
+    if (description) {
+      description.textContent = "Private conversation";
+    }
+
+    if (composer) composer.hidden = false;
+    if (back) back.hidden = false;
+    if (inbox) inbox.classList.remove("active");
+
+    if (input) {
+      input.placeholder = `Message ${profile.username} privately...`;
+      input.value = "";
+    }
+
+    renderCommunityChannels();
+    renderDirectMessageInbox();
+
+    await loadConversationMessages(profile.id);
+  }
+
+  /* ==========================================
+     21. LOAD PRIVATE CONVERSATION
+     ========================================== */
+
+  async function loadConversationMessages(otherUserId) {
+    if (!currentUser || !supabaseClient || !otherUserId) return;
+
+    const container = $(".hub-messages");
+    if (!container) return;
+
+    container.textContent = "Loading private messages...";
+
+    try {
+      const me = currentUser.id;
+      const other = otherUserId;
+
+      const { data, error } = await supabaseClient
+        .from("direct_messages")
+        .select("id, sender_id, recipient_id, message, created_at")
+        .or(
+          `and(sender_id.eq.${me},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${me})`
+        )
+        .order("created_at", { ascending: true })
+        .limit(200);
+
+      if (error) throw error;
+
+      if (
+        activeView !== "dm" ||
+        activeConversation?.id !== otherUserId
+      ) return;
+
+      directMessages = [
+        ...directMessages.filter(message =>
+          message.sender_id !== otherUserId &&
+          message.recipient_id !== otherUserId
+        ),
+        ...(data || [])
+      ];
+
+      renderDirectConversation(data || []);
+      subscribeToDirectMessages();
+
+    } catch (error) {
+      console.error("Conversation loading error:", error);
+
+      container.textContent =
+        "Unable to load this conversation. Check your direct_messages table and permissions.";
+    }
+  }
+
+  function renderDirectConversation(messages) {
+    const container = $(".hub-messages");
+    if (!container || activeView !== "dm") return;
+
+    container.replaceChildren();
+
+    if (!messages.length) {
+      const empty = document.createElement("div");
+      empty.className = "hub-welcome";
+      empty.textContent =
+        `This is the beginning of your private conversation with ${activeConversation?.username || "this member"}.`;
+      container.appendChild(empty);
+      return;
+    }
+
+    messages.forEach(message => {
+      const mine = message.sender_id === currentUser.id;
+
+      const row = document.createElement("div");
+      row.className = mine
+        ? "hub-message hub-message-mine"
+        : "hub-message";
+
+      const otherProfile = mine
+        ? currentProfile || currentUser
+        : activeConversation;
+
+      const avatar = makeAvatar(
+        otherProfile,
+        "hub-avatar"
+      );
+
+      const content = document.createElement("div");
+      content.className = "hub-message-content";
+
+      const top = document.createElement("div");
+      top.className = "hub-message-top";
+
+      const name = document.createElement("span");
+      name.className = "hub-message-name";
+      name.textContent = mine
+        ? "You"
+        : activeConversation?.username || "Player";
+
+      const time = document.createElement("span");
+      time.className = "hub-message-time";
+      time.textContent = formatDate(message.created_at);
+
+      const text = document.createElement("div");
+      text.className = "hub-message-text";
+      text.textContent = message.message;
+
+      top.append(name, time);
+      content.append(top, text);
+      row.append(avatar, content);
+      container.appendChild(row);
+    });
+
+    container.scrollTop = container.scrollHeight;
+  }
+
+  /* ==========================================
+     22. REAL-TIME PRIVATE MESSAGES
+     ========================================== */
+
+  function stopDirectMessageSubscription() {
+    if (directMessageSubscription && supabaseClient) {
+      supabaseClient.removeChannel(directMessageSubscription);
+    }
+
+    directMessageSubscription = null;
+  }
+
+  function subscribeToDirectMessages() {
+    if (!supabaseClient || !currentUser) return;
+
+    stopDirectMessageSubscription();
+
+    const userId = currentUser.id;
+
+    directMessageSubscription = supabaseClient
+      .channel(`nocturne-dm-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${userId}`
+        },
+        handleIncomingDirectMessage
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${userId}`
+        },
+        handleIncomingDirectMessage
+      )
+      .subscribe(status => {
+        if (status === "CHANNEL_ERROR") {
+          console.error("Private message realtime subscription failed.");
+        }
+      });
+  }
+
+  function handleIncomingDirectMessage(payload) {
+    const incoming = payload.new;
+    if (!incoming || !currentUser) return;
+
+    if (!directMessages.some(message => message.id === incoming.id)) {
+      directMessages.unshift(incoming);
+    }
+
+    renderDirectMessageInbox();
+
+    if (activeView !== "dm" || !activeConversation) return;
+
+    const otherId = activeConversation.id;
+
+    const belongsToConversation =
+      (incoming.sender_id === currentUser.id &&
+        incoming.recipient_id === otherId) ||
+      (incoming.sender_id === otherId &&
+        incoming.recipient_id === currentUser.id);
+
+    if (!belongsToConversation) return;
+
+    const container = $(".hub-messages");
+    if (!container) return;
+
+    const existing = $$(".hub-message", container).some(row =>
+      row.dataset.messageId === String(incoming.id)
+    );
+
+    if (!existing) {
+      const currentMessages = directMessages
+        .filter(message =>
+          (message.sender_id === currentUser.id &&
+            message.recipient_id === otherId) ||
+          (message.sender_id === otherId &&
+            message.recipient_id === currentUser.id)
+        )
+        .sort((a, b) =>
+          new Date(a.created_at) - new Date(b.created_at)
+        );
+
+      renderDirectConversation(currentMessages);
+
+      $$(".hub-message", container).forEach((row, index) => {
+        const message = currentMessages[index];
+        if (message) row.dataset.messageId = String(message.id);
+      });
+    }
+  }
+
+  /* ==========================================
+     23. SEND PRIVATE MESSAGE
+     ========================================== */
+
+  async function handleDirectMessage(event) {
+    event.preventDefault();
+
+    const input = $(".hub-message-input");
+    const submit = $(".hub-composer button");
+
+    if (!currentUser) {
+      openAccountDialog();
+      setAuthMode("login");
+      showStatus("Sign in to send private messages.");
+      return;
+    }
+
+    if (!activeConversation || !input || !supabaseClient) return;
+
+    const messageText = input.value.trim();
+    if (!messageText) return;
+
+    if (messageText.length > 1000) {
+      showStatus("Messages cannot exceed 1000 characters.", true);
+      return;
+    }
+
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = "Sending...";
+    }
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("direct_messages")
+        .insert({
+          sender_id: currentUser.id,
+          recipient_id: activeConversation.id,
+          message: messageText
+        })
+        .select("id, sender_id, recipient_id, message, created_at")
+        .single();
+
+      if (error) throw error;
+
+      input.value = "";
+
+      if (data) {
+        if (!directMessages.some(item => item.id === data.id)) {
+          directMessages.unshift(data);
+        }
+
+        const currentMessages = directMessages
+          .filter(message =>
+            (message.sender_id === currentUser.id &&
+              message.recipient_id === activeConversation.id) ||
+            (message.sender_id === activeConversation.id &&
+              message.recipient_id === currentUser.id)
+          )
+          .sort((a, b) =>
+            new Date(a.created_at) - new Date(b.created_at)
+          );
+
+        renderDirectConversation(currentMessages);
+        renderDirectMessageInbox();
+      }
+
+    } catch (error) {
+      console.error("Private message sending error:", error);
       showStatus(
-        error.message || "Your message could not be sent.",
+        error.message || "Your private message could not be sent.",
         true
       );
 
@@ -1286,7 +1796,21 @@
   }
 
   /* ==========================================
-     20. MOBILE NAVIGATION
+     24. MESSAGE COMPOSER ROUTER
+     ========================================== */
+
+  function handleComposerSubmit(event) {
+    if (activeView === "dm") {
+      handleDirectMessage(event);
+    } else if (activeView === "channel") {
+      handleCommunityMessage(event);
+    } else {
+      event.preventDefault();
+    }
+  }
+
+  /* ==========================================
+     25. MOBILE NAVIGATION
      ========================================== */
 
   function initializeMobileNavigation() {
@@ -1305,7 +1829,6 @@
     $$("#mainNav a").forEach(link => {
       link.addEventListener("click", () => {
         nav.classList.remove("open");
-
         toggle.setAttribute("aria-expanded", "false");
         toggle.textContent = "☰";
       });
@@ -1313,18 +1836,17 @@
   }
 
   /* ==========================================
-     21. FOOTER
+     26. FOOTER
      ========================================== */
 
   function initializeFooter() {
     const year = new Date().getFullYear();
-
     setText("year", year);
     setText("footerYear", year);
   }
 
   /* ==========================================
-     22. START WEBSITE
+     27. START WEBSITE
      ========================================== */
 
   function initializeWebsite() {
@@ -1343,10 +1865,7 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeWebsite
-    );
+    document.addEventListener("DOMContentLoaded", initializeWebsite);
   } else {
     initializeWebsite();
   }
