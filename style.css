@@ -1663,3 +1663,62 @@ dialog p {
     font-size: 8px;
   }
 }
+/* ==========================================
+   NOCTURNE VOID — PROFILE AVATARS
+   ========================================== */
+
+.hub-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(190, 35, 55, 0.25);
+  border-radius: 10px;
+}
+
+.hub-profile-preview .hub-avatar {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+}
+
+.hub-profile-preview .hub-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.hub-profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.hub-profile-username {
+  color: #fff;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.hub-avatar-upload-button {
+  padding: 6px 10px;
+  color: #fff;
+  background: #771d2b;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.hub-avatar-upload-button:hover:not(:disabled) {
+  background: #a52b40;
+}
+
+.hub-avatar-upload-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
