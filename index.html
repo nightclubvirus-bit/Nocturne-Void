@@ -12,111 +12,432 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
   <header class="topbar">
-    <a class="brand" href="#home"><span class="brand-mark">✦</span><span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span></a>
+    <a class="brand" href="#home">
+      <span class="brand-mark">✦</span>
+      <span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span>
+    </a>
+
     <button class="menu-toggle" id="menuToggle" aria-label="Open navigation">☰</button>
+
     <nav id="mainNav">
       <a href="#home" class="nav-link active">Home</a>
       <a href="#library" class="nav-link">Games</a>
       <a href="#leaderboard" class="nav-link">Leaderboard</a>
       <a href="#community" class="nav-link">Community</a>
     </nav>
+
     <button class="button button-outline" id="accountButton">Sign in</button>
   </header>
 
   <main>
+    <!-- HOMEPAGE -->
     <section class="hero" id="home">
       <div class="hero-shade"></div>
+
       <div class="hero-content">
         <p class="eyebrow"><span></span> ENTER THE UNKNOWN <span></span></p>
         <h1>WHERE DARKNESS<br><em>MEETS GAMING</em></h1>
-        <p class="hero-copy">A realm for the players who find beauty in the shadows. Discover games, challenge rivals, and find your place in the void.</p>
+        <p class="hero-copy">
+          A realm for the players who find beauty in the shadows.
+          Discover games, challenge rivals, and find your place in the void.
+        </p>
+
         <div class="hero-actions">
           <a class="button button-primary" href="#library">Explore games <span>↗</span></a>
           <a class="button button-ghost" href="#community">Enter the community</a>
         </div>
-        <div class="hero-foot"><span>EST. IN THE SHADOWS</span><span>SCROLL TO EXPLORE ↓</span></div>
-      </div>
-      <div class="hero-seal" aria-hidden="true"><span>NV</span><small>NOCTURNE<br>VOID</small></div>
-    </section>
 
-    <section class="intro section-wrap">
-      <div><p class="eyebrow">A WORLD OF ITS OWN</p><h2>THE VOID<br><em>AWAITS YOU.</em></h2></div>
-      <p class="intro-copy">More than a collection of games. NOCTURNE VOID is a gathering place for curious minds, fierce competitors, and players who refuse to stay ordinary.</p>
-    </section>
-
-    <section class="section-wrap" id="library">
-      <div class="section-heading"><div><p class="eyebrow">DISCOVER YOUR NEXT OBSESSION</p><h2>THE <em>GAME LIBRARY</em></h2></div><span class="section-count">01 / DISCOVER</span></div>
-      <div class="library-tools">
-        <label class="search-box"><span>⌕</span><input id="gameSearch" type="search" placeholder="Search the library..." aria-label="Search games"></label>
-        <div class="filter-row" id="filters">
-          <button class="filter active" data-filter="All">All games</button><button class="filter" data-filter="Action">Action</button><button class="filter" data-filter="Horror">Horror</button><button class="filter" data-filter="Adventure">Adventure</button>
+        <div class="hero-foot">
+          <span>EST. IN THE SHADOWS</span>
+          <span>SCROLL TO EXPLORE ↓</span>
         </div>
       </div>
+
+      <div class="hero-seal" aria-hidden="true">
+        <span>NV</span>
+        <small>NOCTURNE<br>VOID</small>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="intro section-wrap">
+      <div>
+        <p class="eyebrow">A WORLD OF ITS OWN</p>
+        <h2>THE VOID<br><em>AWAITS YOU.</em></h2>
+      </div>
+
+      <p class="intro-copy">
+        More than a collection of games. NOCTURNE VOID is a gathering
+        place for curious minds, fierce competitors, and players
+        who refuse to stay ordinary.
+      </p>
+    </section>
+
+    <!-- GAME LIBRARY -->
+    <section class="section-wrap" id="library">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DISCOVER YOUR NEXT OBSESSION</p>
+          <h2>THE <em>GAME LIBRARY</em></h2>
+        </div>
+        <span class="section-count">01 / DISCOVER</span>
+      </div>
+
+      <div class="library-tools">
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="gameSearch" type="search" placeholder="Search the library..." aria-label="Search games">
+        </label>
+
+        <div class="filter-row" id="filters">
+          <button class="filter active" data-filter="All">All games</button>
+          <button class="filter" data-filter="Action">Action</button>
+          <button class="filter" data-filter="Horror">Horror</button>
+          <button class="filter" data-filter="Adventure">Adventure</button>
+        </div>
+      </div>
+
       <div class="game-grid" id="gameGrid"></div>
     </section>
 
+    <!-- LEADERBOARD -->
     <section class="leader-section" id="leaderboard">
       <div class="section-wrap">
-        <div class="section-heading"><div><p class="eyebrow">GLORY BELONGS TO THE FEARLESS</p><h2>HALL OF <em>SHADOWS</em></h2></div><span class="section-count">02 / COMPETE</span></div>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">GLORY BELONGS TO THE FEARLESS</p>
+            <h2>HALL OF <em>SHADOWS</em></h2>
+          </div>
+          <span class="section-count">02 / COMPETE</span>
+        </div>
+
         <div class="leader-card">
-          <div class="leader-top"><span>TOP PLAYERS</span><span>SEASON 01 · DEMO DATA</span></div>
+          <div class="leader-top">
+            <span>TOP PLAYERS</span>
+            <span>SEASON 01 · DEMO DATA</span>
+          </div>
+
           <div id="leaderRows"></div>
-          <p class="demo-note">Sample rankings for the prototype. Real player scores will be connected to a database in a later step.</p>
+
+          <p class="demo-note">
+            Sample rankings for the prototype. Real player scores
+            will be connected to a database in a later step.
+          </p>
         </div>
       </div>
     </section>
 
-    <section class="section-wrap community-section" id="community">
-      <div class="community-copy"><p class="eyebrow">NO ONE WALKS THE VOID ALONE</p><h2>FIND YOUR<br><em>PEOPLE.</em></h2><p>Meet fellow players, share discoveries, and make your mark on the community.</p><button class="button button-primary" id="chatJump">Open community chat ↗</button></div>
-      <div class="chat-card">
-        <div class="chat-header"><div><span class="online-dot"></span><b>THE COMMON ROOM</b><small>COMMUNITY CHAT · LOCAL DEMO</small></div><span class="chat-lock">✦</span></div>
-        <div class="chat-messages" id="chatMessages"><div class="system-message">Welcome to the Common Room. Be kind to one another.</div></div>
-        <form class="chat-form" id="chatForm"><input id="chatInput" maxlength="180" placeholder="Leave a message in the void..." autocomplete="off" aria-label="Chat message"><button aria-label="Send message">➤</button></form>
-        <p class="demo-note">Messages are saved only in this browser on this device.</p>
+    <!-- COMMUNITY HUB -->
+    <section class="community-section community-hub" id="community">
+
+      <div class="community-intro">
+        <p class="eyebrow">NO ONE WALKS THE VOID ALONE</p>
+        <h2>WELCOME TO THE<br><em>COMMON ROOM.</em></h2>
+        <p>
+          Find your people, discover new games, and make yourself
+          at home in the darkness.
+        </p>
       </div>
+
+      <div class="discord-layout">
+
+        <!-- SERVER SIDEBAR -->
+        <aside class="server-sidebar">
+          <div class="server-icon active-server" title="NOCTURNE VOID">
+            NV
+          </div>
+
+          <div class="server-separator"></div>
+
+          <button class="server-icon extra-server" title="More communities">
+            +
+          </button>
+        </aside>
+
+        <!-- CHANNEL SIDEBAR -->
+        <aside class="channel-sidebar">
+
+          <div class="server-heading">
+            <div>
+              <strong>NOCTURNE VOID</strong>
+              <small>GAMING COMMUNITY</small>
+            </div>
+            <span>⌄</span>
+          </div>
+
+          <div class="channel-scroll">
+
+            <div class="channel-category">
+              <span>INFORMATION</span>
+            </div>
+
+            <button class="channel-button active" data-channel="announcements">
+              <span>⚑</span> announcements
+            </button>
+
+            <button class="channel-button" data-channel="rules">
+              <span>▤</span> rules
+            </button>
+
+            <div class="channel-category">
+              <span>TEXT CHANNELS</span>
+              <span>+</span>
+            </div>
+
+            <button class="channel-button" data-channel="general">
+              <span>#</span> general
+            </button>
+
+            <button class="channel-button" data-channel="gaming">
+              <span>#</span> gaming
+            </button>
+
+            <button class="channel-button" data-channel="off-topic">
+              <span>#</span> off-topic
+            </button>
+
+            <button class="channel-button" data-channel="introductions">
+              <span>#</span> introductions
+            </button>
+
+            <div class="channel-category">
+              <span>VOICE CHANNELS</span>
+            </div>
+
+            <div class="voice-channel">
+              <span>◖))</span> The Void
+            </div>
+
+            <div class="voice-channel">
+              <span>◖))</span> Gaming Lounge
+            </div>
+
+          </div>
+
+          <div class="sidebar-account">
+            <div class="account-avatar">?</div>
+            <div class="account-details">
+              <strong id="communityUsername">Wanderer</strong>
+              <small>Community member</small>
+            </div>
+            <button id="communityAccountButton" title="Account settings">⚙</button>
+          </div>
+
+        </aside>
+
+        <!-- MAIN CHAT AREA -->
+        <div class="chat-main">
+
+          <div class="channel-header">
+            <div class="channel-header-title">
+              <span id="activeChannelIcon">⚑</span>
+              <strong id="activeChannelName">announcements</strong>
+            </div>
+
+            <div class="channel-header-tools">
+              <span class="channel-topic" id="activeChannelTopic">
+                Important news from the void.
+              </span>
+              <span class="header-divider"></span>
+              <span title="Pinned messages">♧</span>
+              <span title="Notifications">♢</span>
+            </div>
+          </div>
+
+          <div class="channel-welcome" id="channelWelcome">
+            <div class="welcome-symbol">✦</div>
+            <h3>WELCOME TO THE <em>VOID.</em></h3>
+            <p>
+              Stay informed about everything happening
+              throughout NOCTURNE VOID.
+            </p>
+          </div>
+
+          <div class="chat-messages" id="communityMessages">
+            <div class="system-message">
+              Welcome to NOCTURNE VOID. Be kind to one another.
+            </div>
+          </div>
+
+          <form class="chat-form community-chat-form" id="communityForm">
+            <button type="button" class="chat-attachment" title="Attachments are coming soon">+</button>
+
+            <input
+              id="communityInput"
+              maxlength="500"
+              placeholder="Message #announcements"
+              autocomplete="off"
+              aria-label="Community message"
+            >
+
+            <button type="button" class="chat-emoji" title="Emoji support coming soon">☺</button>
+            <button type="submit" class="chat-send" aria-label="Send message">➤</button>
+          </form>
+
+          <p class="community-disclaimer">
+            Community chat prototype · Messages are stored locally on this device.
+          </p>
+
+        </div>
+
+        <!-- MEMBER SIDEBAR -->
+        <aside class="member-sidebar">
+
+          <div class="member-heading">
+            MEMBERS <span id="memberCount">01</span>
+          </div>
+
+          <div class="member-group">
+            <span class="member-group-title">ONLINE — 1</span>
+
+            <div class="member-entry">
+              <div class="member-avatar current-avatar">?</div>
+              <div>
+                <strong id="memberUsername">Wanderer</strong>
+                <small>Exploring the void</small>
+              </div>
+              <span class="member-status"></span>
+            </div>
+          </div>
+
+          <div class="member-group">
+            <span class="member-group-title">COMMUNITY</span>
+
+            <div class="member-entry demo-member">
+              <div class="member-avatar">V</div>
+              <div>
+                <strong>Vesper</strong>
+                <small>Void Walker</small>
+              </div>
+              <span class="member-status offline"></span>
+            </div>
+
+            <div class="member-entry demo-member">
+              <div class="member-avatar">M</div>
+              <div>
+                <strong>Morrow</strong>
+                <small>Nightbound</small>
+              </div>
+              <span class="member-status offline"></span>
+            </div>
+
+            <div class="member-entry demo-member">
+              <div class="member-avatar">R</div>
+              <div>
+                <strong>Ravenna</strong>
+                <small>Ashen Soul</small>
+              </div>
+              <span class="member-status offline"></span>
+            </div>
+          </div>
+
+          <div class="member-footer">
+            <span>✦</span>
+            THE VOID IS ALWAYS OPEN
+          </div>
+
+        </aside>
+
+      </div>
+
+      <p class="demo-note community-bottom-note">
+        This is the first version of the Community Hub.
+        Real shared messaging, online member status, and voice communication
+        will be added in later development stages.
+      </p>
+
     </section>
 
+    <!-- JOIN BAND -->
     <section class="join-band">
-      <p class="eyebrow">YOUR STORY STARTS HERE</p><h2>STEP INTO THE <em>VOID.</em></h2>
+      <p class="eyebrow">YOUR STORY STARTS HERE</p>
+      <h2>STEP INTO THE <em>VOID.</em></h2>
       <p>Create your player identity and become part of something darker.</p>
-      <button class="button button-primary" id="joinButton">Create your profile ↗</button>
+      <button class="button button-primary" id="joinButton">
+        Create your profile ↗
+      </button>
     </section>
+
   </main>
 
-  <footer><a class="brand footer-brand" href="#home"><span class="brand-mark">✦</span><span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span></a><p>BUILT FOR THE ONES WHO WANDER AFTER DARK.</p><span>© <span id="year"></span> NOCTURNE VOID</span></footer>
+  <!-- FOOTER -->
+  <footer>
+    <a class="brand footer-brand" href="#home">
+      <span class="brand-mark">✦</span>
+      <span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span>
+    </a>
 
+    <p>BUILT FOR THE ONES WHO WANDER AFTER DARK.</p>
+    <span>© <span id="year"></span> NOCTURNE VOID</span>
+  </footer>
+
+  <!-- ACCOUNT DIALOG -->
   <dialog id="accountDialog" class="modal">
-    <form method="dialog" class="modal-close"><button aria-label="Close">×</button></form>
+
+    <form method="dialog" class="modal-close">
+      <button aria-label="Close">×</button>
+    </form>
+
     <p class="eyebrow">CLAIM YOUR IDENTITY</p>
+
     <h2 id="accountTitle">ENTER THE <em>VOID.</em></h2>
-    <p class="modal-sub" id="accountDescription">Create an account or sign in to return to your place in the void.</p>
+
+    <p class="modal-sub" id="accountDescription">
+      Create an account or sign in to return to your place in the void.
+    </p>
 
     <div class="auth-tabs" id="authTabs">
-      <button type="button" class="auth-tab active" data-mode="signup">Create account</button>
-      <button type="button" class="auth-tab" data-mode="signin">Sign in</button>
+      <button type="button" class="auth-tab active" data-mode="signup">
+        Create account
+      </button>
+      <button type="button" class="auth-tab" data-mode="signin">
+        Sign in
+      </button>
     </div>
 
     <form id="accountForm" class="profile-form">
-      <label id="usernameLabel">PLAYER NAME
+
+      <label id="usernameLabel">
+        PLAYER NAME
         <input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Choose an alias">
       </label>
-      <label>EMAIL ADDRESS
+
+      <label>
+        EMAIL ADDRESS
         <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
       </label>
-      <label>PASSWORD
+
+      <label>
+        PASSWORD
         <input id="accountPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters">
       </label>
-      <button class="button button-primary" id="accountSubmit" type="submit">Create account</button>
+
+      <button class="button button-primary" id="accountSubmit" type="submit">
+        Create account
+      </button>
+
     </form>
 
-    <button type="button" class="button button-outline logout-button" id="logoutButton" hidden>Sign out</button>
+    <button type="button" class="button button-outline logout-button" id="logoutButton" hidden>
+      Sign out
+    </button>
+
     <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p>
-    <p class="auth-footnote">Use an email address you can access. If email confirmation is enabled, check your inbox after registering.</p>
+
+    <p class="auth-footnote">
+      Use an email address you can access. If email confirmation
+      is enabled, check your inbox after registering.
+    </p>
+
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
+
 </body>
 </html>
+
