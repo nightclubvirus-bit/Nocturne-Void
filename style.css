@@ -1380,3 +1380,253 @@ dialog p {
     animation-duration: .01ms !important;
   }
 }
+/* ==========================================
+   NOCTURNE VOID — PRIVATE MESSAGES
+   ========================================== */
+
+.hub-dm-category {
+  margin-top: 28px;
+}
+
+.hub-inbox-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 9px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #cbbbc3;
+  text-align: left;
+  font-size: 11px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.hub-inbox-button:hover,
+.hub-inbox-button.active {
+  border-color: rgba(225,59,83,.25);
+  background: #381a27;
+  color: white;
+}
+
+.hub-inbox-button > span:first-child {
+  color: var(--red2);
+  font-size: 16px;
+}
+
+.hub-inbox-count {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 20px;
+  background: var(--red);
+  color: white;
+  font-size: 9px;
+}
+
+.hub-conversation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.hub-conversation-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.hub-conversation-button:hover,
+.hub-conversation-button.active {
+  border-color: rgba(225,59,83,.25);
+  background: #29131e;
+}
+
+.hub-conversation-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+
+.hub-conversation-details strong {
+  overflow: hidden;
+  color: #e7cbd4;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-conversation-details small {
+  overflow: hidden;
+  color: #8f7d87;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-member-button {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.hub-member-button:hover {
+  border-color: rgba(225,59,83,.3);
+  background: rgba(165,30,54,.15);
+}
+
+.hub-member-avatar img,
+.hub-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.hub-member-avatar,
+.hub-avatar {
+  overflow: hidden;
+}
+
+.hub-message-mine {
+  flex-direction: row-reverse;
+}
+
+.hub-message-mine .hub-message-content {
+  text-align: right;
+}
+
+.hub-message-mine .hub-message-top {
+  justify-content: flex-end;
+}
+
+.hub-message-mine .hub-message-text {
+  display: inline-block;
+  padding: 9px 12px;
+  border: 1px solid rgba(225,59,83,.2);
+  border-radius: 7px 2px 7px 7px;
+  background: rgba(165,30,54,.13);
+  text-align: left;
+}
+
+.hub-message:not(.hub-message-mine) .hub-message-text {
+  display: inline-block;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 2px 7px 7px 7px;
+  background: rgba(255,255,255,.025);
+}
+
+.hub-back-button {
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  color: #d7b9c4;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.hub-back-button:hover {
+  border-color: var(--red2);
+  color: white;
+}
+
+.hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hub-header-title {
+  min-width: 0;
+}
+
+.hub-header-title h3 {
+  overflow-wrap: anywhere;
+}
+
+.hub-composer[hidden] {
+  display: none !important;
+}
+
+/* Mobile private message layout */
+
+@media(max-width: 800px) {
+  .hub-conversation-list {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .hub-conversation-button {
+    padding: 7px 3px;
+  }
+
+  .hub-conversation-details small {
+    display: none;
+  }
+
+  .hub-member-button {
+    gap: 5px;
+  }
+}
+
+@media(max-width: 520px) {
+  .hub-dm-category {
+    margin-top: 20px;
+    font-size: 7px;
+  }
+
+  .hub-inbox-button {
+    gap: 5px;
+    padding: 9px 5px;
+    font-size: 9px;
+  }
+
+  .hub-conversation-button {
+    gap: 5px;
+    padding: 6px 2px;
+  }
+
+  .hub-conversation-button .hub-member-avatar {
+    flex-basis: 21px;
+    width: 21px;
+    height: 21px;
+    font-size: 9px;
+  }
+
+  .hub-conversation-details strong {
+    font-size: 8px;
+  }
+
+  .hub-message-mine .hub-message-content,
+  .hub-message-content {
+    max-width: calc(100% - 40px);
+  }
+
+  .hub-back-button {
+    padding: 7px;
+    font-size: 9px;
+  }
+}
