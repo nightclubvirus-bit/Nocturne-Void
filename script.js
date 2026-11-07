@@ -5,398 +5,501 @@
    ========================================== */
 
 (() => {
-"use strict";
+  "use strict";
 
-/* ==========================================
-   1. SUPABASE CONNECTION
-   ========================================== */
+  /* ==========================================
+     1. CONFIGURATION
+     ========================================== */
 
-const SUPABASE_URL =
-  "https://huzjjefknbicqxbhcryk.supabase.co";
+  const SUPABASE_URL =
+    "https://huzjjefknbicqxbhcryk.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_CxmbXvQwPwOSC0WDx5HJng_qytHjcqc";
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_CxmbXvQwPwOSC0WDx5HJng_qytHjcqc";
 
-const WEBSITE_URL =
-  "https://nightclubvirus-bit.github.io/Nocturne-Void/";
+  const WEBSITE_URL =
+    "https://nightclubvirus-bit.github.io/Nocturne-Void/";
 
-const supabaseReady =
-  Boolean(window.supabase) &&
-  SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
+  const COMMUNITY_STORAGE_KEY = "nv-community-channels";
 
-const supabaseClient = supabaseReady
-  ? window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    )
-  : null;
+  let supabaseClient = null;
+  let currentUser = null;
+  let activeChannel = "general";
+  let activeFilter = "All";
 
+  /* ==========================================
+     2. HELPERS
+     ========================================== */
 
-/* ==========================================
-   2. GAME LIBRARY
-   ========================================== */
+  const $ = (selector, parent = document) =>
+    parent.querySelector(selector);
 
-const games = [
-  {
-    title: "Eclipsed",
-    genre: "Horror",
-    players: "1 player",
-    description: "A forgotten estate. A presence that remembers you.",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    title: "Ashen Crown",
-    genre: "Adventure",
-    players: "1–4 players",
-    description: "A fallen kingdom waits beneath an endless winter.",
-    image: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    title: "Blood Oath",
-    genre: "Action",
-    players: "Multiplayer",
-    description: "Make your pact. Enter the arena. Leave a legend.",
-    image: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    title: "The Hollow",
-    genre: "Horror",
-    players: "1 player",
-    description: "The deeper you descend, the less you remember.",
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    title: "Nightfall",
-    genre: "Action",
-    players: "Online co-op",
-    description: "Survive the city after the last light disappears.",
-    image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80"
-  },
-  {
-    title: "Thorn & Ember",
-    genre: "Adventure",
-    players: "1–2 players",
-    description: "An ancient forest hides a dangerous kind of magic.",
-    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80"
+  const $$ = (selector, parent = document) =>
+    Array.from(parent.querySelectorAll(selector));
+
+  function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
   }
-];
 
-let activeFilter = "All";
+  function showStatus(message, isError = false) {
+    const status = $("#profileStatus");
 
-const grid = document.getElementById("gameGrid");
+    if (!status) return;
 
-function renderGames() {
-  if (!grid) return;
+    status.textContent = message;
+    status.classList.toggle("status-error", isError);
+  }
 
-  const term =
-    document.getElementById("gameSearch").value.toLowerCase();
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[character]);
+  }
 
-  const shown = games.filter(game =>
-    (activeFilter === "All" || game.genre === activeFilter) &&
-    (
-      game.title + " " +
-      game.genre + " " +
-      game.description
-    ).toLowerCase().includes(term)
-  );
+  function getInitial(value) {
+    return String(value || "?").trim().charAt(0).toUpperCase();
+  }
 
-  grid.innerHTML = shown.length
-    ? shown.map(game => `
-        <article class="game-card">
-          <div class="game-art"
-            style="background-image:url('${game.image}')">
-            <span class="game-tag">${game.genre}</span>
-          </div>
-          <div class="game-info">
-            <h3>${game.title}</h3>
-            <p>${game.description}</p>
-            <div class="game-meta">
-              <span>${game.players}</span>
-              <span>Discover ↗</span>
-            </div>
-          </div>
-        </article>
-      `).join("")
-    : '<p class="empty-state">No games found in this corner of the void.</p>';
-}
+  /* ==========================================
+     3. SUPABASE CONNECTION
+     ========================================== */
 
-renderGames();
+  function connectSupabase() {
+    if (!window.supabase || !window.supabase.createClient) {
+      console.error("Supabase library could not be loaded.");
+      showStatus("Account services could not load. Refresh the page.", true);
+      return;
+    }
 
-document.getElementById("gameSearch")
-  ?.addEventListener("input", renderGames);
+    if (!SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")) {
+      console.error("Supabase publishable key is missing.");
+      return;
+    }
 
-document.getElementById("filters")
-  ?.addEventListener("click", event => {
+    try {
+      supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
 
-    const button = event.target.closest("button[data-filter]");
-    if (!button) return;
+      initializeAuthentication();
+    } catch (error) {
+      console.error("Supabase connection error:", error);
+    }
+  }
 
-    activeFilter = button.dataset.filter;
+  /* ==========================================
+     4. GAME LIBRARY
+     ========================================== */
 
-    document.querySelectorAll(".filter").forEach(item => {
-      item.classList.toggle("active", item === button);
+  const games = [
+    {
+      title: "Silent Hill 2",
+      category: "Horror",
+      description: "Return to a haunting town filled with memories, mysteries, and nightmares.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      title: "Elden Ring",
+      category: "Adventure",
+      description: "Explore a mysterious world filled with ancient secrets and powerful enemies.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      title: "Resident Evil",
+      category: "Horror",
+      description: "Survive terrifying encounters in a world where danger waits around every corner.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      title: "Dark Souls III",
+      category: "Action",
+      description: "Face unforgiving challenges in a dark fantasy world.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      title: "The Witcher 3",
+      category: "Adventure",
+      description: "Discover a vast fantasy world filled with monsters, magic, and choices.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      title: "Dead by Daylight",
+      category: "Horror",
+      description: "Escape the nightmare or become the thing everyone fears.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80"
+    }
+  ];
+
+  function renderGames() {
+    const grid = $("#gameGrid");
+    if (!grid) return;
+
+    const searchInput = $("#gameSearch");
+    const searchTerm = searchInput
+      ? searchInput.value.trim().toLowerCase()
+      : "";
+
+    const filteredGames = games.filter(game => {
+      const matchesSearch =
+        game.title.toLowerCase().includes(searchTerm) ||
+        game.description.toLowerCase().includes(searchTerm) ||
+        game.category.toLowerCase().includes(searchTerm);
+
+      const matchesFilter =
+        activeFilter === "All" || game.category === activeFilter;
+
+      return matchesSearch && matchesFilter;
+    });
+
+    grid.replaceChildren();
+
+    if (filteredGames.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = "No games found. Try another search.";
+      grid.appendChild(empty);
+      return;
+    }
+
+    filteredGames.forEach(game => {
+      const card = document.createElement("article");
+      card.className = "game-card";
+
+      const art = document.createElement("div");
+      art.className = "game-art";
+      art.style.backgroundImage = `url("${game.image}")`;
+
+      const tag = document.createElement("span");
+      tag.className = "game-tag";
+      tag.textContent = game.category;
+      art.appendChild(tag);
+
+      const info = document.createElement("div");
+      info.className = "game-info";
+
+      const title = document.createElement("h3");
+      title.textContent = game.title;
+
+      const description = document.createElement("p");
+      description.textContent = game.description;
+
+      const meta = document.createElement("div");
+      meta.className = "game-meta";
+
+      const platform = document.createElement("span");
+      platform.textContent = game.platform;
+
+      const category = document.createElement("span");
+      category.textContent = game.category.toUpperCase();
+
+      meta.append(platform, category);
+      info.append(title, description, meta);
+      card.append(art, info);
+      grid.appendChild(card);
+    });
+  }
+
+  function initializeGameLibrary() {
+    const search = $("#gameSearch");
+
+    if (search) {
+      search.addEventListener("input", renderGames);
+    }
+
+    $$("#filters button").forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter || "All";
+
+        $$("#filters button").forEach(item => {
+          item.classList.toggle("active", item === button);
+        });
+
+        renderGames();
+      });
     });
 
     renderGames();
-  });
-
-
-/* ==========================================
-   3. LEADERBOARD
-   ========================================== */
-
-const rankings = [
-  ["01", "Vesper", "VOID WALKER", "12,840"],
-  ["02", "Morrow", "NIGHTBOUND", "11,260"],
-  ["03", "Ravenna", "ASHEN SOUL", "10,975"],
-  ["04", "Noctis", "DUSK SEEKER", "9,410"],
-  ["05", "Wraith", "HOLLOW ONE", "8,860"]
-];
-
-const leaderRows = document.getElementById("leaderRows");
-
-if (leaderRows) {
-  leaderRows.innerHTML = rankings.map(rank => `
-    <div class="leader-row">
-      <span class="rank">${rank[0]}</span>
-      <span class="player">
-        ${rank[1]}
-        <small>${rank[2]}</small>
-      </span>
-      <span class="score">${rank[3]} XP</span>
-    </div>
-  `).join("");
-}
-
-
-/* ==========================================
-   4. ACCOUNT ELEMENTS
-   ========================================== */
-
-const dialog = document.getElementById("accountDialog");
-const accountButton = document.getElementById("accountButton");
-const accountForm = document.getElementById("accountForm");
-const accountTitle = document.getElementById("accountTitle");
-const accountDescription = document.getElementById("accountDescription");
-const accountSubmit = document.getElementById("accountSubmit");
-
-const usernameLabel = document.getElementById("usernameLabel");
-const playerNameInput = document.getElementById("playerName");
-const emailInput = document.getElementById("accountEmail");
-const passwordInput = document.getElementById("accountPassword");
-
-const statusText = document.getElementById("profileStatus");
-const logoutButton = document.getElementById("logoutButton");
-const authTabs = document.getElementById("authTabs");
-
-let authMode = "signup";
-let currentUser = null;
-
-
-/* ==========================================
-   5. ACCOUNT STATUS
-   ========================================== */
-
-function showStatus(message, isError = false) {
-  if (!statusText) return;
-
-  statusText.textContent = message;
-  statusText.classList.toggle("status-error", isError);
-}
-
-function getDisplayName(user) {
-  return (
-    user?.user_metadata?.username ||
-    user?.email?.split("@")[0] ||
-    "Wanderer"
-  );
-}
-
-
-/* ==========================================
-   6. PASSWORD RECOVERY ELEMENTS
-   ========================================== */
-
-const forgotPasswordButton = document.createElement("button");
-
-forgotPasswordButton.type = "button";
-forgotPasswordButton.id = "forgotPasswordButton";
-forgotPasswordButton.textContent = "Forgot Password?";
-forgotPasswordButton.className = "forgot-password";
-
-accountForm.appendChild(forgotPasswordButton);
-
-const resetPasswordForm = document.createElement("form");
-
-resetPasswordForm.id = "resetPasswordForm";
-resetPasswordForm.hidden = true;
-
-resetPasswordForm.innerHTML = `
-  <label for="newPassword">NEW PASSWORD</label>
-  <input
-    type="password"
-    id="newPassword"
-    minlength="8"
-    required
-    autocomplete="new-password"
-    placeholder="Enter your new password"
-  >
-  <button class="button button-primary" type="submit">
-    Update Password
-  </button>
-`;
-
-dialog.appendChild(resetPasswordForm);
-
-
-/* ==========================================
-   7. SIGNUP AND LOGIN
-   ========================================== */
-
-function setAuthMode(mode) {
-  authMode = mode;
-
-  const isSignup = mode === "signup";
-
-  accountTitle.innerHTML = isSignup
-    ? 'ENTER THE <em>VOID.</em>'
-    : 'RETURN TO THE <em>VOID.</em>';
-
-  accountDescription.textContent = isSignup
-    ? "Create your player account and claim your identity."
-    : "Sign in with the email and password linked to your account.";
-
-  usernameLabel.hidden = !isSignup;
-
-  playerNameInput.required = isSignup;
-  playerNameInput.disabled = !isSignup;
-
-  forgotPasswordButton.hidden = isSignup;
-
-  accountSubmit.textContent = isSignup
-    ? "Create account"
-    : "Sign in";
-
-  authTabs.querySelectorAll(".auth-tab").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.mode === mode
-    );
-  });
-
-  showStatus("");
-}
-
-authTabs.addEventListener("click", event => {
-  const button = event.target.closest("[data-mode]");
-
-  if (button) setAuthMode(button.dataset.mode);
-});
-
-
-/* ==========================================
-   8. ACCOUNT DISPLAY
-   ========================================== */
-
-function updateAccountUI(user) {
-  currentUser = user || null;
-
-  if (currentUser) {
-    accountButton.textContent = getDisplayName(currentUser);
-
-    authTabs.hidden = true;
-    accountForm.hidden = true;
-    logoutButton.hidden = false;
-
-    accountTitle.innerHTML = 'WELCOME TO THE <em>VOID.</em>';
-
-    accountDescription.textContent =
-      `You are signed in as ${currentUser.email}.`;
-
-    usernameLabel.hidden = true;
-
-    showStatus(
-      `Your account is active, ${getDisplayName(currentUser)}.`
-    );
-
-  } else {
-    accountButton.textContent = "Sign in";
-
-    authTabs.hidden = false;
-    accountForm.hidden = false;
-    logoutButton.hidden = true;
-
-    resetPasswordForm.hidden = true;
-
-    setAuthMode("signup");
-  }
-}
-
-
-/* ==========================================
-   9. OPEN ACCOUNT WINDOW
-   ========================================== */
-
-function openAccountDialog() {
-  if (!supabaseClient) {
-    dialog.showModal();
-    showStatus("Supabase is not configured correctly.", true);
-    return;
   }
 
-  resetPasswordForm.hidden = true;
-  accountForm.hidden = false;
+  /* ==========================================
+     5. LEADERBOARD
+     ========================================== */
 
-  if (currentUser) {
-    updateAccountUI(currentUser);
-  } else {
-    authTabs.hidden = false;
-    setAuthMode("signup");
+  const leaderboardPlayers = [
+    { name: "NightWalker", level: "Elite Player", score: "9,850" },
+    { name: "CrimsonSoul", level: "Veteran", score: "8,420" },
+    { name: "VoidHunter", level: "Veteran", score: "7,900" },
+    { name: "ShadowBloom", level: "Rising Player", score: "6,750" },
+    { name: "GrimReaper", level: "Rising Player", score: "5,980" }
+  ];
+
+  function renderLeaderboard() {
+    const container = $("#leaderRows");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    leaderboardPlayers.forEach((player, index) => {
+      const row = document.createElement("div");
+      row.className = "leader-row";
+
+      const rank = document.createElement("div");
+      rank.className = "rank";
+      rank.textContent = `#${index + 1}`;
+
+      const name = document.createElement("div");
+      name.className = "player";
+      name.textContent = player.name;
+
+      const level = document.createElement("small");
+      level.textContent = player.level;
+      name.appendChild(level);
+
+      const score = document.createElement("div");
+      score.className = "score";
+      score.textContent = `${player.score} XP`;
+
+      row.append(rank, name, score);
+      container.appendChild(row);
+    });
   }
 
-  dialog.showModal();
-}
+  /* ==========================================
+     6. ACCOUNT DIALOG
+     ========================================== */
 
-accountButton.addEventListener("click", openAccountDialog);
+  const accountDialog = $("#accountDialog");
 
-document.getElementById("joinButton")
-  ?.addEventListener("click", openAccountDialog);
+  let authMode = "login";
+  let resetMode = false;
 
+  function openAccountDialog() {
+    if (!accountDialog) return;
 
-/* ==========================================
-   10. SIGNUP AND LOGIN SUBMISSION
-   ========================================== */
-
-accountForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (!supabaseClient) {
-    showStatus("Supabase is not configured.", true);
-    return;
+    if (typeof accountDialog.showModal === "function") {
+      if (!accountDialog.open) accountDialog.showModal();
+    } else {
+      accountDialog.setAttribute("open", "");
+    }
   }
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+  function closeAccountDialog() {
+    if (!accountDialog) return;
 
-  accountSubmit.disabled = true;
+    if (typeof accountDialog.close === "function") {
+      accountDialog.close();
+    } else {
+      accountDialog.removeAttribute("open");
+    }
+  }
 
-  accountSubmit.textContent =
-    authMode === "signup"
-      ? "Creating account..."
-      : "Signing in...";
+  function setAuthMode(mode) {
+    authMode = mode;
+    resetMode = false;
 
-  showStatus("");
+    const form = $("#accountForm");
+    const title = $("#accountTitle");
+    const description = $("#accountDescription");
+    const usernameLabel = $("#usernameLabel");
+    const tabs = $("#authTabs");
 
-  try {
-    if (authMode === "signup") {
-      const username = playerNameInput.value.trim();
+    if (form) form.hidden = false;
+    if (tabs) tabs.hidden = false;
 
-      if (!username) {
-        throw new Error("Choose a player name first.");
-      }
+    const resetForm = $("#resetPasswordForm");
+    if (resetForm) resetForm.remove();
 
-      const { data, error } =
-        await supabaseClient.auth.signUp({
+    if (title) {
+      title.textContent = mode === "signup"
+        ? "Create Your Account"
+        : "Welcome Back";
+    }
+
+    if (description) {
+      description.textContent = mode === "signup"
+        ? "Join the world of Nocturne Void."
+        : "Enter the darkness and continue your journey.";
+    }
+
+    if (usernameLabel) {
+      usernameLabel.hidden = mode !== "signup";
+    }
+
+    const submit = $("#accountSubmit");
+    if (submit) {
+      submit.textContent = mode === "signup"
+        ? "Create Account"
+        : "Sign In";
+    }
+
+    const password = $("#accountPassword");
+    if (password) {
+      password.autocomplete = mode === "signup"
+        ? "new-password"
+        : "current-password";
+    }
+
+    $$("#authTabs button").forEach(button => {
+      const buttonMode =
+        button.dataset.mode ||
+        button.dataset.authMode ||
+        button.value;
+
+      button.classList.toggle("active", buttonMode === mode);
+    });
+
+    showStatus("");
+  }
+
+  function updateAccountUI(user) {
+    currentUser = user || null;
+
+    const accountButton = $("#accountButton");
+    const logoutButton = $("#logoutButton");
+    const usernameLabel = $("#usernameLabel");
+    const profileStatus = $("#profileStatus");
+
+    if (accountButton) {
+      accountButton.textContent = currentUser
+        ? "My Account"
+        : "Sign In";
+    }
+
+    if (logoutButton) {
+      logoutButton.hidden = !currentUser;
+    }
+
+    if (usernameLabel) {
+      usernameLabel.hidden = currentUser || authMode !== "signup";
+    }
+
+    if (profileStatus && currentUser) {
+      profileStatus.textContent =
+        `Signed in as ${currentUser.email}`;
+    }
+
+    refreshCommunityMembers();
+  }
+
+  function initializeAccountButtons() {
+    const accountButton = $("#accountButton");
+
+    if (accountButton) {
+      accountButton.addEventListener("click", () => {
+        if (currentUser) {
+          openAccountDialog();
+          showStatus(`Signed in as ${currentUser.email}`);
+        } else {
+          setAuthMode("login");
+          openAccountDialog();
+        }
+      });
+    }
+
+    const tabs = $("#authTabs");
+
+    if (tabs) {
+      tabs.addEventListener("click", event => {
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        const mode =
+          button.dataset.mode ||
+          button.dataset.authMode ||
+          button.value;
+
+        if (mode === "login" || mode === "signup") {
+          setAuthMode(mode);
+        }
+      });
+    }
+
+    if (accountDialog) {
+      accountDialog.addEventListener("click", event => {
+        if (event.target === accountDialog) {
+          closeAccountDialog();
+        }
+      });
+    }
+
+    const accountForm = $("#accountForm");
+
+    if (accountForm) {
+      accountForm.addEventListener("submit", handleAccountSubmit);
+
+      const forgotButton = document.createElement("button");
+      forgotButton.type = "button";
+      forgotButton.className = "forgot-password";
+      forgotButton.textContent = "Forgot your password?";
+      forgotButton.addEventListener("click", handleForgotPassword);
+
+      accountForm.appendChild(forgotButton);
+    }
+
+    const logoutButton = $("#logoutButton");
+
+    if (logoutButton) {
+      logoutButton.addEventListener("click", handleLogout);
+    }
+
+    setAuthMode("login");
+  }
+
+  /* ==========================================
+     7. SIGNUP AND LOGIN
+     ========================================== */
+
+  async function handleAccountSubmit(event) {
+    event.preventDefault();
+
+    if (!supabaseClient) {
+      showStatus("Account services are unavailable. Refresh the page.", true);
+      return;
+    }
+
+    const username = $("#playerName")?.value.trim() || "";
+    const email = $("#accountEmail")?.value.trim() || "";
+    const password = $("#accountPassword")?.value || "";
+
+    if (!email || !password) {
+      showStatus("Please enter your email and password.", true);
+      return;
+    }
+
+    if (authMode === "signup" && !username) {
+      showStatus("Please choose a username.", true);
+      return;
+    }
+
+    if (password.length < 6) {
+      showStatus("Your password must contain at least 6 characters.", true);
+      return;
+    }
+
+    const submit = $("#accountSubmit");
+
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = "Please wait...";
+    }
+
+    showStatus("");
+
+    try {
+      if (authMode === "signup") {
+        const { data, error } = await supabaseClient.auth.signUp({
           email,
           password,
           options: {
@@ -407,941 +510,583 @@ accountForm.addEventListener("submit", async event => {
           }
         });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data.session) {
-        updateAccountUI(data.user);
-
-        showStatus(
-          `Welcome to the void, ${username}. Your account has been created.`
-        );
+        if (data.session) {
+          showStatus("Account created successfully!");
+        } else {
+          showStatus("Account created! Check your email for the confirmation link.");
+        }
       } else {
-        showStatus(
-          "Account created! Check your email for a confirmation link, then return here to sign in."
-        );
-      }
-
-    } else {
-      const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
+        const { error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
 
+        if (error) throw error;
+
+        showStatus("You are now signed in!");
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      showStatus(error.message || "Something went wrong. Please try again.", true);
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = authMode === "signup"
+          ? "Create Account"
+          : "Sign In";
+      }
+    }
+  }
+
+  /* ==========================================
+     8. PASSWORD RECOVERY
+     ========================================== */
+
+  async function handleForgotPassword() {
+    if (!supabaseClient) {
+      showStatus("Account services are unavailable.", true);
+      return;
+    }
+
+    const email = $("#accountEmail")?.value.trim() || "";
+
+    if (!email) {
+      showStatus("Enter your email address first.", true);
+      $("#accountEmail")?.focus();
+      return;
+    }
+
+    showStatus("Sending password reset email...");
+
+    try {
+      const { error } =
+        await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: WEBSITE_URL
+        });
+
       if (error) throw error;
 
-      updateAccountUI(data.user);
-
-      showStatus(
-        `Welcome back, ${getDisplayName(data.user)}.`
-      );
+      showStatus("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Password reset error:", error);
+      showStatus(error.message || "Unable to send reset email.", true);
     }
-
-    passwordInput.value = "";
-
-  } catch (error) {
-    showStatus(
-      error.message || "Something went wrong. Please try again.",
-      true
-    );
-
-  } finally {
-    accountSubmit.disabled = false;
-
-    accountSubmit.textContent =
-      authMode === "signup"
-        ? "Create account"
-        : "Sign in";
-  }
-});
-
-
-/* ==========================================
-   11. FORGOT PASSWORD
-   ========================================== */
-
-forgotPasswordButton.addEventListener("click", async () => {
-  if (!supabaseClient) {
-    showStatus("Supabase is not configured.", true);
-    return;
   }
 
-  const email = emailInput.value.trim();
+  function showPasswordUpdateForm() {
+    if (!accountDialog) return;
 
-  if (!email) {
-    showStatus("Please enter your email address first.", true);
-    emailInput.focus();
-    return;
-  }
+    resetMode = true;
 
-  forgotPasswordButton.disabled = true;
-  forgotPasswordButton.textContent = "Sending email...";
+    const accountForm = $("#accountForm");
+    const tabs = $("#authTabs");
 
-  try {
-    const { error } =
-      await supabaseClient.auth.resetPasswordForEmail(
-        email,
-        {
-          redirectTo: WEBSITE_URL
+    if (accountForm) accountForm.hidden = true;
+    if (tabs) tabs.hidden = true;
+
+    setText("accountTitle", "Create a New Password");
+    setText("accountDescription", "Choose a new password for your account.");
+
+    let resetForm = $("#resetPasswordForm");
+
+    if (!resetForm) {
+      resetForm = document.createElement("form");
+      resetForm.id = "resetPasswordForm";
+
+      resetForm.innerHTML = `
+        <label>
+          New Password
+          <input
+            id="newPassword"
+            type="password"
+            minlength="6"
+            autocomplete="new-password"
+            required
+          >
+        </label>
+
+        <label>
+          Confirm New Password
+          <input
+            id="confirmNewPassword"
+            type="password"
+            minlength="6"
+            autocomplete="new-password"
+            required
+          >
+        </label>
+
+        <button class="button button-primary" type="submit">
+          Update Password
+        </button>
+      `;
+
+      accountDialog.appendChild(resetForm);
+
+      resetForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const password = $("#newPassword")?.value || "";
+        const confirm = $("#confirmNewPassword")?.value || "";
+
+        if (password.length < 6) {
+          showStatus("Password must be at least 6 characters.", true);
+          return;
         }
-      );
 
-    if (error) throw error;
+        if (password !== confirm) {
+          showStatus("Your passwords do not match.", true);
+          return;
+        }
 
-    showStatus("Password reset email sent! Check your inbox.");
+        showStatus("Updating your password...");
 
-  } catch (error) {
-    showStatus(error.message, true);
+        try {
+          const { error } = await supabaseClient.auth.updateUser({
+            password
+          });
 
-  } finally {
-    forgotPasswordButton.disabled = false;
-    forgotPasswordButton.textContent = "Forgot Password?";
-  }
-});
+          if (error) throw error;
 
+          showStatus("Password updated successfully!");
+          resetForm.remove();
+          resetMode = false;
 
-/* ==========================================
-   12. PASSWORD RECOVERY SCREEN
-   ========================================== */
+          if ($("#accountForm")) {
+            $("#accountForm").hidden = false;
+          }
 
-function openPasswordRecovery() {
-  accountForm.hidden = true;
-  authTabs.hidden = true;
-  logoutButton.hidden = true;
+          if ($("#authTabs")) {
+            $("#authTabs").hidden = false;
+          }
 
-  resetPasswordForm.hidden = false;
-
-  accountTitle.innerHTML = 'CREATE A NEW <em>PASSWORD.</em>';
-
-  accountDescription.textContent =
-    "Choose a new password to return to the void.";
-
-  showStatus("Enter your new password below.");
-
-  if (!dialog.open) {
-    dialog.showModal();
-  }
-}
-
-resetPasswordForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (!supabaseClient) return;
-
-  const newPassword =
-    document.getElementById("newPassword").value;
-
-  const button = resetPasswordForm.querySelector("button");
-
-  button.disabled = true;
-  button.textContent = "Updating password...";
-
-  try {
-    const { data, error } =
-      await supabaseClient.auth.updateUser({
-        password: newPassword
+          setAuthMode("login");
+        } catch (error) {
+          console.error("Password update error:", error);
+          showStatus(error.message || "Unable to update password.", true);
+        }
       });
-
-    if (error) throw error;
-
-    document.getElementById("newPassword").value = "";
-
-    resetPasswordForm.hidden = true;
-
-    updateAccountUI(data.user);
-
-    showStatus("Your password has been successfully updated!");
-
-  } catch (error) {
-    showStatus(error.message, true);
-
-  } finally {
-    button.disabled = false;
-    button.textContent = "Update Password";
-  }
-});
-
-
-/* ==========================================
-   13. LOGOUT
-   ========================================== */
-
-logoutButton.addEventListener("click", async () => {
-  if (!supabaseClient) return;
-
-  logoutButton.disabled = true;
-
-  try {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) throw error;
-
-    updateAccountUI(null);
-
-    showStatus("You have signed out of the void.");
-
-  } catch (error) {
-    showStatus(error.message, true);
-
-  } finally {
-    logoutButton.disabled = false;
-  }
-});
-
-
-/* ==========================================
-   14. AUTHENTICATION LISTENER
-   ========================================== */
-
-if (supabaseClient) {
-  supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) showStatus(error.message, true);
-
-    updateAccountUI(data?.session?.user || null);
-  });
-
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    updateAccountUI(session?.user || null);
-
-    if (event === "PASSWORD_RECOVERY") {
-      openPasswordRecovery();
     }
-  });
 
-} else {
-  updateAccountUI(null);
-}
-
-
-/* ==========================================
-   15. COMMUNITY HUB
-   DISCORD-STYLE LAYOUT
-   ========================================== */
-
-const communitySection = document.getElementById("community");
-
-const communityChannels = [
-  {
-    id: "general",
-    name: "general",
-    description: "The main gathering place.",
-    category: "WELCOME TO THE VOID"
-  },
-  {
-    id: "introductions",
-    name: "introductions",
-    description: "Introduce yourself to the community.",
-    category: "WELCOME TO THE VOID"
-  },
-  {
-    id: "gaming",
-    name: "gaming",
-    description: "Talk about games and discoveries.",
-    category: "GAMING"
-  },
-  {
-    id: "looking-for-group",
-    name: "looking-for-group",
-    description: "Find people to play with.",
-    category: "GAMING"
-  },
-  {
-    id: "media",
-    name: "media",
-    description: "Share screenshots and creations.",
-    category: "COMMUNITY"
-  }
-];
-
-let activeChannel = "general";
-
-const communityStorageKey = "nv-community-channels";
-
-function loadChannelMessages() {
-  try {
-    const saved = JSON.parse(
-      localStorage.getItem(communityStorageKey) || "{}"
-    );
-
-    return saved && typeof saved === "object" ? saved : {};
-
-  } catch {
-    return {};
-  }
-}
-
-let channelMessages = loadChannelMessages();
-
-function saveChannelMessages() {
-  try {
-    localStorage.setItem(
-      communityStorageKey,
-      JSON.stringify(channelMessages)
-    );
-  } catch (error) {
-    console.error("Unable to save community messages:", error);
-  }
-}
-
-
-/* ==========================================
-   16. COMMUNITY HUB DESIGN
-   ========================================== */
-
-const hubStyles = document.createElement("style");
-
-hubStyles.textContent = `
-.community-section {
-  width: 100%;
-}
-
-.community-hub {
-  width: 100%;
-  min-height: 570px;
-  display: grid;
-  grid-template-columns: 205px minmax(0, 1fr) 180px;
-  background: #100b10;
-  border: 1px solid #49232f;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 20px 65px #0007;
-}
-
-.hub-sidebar {
-  background: #0b080d;
-  border-right: 1px solid #39202b;
-  padding: 22px 14px;
-}
-
-.hub-server-name {
-  color: #e5cbd3;
-  font-family: Cinzel, serif;
-  font-size: 13px;
-  letter-spacing: 1px;
-  padding: 4px 8px 20px;
-  border-bottom: 1px solid #39202b;
-  margin-bottom: 18px;
-}
-
-.hub-category {
-  color: #a17d89;
-  font-size: 9px;
-  letter-spacing: 1.6px;
-  margin: 20px 8px 9px;
-}
-
-.hub-channel {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  background: transparent;
-  color: #a99aa2;
-  border: 0;
-  border-radius: 4px;
-  padding: 10px 9px;
-  text-align: left;
-  cursor: pointer;
-  font-size: 11px;
-  transition: .2s;
-}
-
-.hub-channel:hover,
-.hub-channel.active {
-  background: #381a27;
-  color: #f0cbd5;
-}
-
-.hub-channel span {
-  color: #c16b84;
-  font-size: 16px;
-}
-
-.hub-main {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  background: #120d12;
-}
-
-.hub-header {
-  padding: 18px 22px;
-  border-bottom: 1px solid #39202b;
-}
-
-.hub-header h3 {
-  color: #e6cbd4;
-  font-family: Cinzel, serif;
-  font-size: 15px;
-  margin: 0 0 5px;
-}
-
-.hub-header p {
-  color: #95838c;
-  font-size: 10px;
-  margin: 0;
-}
-
-.hub-messages {
-  flex: 1;
-  min-height: 320px;
-  max-height: 420px;
-  overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 17px;
-}
-
-.hub-welcome {
-  text-align: center;
-  color: #a88b96;
-  font-size: 11px;
-  padding: 22px 10px;
-  line-height: 1.8;
-}
-
-.hub-message {
-  display: flex;
-  gap: 11px;
-  align-items: flex-start;
-}
-
-.hub-avatar {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #3a1927;
-  color: #e7a0b3;
-  font-family: Cinzel, serif;
-  font-size: 12px;
-}
-
-.hub-message-content {
-  min-width: 0;
-}
-
-.hub-message-top {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 5px;
-}
-
-.hub-message-name {
-  color: #e4a0b2;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.hub-message-time {
-  color: #786973;
-  font-size: 9px;
-}
-
-.hub-message-text {
-  color: #d4c6cc;
-  font-size: 11px;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-}
-
-.hub-composer {
-  display: flex;
-  gap: 10px;
-  padding: 15px;
-  border-top: 1px solid #39202b;
-}
-
-.hub-composer input {
-  flex: 1;
-  min-width: 0;
-  background: #09070a;
-  border: 1px solid #49232f;
-  color: white;
-  padding: 13px;
-  outline: none;
-  font-size: 11px;
-}
-
-.hub-composer input:focus {
-  border-color: #a34c67;
-}
-
-.hub-composer button {
-  background: #68283e;
-  border: 1px solid #91435b;
-  color: white;
-  padding: 0 17px;
-  cursor: pointer;
-}
-
-.hub-composer button:hover {
-  background: #8b3854;
-}
-
-.hub-members {
-  background: #0c090e;
-  border-left: 1px solid #39202b;
-  padding: 22px 13px;
-}
-
-.hub-members h4 {
-  color: #a98c97;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  margin: 0 0 18px;
-}
-
-.hub-member {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 14px 0;
-  color: #cbbbc3;
-  font-size: 10px;
-  overflow-wrap: anywhere;
-}
-
-.hub-member-avatar {
-  width: 25px;
-  height: 25px;
-  display: grid;
-  place-items: center;
-  background: #321724;
-  border-radius: 50%;
-  color: #e5a4b5;
-  flex-shrink: 0;
-}
-
-.hub-online-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #79b98b;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.hub-empty {
-  color: #887680;
-  font-size: 11px;
-  text-align: center;
-  padding: 30px 10px;
-}
-
-@media(max-width: 760px) {
-  .community-hub {
-    grid-template-columns: 145px minmax(0, 1fr);
+    openAccountDialog();
   }
 
-  .hub-members {
-    display: none;
+  /* ==========================================
+     9. LOGOUT
+     ========================================== */
+
+  async function handleLogout() {
+    if (!supabaseClient) return;
+
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      showStatus("You have signed out.");
+      updateAccountUI(null);
+      setAuthMode("login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      showStatus(error.message || "Unable to sign out.", true);
+    }
   }
 
-  .hub-sidebar {
-    padding: 15px 8px;
+  /* ==========================================
+     10. AUTHENTICATION INITIALIZATION
+     ========================================== */
+
+  function initializeAuthentication() {
+    if (!supabaseClient) return;
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      const user = session?.user || null;
+
+      updateAccountUI(user);
+
+      if (event === "PASSWORD_RECOVERY") {
+        setTimeout(showPasswordUpdateForm, 0);
+      }
+    });
+
+    supabaseClient.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error("Session error:", error);
+        return;
+      }
+
+      updateAccountUI(data.session?.user || null);
+
+      const hash = window.location.hash;
+
+      if (hash.includes("type=recovery")) {
+        showPasswordUpdateForm();
+      }
+    });
   }
 
-  .hub-channel {
-    font-size: 10px;
-    padding: 9px 5px;
-  }
-}
+  /* ==========================================
+     11. COMMUNITY CHANNELS
+     ========================================== */
 
-@media(max-width: 480px) {
-  .community-hub {
-    grid-template-columns: 105px minmax(0, 1fr);
-  }
-
-  .hub-server-name {
-    font-size: 10px;
-    padding-left: 3px;
-  }
-
-  .hub-category {
-    font-size: 8px;
-    margin-left: 3px;
-  }
-
-  .hub-channel {
-    font-size: 9px;
-    gap: 4px;
-  }
-
-  .hub-header {
-    padding: 15px 12px;
-  }
-
-  .hub-messages {
-    padding: 12px;
-  }
-}
-`;
-
-document.head.appendChild(hubStyles);
-
-
-/* ==========================================
-   17. BUILD COMMUNITY HUB
-   ========================================== */
-
-const oldChatCard = communitySection?.querySelector(".chat-card");
-
-if (oldChatCard) {
-  oldChatCard.remove();
-}
-
-const oldCommunityCopy =
-  communitySection?.querySelector(".community-copy");
-
-if (oldCommunityCopy) {
-  oldCommunityCopy.remove();
-}
-
-const hub = document.createElement("div");
-
-hub.className = "community-hub";
-
-hub.innerHTML = `
-  <aside class="hub-sidebar">
-    <div class="hub-server-name">✦ NOCTURNE VOID</div>
-    <div id="hubChannelNavigation"></div>
-  </aside>
-
-  <main class="hub-main">
-    <header class="hub-header">
-      <h3 id="hubChannelTitle"># general</h3>
-      <p id="hubChannelDescription">The main gathering place.</p>
-    </header>
-
-    <div class="hub-messages" id="hubMessages">
-      <div class="hub-welcome">
-        ✦ WELCOME TO THE VOID ✦<br>
-        This is the beginning of your journey.
-      </div>
-    </div>
-
-    <form class="hub-composer" id="hubMessageForm">
-      <input
-        id="hubMessageInput"
-        maxlength="500"
-        placeholder="Message #general..."
-        autocomplete="off"
-        aria-label="Write a community message"
-      >
-      <button type="submit" aria-label="Send message">➤</button>
-    </form>
-  </main>
-
-  <aside class="hub-members">
-    <h4>MEMBERS</h4>
-    <div id="hubMemberList"></div>
-  </aside>
-`;
-
-communitySection.appendChild(hub);
-
-
-/* ==========================================
-   18. CHANNEL NAVIGATION
-   ========================================== */
-
-const channelNavigation =
-  document.getElementById("hubChannelNavigation");
-
-const channelTitle =
-  document.getElementById("hubChannelTitle");
-
-const channelDescription =
-  document.getElementById("hubChannelDescription");
-
-const hubMessages =
-  document.getElementById("hubMessages");
-
-const hubMessageInput =
-  document.getElementById("hubMessageInput");
-
-const hubMemberList =
-  document.getElementById("hubMemberList");
-
-const hubMessageForm =
-  document.getElementById("hubMessageForm");
-
-function renderChannelNavigation() {
-  const categories = [
-    ...new Set(communityChannels.map(channel => channel.category))
+  const channels = [
+    {
+      id: "general",
+      name: "General",
+      description: "Talk about anything and everything."
+    },
+    {
+      id: "introductions",
+      name: "Introductions",
+      description: "Introduce yourself to the community."
+    },
+    {
+      id: "gaming",
+      name: "Gaming",
+      description: "Discuss your favorite games."
+    },
+    {
+      id: "looking-for-group",
+      name: "Looking for Group",
+      description: "Find other players to game with."
+    },
+    {
+      id: "media",
+      name: "Media",
+      description: "Share gaming clips, screenshots, and artwork."
+    }
   ];
 
-  channelNavigation.innerHTML = categories.map(category => {
-    const channels = communityChannels.filter(
-      channel => channel.category === category
-    );
+  function loadCommunityMessages() {
+    try {
+      const saved = localStorage.getItem(COMMUNITY_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch (error) {
+      console.error("Could not load community messages:", error);
+      return {};
+    }
+  }
 
-    return `
-      <div class="hub-category">${category}</div>
-      ${channels.map(channel => `
-        <button
-          type="button"
-          class="hub-channel ${activeChannel === channel.id ? "active" : ""}"
-          data-channel="${channel.id}"
-        >
-          <span>#</span>${channel.name}
-        </button>
-      `).join("")}
+  let communityMessages = loadCommunityMessages();
+
+  function saveCommunityMessages() {
+    try {
+      localStorage.setItem(
+        COMMUNITY_STORAGE_KEY,
+        JSON.stringify(communityMessages)
+      );
+    } catch (error) {
+      console.error("Could not save community messages:", error);
+    }
+  }
+
+  function initializeCommunity() {
+    const communitySection = $("#community");
+
+    if (!communitySection) return;
+
+    const existingHub = $(".community-hub", communitySection);
+    if (existingHub) return;
+
+    const hub = document.createElement("div");
+    hub.className = "community-hub";
+
+    hub.innerHTML = `
+      <aside class="hub-sidebar">
+        <div class="hub-server-name">NOCTURNE VOID</div>
+
+        <div class="hub-category">COMMUNITY</div>
+
+        <div class="hub-channels"></div>
+      </aside>
+
+      <main class="hub-main">
+        <header class="hub-header">
+          <h3 class="hub-channel-title"># general</h3>
+          <p class="hub-channel-description"></p>
+        </header>
+
+        <div class="hub-messages"></div>
+
+        <form class="hub-composer">
+          <input
+            class="hub-message-input"
+            type="text"
+            maxlength="1000"
+            placeholder="Sign in to send a message..."
+            aria-label="Write a message"
+          >
+
+          <button type="submit">Send</button>
+        </form>
+      </main>
+
+      <aside class="hub-members">
+        <h4>MEMBERS</h4>
+        <div class="hub-member-list"></div>
+      </aside>
     `;
-  }).join("");
-}
 
-channelNavigation.addEventListener("click", event => {
-  const button = event.target.closest("[data-channel]");
+    communitySection.appendChild(hub);
 
-  if (!button) return;
+    renderCommunityChannels();
+    renderCommunityMessages();
+    refreshCommunityMembers();
 
-  switchChannel(button.dataset.channel);
-});
+    const composer = $(".hub-composer", hub);
 
+    if (composer) {
+      composer.addEventListener("submit", handleCommunityMessage);
+    }
+  }
 
-/* ==========================================
-   19. SWITCH CHANNELS
-   ========================================== */
+  function renderCommunityChannels() {
+    const container = $(".hub-channels");
+    if (!container) return;
 
-function switchChannel(channelId) {
-  const channel = communityChannels.find(
-    item => item.id === channelId
-  );
+    container.replaceChildren();
 
-  if (!channel) return;
+    channels.forEach(channel => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "hub-channel";
+      button.classList.toggle("active", channel.id === activeChannel);
+      button.dataset.channel = channel.id;
 
-  activeChannel = channelId;
+      const icon = document.createElement("span");
+      icon.textContent = "#";
 
-  channelTitle.textContent = "# " + channel.name;
-  channelDescription.textContent = channel.description;
+      const label = document.createElement("span");
+      label.textContent = channel.name;
 
-  hubMessageInput.placeholder =
-    `Message #${channel.name}...`;
+      button.append(icon, label);
 
-  renderChannelNavigation();
-  renderChannelMessages();
-  hubMessageInput.focus();
-}
+      button.addEventListener("click", () => {
+        activeChannel = channel.id;
+        renderCommunityChannels();
+        renderCommunityMessages();
+      });
 
+      container.appendChild(button);
+    });
 
-/* ==========================================
-   20. RENDER CHANNEL MESSAGES
-   ========================================== */
+    const active = channels.find(channel => channel.id === activeChannel);
 
-function renderChannelMessages() {
-  const messages = channelMessages[activeChannel] || [];
+    setText("unused", "");
 
-  hubMessages.innerHTML = "";
+    const title = $(".hub-channel-title");
+    const description = $(".hub-channel-description");
 
-  if (messages.length === 0) {
-    const welcome = document.createElement("div");
+    if (title) title.textContent = `# ${active.name.toLowerCase()}`;
+    if (description) description.textContent = active.description;
+  }
 
-    welcome.className = "hub-welcome";
+  /* ==========================================
+     12. COMMUNITY MESSAGE DISPLAY
+     ========================================== */
 
-    welcome.textContent =
-      `✦ Welcome to #${activeChannel} ✦ — Be respectful and enjoy your stay.`;
+  function renderCommunityMessages() {
+    const container = $(".hub-messages");
+    if (!container) return;
 
-    hubMessages.appendChild(welcome);
+    container.replaceChildren();
 
+    const messages = communityMessages[activeChannel] || [];
+
+    if (messages.length === 0) {
+      const welcome = document.createElement("div");
+      welcome.className = "hub-welcome";
+      welcome.textContent =
+        "Welcome to this channel. Be respectful, meet other players, and enjoy your time in Nocturne Void.";
+
+      container.appendChild(welcome);
+      return;
+    }
+
+    messages.forEach(message => {
+      const row = document.createElement("div");
+      row.className = "hub-message";
+
+      const avatar = document.createElement("div");
+      avatar.className = "hub-avatar";
+      avatar.textContent = getInitial(message.username);
+
+      const content = document.createElement("div");
+      content.className = "hub-message-content";
+
+      const top = document.createElement("div");
+      top.className = "hub-message-top";
+
+      const name = document.createElement("span");
+      name.className = "hub-message-name";
+      name.textContent = message.username;
+
+      const time = document.createElement("span");
+      time.className = "hub-message-time";
+
+      const date = new Date(message.createdAt);
+      time.textContent = Number.isNaN(date.getTime())
+        ? ""
+        : date.toLocaleString();
+
+      const text = document.createElement("div");
+      text.className = "hub-message-text";
+      text.textContent = message.text;
+
+      top.append(name, time);
+      content.append(top, text);
+      row.append(avatar, content);
+      container.appendChild(row);
+    });
+
+    container.scrollTop = container.scrollHeight;
+  }
+
+  /* ==========================================
+     13. SEND COMMUNITY MESSAGE
+     ========================================== */
+
+  function handleCommunityMessage(event) {
+    event.preventDefault();
+
+    const input = $(".hub-message-input");
+    if (!input) return;
+
+    if (!currentUser) {
+      openAccountDialog();
+      setAuthMode("login");
+      showStatus("Please sign in before sending a message.");
+      return;
+    }
+
+    const messageText = input.value.trim();
+
+    if (!messageText) return;
+
+    const username =
+      currentUser.user_metadata?.username ||
+      currentUser.email?.split("@")[0] ||
+      "Player";
+
+    if (!communityMessages[activeChannel]) {
+      communityMessages[activeChannel] = [];
+    }
+
+    communityMessages[activeChannel].push({
+      username,
+      text: messageText,
+      createdAt: new Date().toISOString()
+    });
+
+    communityMessages[activeChannel] =
+      communityMessages[activeChannel].slice(-100);
+
+    saveCommunityMessages();
+
+    input.value = "";
+    renderCommunityMessages();
+  }
+
+  /* ==========================================
+     14. COMMUNITY MEMBER LIST
+     ========================================== */
+
+  function refreshCommunityMembers() {
+    const container = $(".hub-member-list");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!currentUser) {
+      const message = document.createElement("div");
+      message.className = "hub-empty";
+      message.textContent = "Sign in to join the community.";
+
+      container.appendChild(message);
+      return;
+    }
+
+    const username =
+      currentUser.user_metadata?.username ||
+      currentUser.email?.split("@")[0] ||
+      "Player";
+
+    const member = document.createElement("div");
+    member.className = "hub-member";
+
+    const avatar = document.createElement("span");
+    avatar.className = "hub-member-avatar";
+    avatar.textContent = getInitial(username);
+
+    const name = document.createElement("span");
+    name.textContent = username;
+
+    const dot = document.createElement("span");
+    dot.className = "hub-online-dot";
+
+    member.append(avatar, name, dot);
+    container.appendChild(member);
+  }
+
+  /* ==========================================
+     15. MOBILE NAVIGATION
+     ========================================== */
+
+  function initializeMobileNavigation() {
+    const toggle = $("#menuToggle");
+    const nav = $("#mainNav");
+
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("open");
+
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.textContent = isOpen ? "✕" : "☰";
+    });
+
+    $$("#mainNav a").forEach(link => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.textContent = "☰";
+      });
+    });
+  }
+
+  /* ==========================================
+     16. FOOTER YEAR
+     ========================================== */
+
+  function initializeFooter() {
+    const year = new Date().getFullYear();
+
+    setText("year", year);
+    setText("footerYear", year);
+  }
+
+  /* ==========================================
+     17. START WEBSITE
+     ========================================== */
+
+  function initializeWebsite() {
+    initializeGameLibrary();
+    renderLeaderboard();
+    initializeAccountButtons();
+    initializeCommunity();
+    initializeMobileNavigation();
+    initializeFooter();
+    connectSupabase();
+
+    console.log("NOCTURNE VOID website initialized.");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeWebsite);
   } else {
-    messages.forEach(addHubMessage);
+    initializeWebsite();
   }
-
-  hubMessages.scrollTop = hubMessages.scrollHeight;
-}
-
-function addHubMessage(message) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "hub-message";
-
-  const avatar = document.createElement("div");
-  avatar.className = "hub-avatar";
-  avatar.textContent = message.name.charAt(0).toUpperCase();
-
-  const content = document.createElement("div");
-  content.className = "hub-message-content";
-
-  const top = document.createElement("div");
-  top.className = "hub-message-top";
-
-  const name = document.createElement("span");
-  name.className = "hub-message-name";
-  name.textContent = message.name;
-
-  const time = document.createElement("time");
-  time.className = "hub-message-time";
-  time.textContent = message.time;
-
-  const body = document.createElement("div");
-  body.className = "hub-message-text";
-  body.textContent = message.text;
-
-  top.append(name, time);
-  content.append(top, body);
-  wrapper.append(avatar, content);
-
-  hubMessages.appendChild(wrapper);
-}
-
-
-/* ==========================================
-   21. SEND COMMUNITY MESSAGES
-   ========================================== */
-
-hubMessageForm.addEventListener("submit", event => {
-  event.preventDefault();
-
-  const text = hubMessageInput.value.trim();
-
-  if (!text) return;
-
-  if (!currentUser) {
-    showStatus("Sign in to send messages in the community.");
-
-    if (!dialog.open) dialog.showModal();
-
-    return;
-  }
-
-  const message = {
-    name: getDisplayName(currentUser),
-    text,
-    time: new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    })
-  };
-
-  if (!channelMessages[activeChannel]) {
-    channelMessages[activeChannel] = [];
-  }
-
-  channelMessages[activeChannel].push(message);
-
-  channelMessages[activeChannel] =
-    channelMessages[activeChannel].slice(-100);
-
-  saveChannelMessages();
-
-  addHubMessage(message);
-
-  hubMessageInput.value = "";
-
-  hubMessages.scrollTop = hubMessages.scrollHeight;
-});
-
-
-/* ==========================================
-   22. MEMBER SIDEBAR
-   ========================================== */
-
-function renderMembers() {
-  hubMemberList.innerHTML = "";
-
-  if (!currentUser) {
-    const visitor = document.createElement("p");
-
-    visitor.className = "hub-empty";
-    visitor.textContent = "Sign in to join the community.";
-
-    hubMemberList.appendChild(visitor);
-    return;
-  }
-
-  const member = document.createElement("div");
-  member.className = "hub-member";
-
-  const avatar = document.createElement("span");
-  avatar.className = "hub-member-avatar";
-  avatar.textContent = getDisplayName(currentUser)
-    .charAt(0).toUpperCase();
-
-  const name = document.createElement("span");
-  name.textContent = getDisplayName(currentUser);
-
-  const dot = document.createElement("span");
-  dot.className = "hub-online-dot";
-
-  member.append(avatar, name, dot);
-
-  hubMemberList.appendChild(member);
-}
-
-
-/* ==========================================
-   23. COMMUNITY INITIALIZATION
-   ========================================== */
-
-renderChannelNavigation();
-renderChannelMessages();
-renderMembers();
-
-const previousUpdateAccountUI = updateAccountUI;
-
-function refreshCommunityMembers() {
-  renderMembers();
-}
-
-const originalAuthUpdate = updateAccountUI;
-
-updateAccountUI = function(user) {
-  originalAuthUpdate(user);
-  refreshCommunityMembers();
-};
-
-
-/* ==========================================
-   24. COMMUNITY BUTTON
-   ========================================== */
-
-document.getElementById("chatJump")
-  ?.addEventListener("click", () => {
-    document.getElementById("community")
-      ?.scrollIntoView({ behavior: "smooth" });
-
-    hubMessageInput.focus();
-  });
-
-
-/* ==========================================
-   25. FOOTER YEAR
-   ========================================== */
-
-const year = document.getElementById("year");
-
-if (year) {
-  year.textContent = new Date().getFullYear();
-}
-
-
-/* ==========================================
-   26. MOBILE NAVIGATION
-   ========================================== */
-
-document.getElementById("menuToggle")
-  ?.addEventListener("click", () => {
-    document.getElementById("mainNav")
-      ?.classList.toggle("open");
-  });
-
-document.querySelectorAll(".nav-link").forEach(link => {
-  link.addEventListener("click", () => {
-    document.getElementById("mainNav")
-      ?.classList.remove("open");
-  });
-});
-
-
-/* ==========================================
-   END OF NOCTURNE VOID SCRIPT
-   ========================================== */
 
 })();
