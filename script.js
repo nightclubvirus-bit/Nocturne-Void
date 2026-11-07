@@ -1,7 +1,9 @@
+
 /* ==========================================
    NOCTURNE VOID
    COMPLETE WEBSITE SCRIPT
-   SUPABASE + PRIVATE MESSAGES
+   SUPABASE + COMMUNITY + PRIVATE MESSAGES
+   AVATAR UPLOAD + NOTIFICATION SOUNDS
    ========================================== */
 
 (() => {
@@ -19,6 +21,11 @@
 
   const WEBSITE_URL =
     "https://nightclubvirus-bit.github.io/Nocturne-Void/";
+
+  const AVATAR_BUCKET = "avatars";
+  const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
+  const SOUND_SETTING_KEY = "nocturneVoidSounds";
 
   let supabaseClient = null;
   let currentUser = null;
@@ -40,8 +47,13 @@
   let directMessages = [];
   let conversationProfiles = [];
 
+  let notificationAudioContext = null;
+
+  let notificationSoundsEnabled =
+    localStorage.getItem(SOUND_SETTING_KEY) !== "false";
+
   /* ==========================================
-     2. HELPERS
+     2. GENERAL HELPERS
      ========================================== */
 
   const $ = (selector, parent = document) =>
@@ -89,6 +101,18 @@
     );
   }
 
+  function getProfile(userId) {
+    if (currentProfile?.id === userId) {
+      return currentProfile;
+    }
+
+    return (
+      communityProfiles.find(profile => profile.id === userId) ||
+      conversationProfiles.find(profile => profile.id === userId) ||
+      null
+    );
+  }
+
   function makeAvatar(profile, className = "hub-avatar") {
     const avatar = document.createElement("div");
     avatar.className = className;
@@ -113,141 +137,395 @@
     return avatar;
   }
 
-  function getProfile(userId) {
-    return communityProfiles.find(profile => profile.id === userId) ||
-      conversationProfiles.find(profile => profile.id === userId) ||
-      null;
-  }
-/* ==========================================
-   NOTIFICATION SOUNDS
-   ========================================== */
+  /* ==========================================
+     3. AVATAR PROFILE PREVIEW
+     ========================================== */
 
-const SOUND_SETTING_KEY = "nocturneVoidSounds";
+  function renderAvatarProfile() {
+    const hub = $(".community-hub");
+    if (!hub) return;
 
-let notificationAudioContext = null;
+    const preview = $(".hub-profile-preview", hub);
+    const username = $(".hub-profile-username", hub);
+    const button = $(".hub-avatar-upload-button", hub);
 
-let notificationSoundsEnabled =
-  localStorage.getItem(SOUND_SETTING_KEY) !== "false";
-
-function initializeNotificationAudio() {
-  const AudioContextClass =
-    window.AudioContext || window.webkitAudioContext;
-
-  if (!AudioContextClass) return null;
-
-  if (!notificationAudioContext) {
-    notificationAudioContext = new AudioContextClass();
-  }
-
-  if (notificationAudioContext.state === "suspended") {
-    notificationAudioContext.resume().catch(console.warn);
-  }
-
-  return notificationAudioContext;
-}
-
-function playNotificationTone(frequency, startTime, duration, volume) {
-  const context = initializeNotificationAudio();
-  if (!context) return;
-
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(frequency, startTime);
-
-  gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(
-    volume,
-    startTime + 0.025
-  );
-  gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    startTime + duration
-  );
-
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-
-  oscillator.start(startTime);
-  oscillator.stop(startTime + duration + 0.03);
-}
-
-function playNotificationSound(type = "private") {
-  if (!notificationSoundsEnabled) return;
-
-  const context = initializeNotificationAudio();
-  if (!context) return;
-
-  const now = context.currentTime;
-
-  if (type === "private") {
-    // A gentle two-note private message chime.
-    playNotificationTone(660, now, 0.20, 0.045);
-    playNotificationTone(880, now + 0.16, 0.28, 0.045);
-  } else {
-    // A quieter single-note public chat sound.
-    playNotificationTone(440, now, 0.16, 0.018);
-  }
-}
-
-function setupNotificationSoundToggle(hub) {
-  const header = $(".hub-header", hub);
-  if (!header) return;
-
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className = "hub-sound-toggle";
-
-  function updateButton() {
-    button.textContent = notificationSoundsEnabled
-      ? "♫ Sounds: ON"
-      : "♫ Sounds: OFF";
-
-    button.classList.toggle("sound-enabled", notificationSoundsEnabled);
-    button.setAttribute(
-      "aria-pressed",
-      String(notificationSoundsEnabled)
-    );
-    button.title = notificationSoundsEnabled
-      ? "Turn notification sounds off"
-      : "Turn notification sounds on";
-  }
-
-  button.addEventListener("click", () => {
-    notificationSoundsEnabled = !notificationSoundsEnabled;
-
-    localStorage.setItem(
-      SOUND_SETTING_KEY,
-      String(notificationSoundsEnabled)
-    );
-
-    if (notificationSoundsEnabled) {
-      initializeNotificationAudio();
+    if (preview) {
+      preview.replaceChildren(
+        makeAvatar(
+          currentProfile || currentUser || { username: "Guest" },
+          "hub-avatar"
+        )
+      );
     }
 
-    updateButton();
-  });
+    if (username) {
+      username.textContent = currentUser
+        ? getUsername(currentProfile || currentUser)
+        : "Guest";
+    }
 
-  updateButton();
-  header.appendChild(button);
+    if (button) {
+      button.disabled = !currentUser;
+      button.textContent = currentUser
+        ? "Change Avatar"
+        : "Sign in to upload";
+    }
+  }
 
-  // Browsers require a user interaction before audio can play.
-  document.addEventListener(
-    "pointerdown",
-    initializeNotificationAudio,
-    { once: true }
-  );
-
-  document.addEventListener(
-    "keydown",
-    initializeNotificationAudio,
-    { once: true }
-  );
-}
   /* ==========================================
-     3. SUPABASE CONNECTION
+     4. AVATAR UPLOAD
+     ========================================== */
+
+  async function handleAvatarUpload(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!currentUser || !supabaseClient) {
+      showStatus("Please sign in first.", true);
+      event.target.value = "";
+      return;
+    }
+
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      showStatus("Please select a JPG or PNG image.", true);
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      showStatus("Your avatar must be smaller than 5 MB.", true);
+      event.target.value = "";
+      return;
+    }
+
+    const userId = currentUser.id;
+    const button = $(".hub-avatar-upload-button");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Uploading...";
+    }
+
+    showStatus("Uploading your avatar...");
+
+    try {
+      const extension = file.type === "image/png" ? "png" : "jpg";
+      const filePath = `${userId}/avatar.${extension}`;
+
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from(AVATAR_BUCKET)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: file.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicData } = supabaseClient
+        .storage
+        .from(AVATAR_BUCKET)
+        .getPublicUrl(filePath);
+
+      if (!publicData?.publicUrl) {
+        throw new Error("Could not retrieve your avatar URL.");
+      }
+
+      const avatarUrl =
+        `${publicData.publicUrl}?v=${Date.now()}`;
+
+      // Make sure the authenticated user is still the same.
+      if (!currentUser || currentUser.id !== userId) {
+        throw new Error("Your session changed. Please try again.");
+      }
+
+      const { data, error: updateError } = await supabaseClient
+        .from("community_profiles")
+        .update({
+          avatar_url: avatarUrl
+        })
+        .eq("id", userId)
+        .select("id, username, avatar_url")
+        .maybeSingle();
+
+      if (updateError) throw updateError;
+
+      if (!data) {
+        throw new Error(
+          "Your profile could not be found. Please check your community_profiles table."
+        );
+      }
+
+      currentProfile = data;
+
+      communityProfiles = [
+        ...communityProfiles.filter(profile => profile.id !== userId),
+        data
+      ];
+
+      conversationProfiles = conversationProfiles.map(profile =>
+        profile.id === userId ? data : profile
+      );
+
+      // Refresh every location displaying the avatar.
+      renderAvatarProfile();
+      renderCommunityMembers();
+      renderCommunityMessages();
+      renderDirectMessageInbox();
+
+      if (activeView === "dm" && activeConversation?.id === userId) {
+        activeConversation = data;
+      }
+
+      showStatus("Your avatar has been updated successfully!");
+
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+
+      showStatus(
+        error.message || "Unable to upload your avatar.",
+        true
+      );
+
+    } finally {
+      if (button) {
+        button.disabled = !currentUser;
+        button.textContent = currentUser
+          ? "Change Avatar"
+          : "Sign in to upload";
+      }
+
+      event.target.value = "";
+    }
+  }
+
+  /* ==========================================
+     5. AVATAR STYLING
+     ========================================== */
+
+  function installAvatarStyles() {
+    if ($("#nocturne-avatar-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "nocturne-avatar-styles";
+
+    style.textContent = `
+      .hub-profile-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 12px;
+        margin-bottom: 18px;
+        background: rgba(255,255,255,.035);
+        border: 1px solid rgba(190,35,55,.25);
+        border-radius: 10px;
+      }
+
+      .hub-profile-preview .hub-avatar {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+
+      .hub-profile-preview .hub-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      .hub-profile-details {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 0;
+      }
+
+      .hub-profile-username {
+        color: #fff;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      .hub-avatar-upload-button {
+        padding: 6px 10px;
+        color: #fff;
+        background: #771d2b;
+        border: 0;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 11px;
+      }
+
+      .hub-avatar-upload-button:hover:not(:disabled) {
+        background: #a52b40;
+      }
+
+      .hub-avatar-upload-button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+      }
+
+      .hub-profile-preview .hub-avatar,
+      .hub-member-avatar,
+      .hub-message .hub-avatar {
+        flex-shrink: 0;
+      }
+
+      .hub-member-avatar img,
+      .hub-message .hub-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  /* ==========================================
+     6. NOTIFICATION SOUNDS
+     ========================================== */
+
+  function initializeNotificationAudio() {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return null;
+
+    if (!notificationAudioContext) {
+      notificationAudioContext = new AudioContextClass();
+    }
+
+    if (notificationAudioContext.state === "suspended") {
+      notificationAudioContext.resume().catch(console.warn);
+    }
+
+    return notificationAudioContext;
+  }
+
+  function playNotificationTone(
+    frequency,
+    startTime,
+    duration,
+    volume
+  ) {
+    const context = initializeNotificationAudio();
+    if (!context) return;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = "sine";
+
+    oscillator.frequency.setValueAtTime(
+      frequency,
+      startTime
+    );
+
+    gain.gain.setValueAtTime(0.0001, startTime);
+
+    gain.gain.exponentialRampToValueAtTime(
+      volume,
+      startTime + 0.025
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      startTime + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.03);
+  }
+
+  function playNotificationSound(type = "private") {
+    if (!notificationSoundsEnabled) return;
+
+    const context = initializeNotificationAudio();
+    if (!context) return;
+
+    const now = context.currentTime;
+
+    if (type === "private") {
+      playNotificationTone(660, now, 0.20, 0.045);
+      playNotificationTone(880, now + 0.16, 0.28, 0.045);
+    } else {
+      playNotificationTone(440, now, 0.16, 0.018);
+    }
+  }
+
+  function setupNotificationSoundToggle(hub) {
+    const header = $(".hub-header", hub);
+    if (!header) return;
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "hub-sound-toggle";
+
+    function updateButton() {
+      button.textContent = notificationSoundsEnabled
+        ? "♫ Sounds: ON"
+        : "♫ Sounds: OFF";
+
+      button.classList.toggle(
+        "sound-enabled",
+        notificationSoundsEnabled
+      );
+
+      button.setAttribute(
+        "aria-pressed",
+        String(notificationSoundsEnabled)
+      );
+
+      button.title = notificationSoundsEnabled
+        ? "Turn notification sounds off"
+        : "Turn notification sounds on";
+    }
+
+    button.addEventListener("click", () => {
+      notificationSoundsEnabled = !notificationSoundsEnabled;
+
+      localStorage.setItem(
+        SOUND_SETTING_KEY,
+        String(notificationSoundsEnabled)
+      );
+
+      if (notificationSoundsEnabled) {
+        initializeNotificationAudio();
+        playNotificationSound("public");
+      }
+
+      updateButton();
+    });
+
+    updateButton();
+    header.appendChild(button);
+
+    document.addEventListener(
+      "pointerdown",
+      initializeNotificationAudio,
+      { once: true }
+    );
+
+    document.addEventListener(
+      "keydown",
+      initializeNotificationAudio,
+      { once: true }
+    );
+  }
+
+  /* ==========================================
+     7. SUPABASE CONNECTION
      ========================================== */
 
   function connectSupabase() {
@@ -271,7 +549,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     4. GAME LIBRARY
+     8. GAME LIBRARY
      ========================================== */
 
   const games = [
@@ -323,7 +601,8 @@ function setupNotificationSoundToggle(hub) {
     const grid = $("#gameGrid");
     if (!grid) return;
 
-    const term = $("#gameSearch")?.value.trim().toLowerCase() || "";
+    const term =
+      $("#gameSearch")?.value.trim().toLowerCase() || "";
 
     const filtered = games.filter(game => {
       const matchesSearch =
@@ -405,7 +684,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     5. LEADERBOARD
+     9. LEADERBOARD
      ========================================== */
 
   const leaderboardPlayers = [
@@ -448,7 +727,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     6. ACCOUNT DIALOG
+     10. ACCOUNT DIALOG
      ========================================== */
 
   const accountDialog = $("#accountDialog");
@@ -489,15 +768,19 @@ function setupNotificationSoundToggle(hub) {
     );
 
     const usernameLabel = $("#usernameLabel");
-    if (usernameLabel) usernameLabel.hidden = mode !== "signup";
+    if (usernameLabel) {
+      usernameLabel.hidden = mode !== "signup";
+    }
 
     const submit = $("#accountSubmit");
+
     if (submit) {
       submit.textContent =
         mode === "signup" ? "Create Account" : "Sign In";
     }
 
     const password = $("#accountPassword");
+
     if (password) {
       password.autocomplete =
         mode === "signup" ? "new-password" : "current-password";
@@ -521,7 +804,7 @@ function setupNotificationSoundToggle(hub) {
 
       if (currentUser) {
         showStatus(
-          `Signed in as ${currentProfile?.username || currentUser.email}`
+          `Signed in as ${getUsername(currentProfile || currentUser)}`
         );
       } else {
         setAuthMode("login");
@@ -546,16 +829,22 @@ function setupNotificationSoundToggle(hub) {
       if (event.target === accountDialog) closeAccountDialog();
     });
 
-    $("#accountForm")?.addEventListener("submit", handleAccountSubmit);
+    $("#accountForm")?.addEventListener(
+      "submit",
+      handleAccountSubmit
+    );
 
     const form = $("#accountForm");
 
     if (form && !$(".forgot-password", form)) {
       const forgot = document.createElement("button");
+
       forgot.type = "button";
       forgot.className = "forgot-password";
       forgot.textContent = "Forgot your password?";
+
       forgot.addEventListener("click", handleForgotPassword);
+
       form.appendChild(forgot);
     }
 
@@ -565,7 +854,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     7. SIGNUP AND LOGIN
+     11. SIGNUP AND LOGIN
      ========================================== */
 
   async function handleAccountSubmit(event) {
@@ -591,12 +880,18 @@ function setupNotificationSoundToggle(hub) {
     }
 
     if (password.length < 8) {
-      showStatus("Password must contain at least 8 characters.", true);
+      showStatus(
+        "Password must contain at least 8 characters.",
+        true
+      );
       return;
     }
 
     if (username.length > 18) {
-      showStatus("Username must be 18 characters or fewer.", true);
+      showStatus(
+        "Username must be 18 characters or fewer.",
+        true
+      );
       return;
     }
 
@@ -629,10 +924,11 @@ function setupNotificationSoundToggle(hub) {
         );
 
       } else {
-        const { error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
+        const { error } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
 
         if (error) throw error;
 
@@ -653,7 +949,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     8. PASSWORD RECOVERY
+     12. PASSWORD RECOVERY
      ========================================== */
 
   async function handleForgotPassword() {
@@ -712,6 +1008,7 @@ function setupNotificationSoundToggle(hub) {
       firstInput.minLength = 8;
       firstInput.required = true;
       firstInput.autocomplete = "new-password";
+
       firstLabel.appendChild(firstInput);
 
       const secondLabel = document.createElement("label");
@@ -723,6 +1020,7 @@ function setupNotificationSoundToggle(hub) {
       secondInput.minLength = 8;
       secondInput.required = true;
       secondInput.autocomplete = "new-password";
+
       secondLabel.appendChild(secondInput);
 
       const submit = document.createElement("button");
@@ -740,7 +1038,10 @@ function setupNotificationSoundToggle(hub) {
         const confirm = $("#confirmNewPassword").value;
 
         if (password.length < 8) {
-          showStatus("Password must be at least 8 characters.", true);
+          showStatus(
+            "Password must be at least 8 characters.",
+            true
+          );
           return;
         }
 
@@ -777,7 +1078,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     9. LOGOUT
+     13. LOGOUT
      ========================================== */
 
   async function handleLogout() {
@@ -798,7 +1099,7 @@ function setupNotificationSoundToggle(hub) {
   }
 
   /* ==========================================
-     10. AUTHENTICATION
+     14. AUTHENTICATION
      ========================================== */
 
   function initializeAuthentication() {
@@ -813,6 +1114,8 @@ function setupNotificationSoundToggle(hub) {
 
       if (user) {
         setTimeout(() => {
+          if (currentUser?.id !== user.id) return;
+
           loadCurrentProfile();
           loadCommunityMessages();
           loadCommunityProfiles();
@@ -820,11 +1123,14 @@ function setupNotificationSoundToggle(hub) {
           startPresence();
           subscribeToDirectMessages();
         }, 0);
+
       } else {
         currentProfile = null;
+        communityProfiles = [];
         onlineMembers.clear();
         directMessages = [];
         conversationProfiles = [];
+        communityMessages = [];
         activeConversation = null;
         activeView = "channel";
 
@@ -832,6 +1138,7 @@ function setupNotificationSoundToggle(hub) {
         stopPresence();
         stopDirectMessageSubscription();
 
+        renderAvatarProfile();
         renderCommunityMembers();
         renderDirectMessageInbox();
         showChannelView();
@@ -845,6 +1152,7 @@ function setupNotificationSoundToggle(hub) {
       }
 
       const user = data.session?.user || null;
+
       updateAccountUI(user);
 
       if (user) {
@@ -869,18 +1177,25 @@ function setupNotificationSoundToggle(hub) {
     const logout = $("#logoutButton");
 
     if (button) {
-      button.textContent = currentUser ? "My Account" : "Sign In";
+      button.textContent = currentUser
+        ? "My Account"
+        : "Sign In";
     }
 
-    if (logout) logout.hidden = !currentUser;
+    if (logout) {
+      logout.hidden = !currentUser;
+    }
 
-    if (!currentUser) currentProfile = null;
+    if (!currentUser) {
+      currentProfile = null;
+    }
 
+    renderAvatarProfile();
     renderCommunityMembers();
   }
 
   /* ==========================================
-     11. COMMUNITY CHANNELS
+     15. COMMUNITY CHANNELS
      ========================================== */
 
   const channels = [
@@ -912,11 +1227,12 @@ function setupNotificationSoundToggle(hub) {
   ];
 
   /* ==========================================
-     12. BUILD COMMUNITY INTERFACE
+     16. BUILD COMMUNITY INTERFACE
      ========================================== */
 
   function initializeCommunity() {
     const section = $("#community");
+
     if (!section || $(".community-hub", section)) return;
 
     const hub = document.createElement("div");
@@ -924,26 +1240,57 @@ function setupNotificationSoundToggle(hub) {
 
     hub.innerHTML = `
       <aside class="hub-sidebar">
+
         <div class="hub-server-name">NOCTURNE VOID</div>
+
+        <div class="hub-profile-card">
+          <div class="hub-profile-preview"></div>
+
+          <div class="hub-profile-details">
+            <strong class="hub-profile-username">Guest</strong>
+
+            <button
+              class="hub-avatar-upload-button"
+              type="button"
+              disabled
+            >
+              Sign in to upload
+            </button>
+
+            <input
+              class="hub-avatar-file-input"
+              type="file"
+              accept="image/png,image/jpeg"
+              hidden
+            >
+          </div>
+        </div>
 
         <div class="hub-category">COMMUNITY CHANNELS</div>
         <div class="hub-channels"></div>
 
-        <div class="hub-category hub-dm-category">PRIVATE MESSAGES</div>
+        <div class="hub-category hub-dm-category">
+          PRIVATE MESSAGES
+        </div>
+
         <button class="hub-inbox-button" type="button">
           <span>✉</span>
           <span>Inbox</span>
           <span class="hub-inbox-count" hidden></span>
         </button>
+
         <div class="hub-conversation-list"></div>
+
       </aside>
 
       <main class="hub-main">
+
         <header class="hub-header">
           <div class="hub-header-title">
             <h3 class="hub-channel-title"># general</h3>
             <p class="hub-channel-description"></p>
           </div>
+
           <button class="hub-back-button" type="button" hidden>
             ← Channels
           </button>
@@ -959,8 +1306,10 @@ function setupNotificationSoundToggle(hub) {
             placeholder="Sign in to send a message..."
             aria-label="Write a message"
           >
+
           <button type="submit">Send</button>
         </form>
+
       </main>
 
       <aside class="hub-members">
@@ -970,7 +1319,32 @@ function setupNotificationSoundToggle(hub) {
     `;
 
     section.appendChild(hub);
-setupNotificationSoundToggle(hub);
+
+    installAvatarStyles();
+    setupNotificationSoundToggle(hub);
+
+    const avatarButton =
+      $(".hub-avatar-upload-button", hub);
+
+    const avatarInput =
+      $(".hub-avatar-file-input", hub);
+
+    avatarButton?.addEventListener("click", () => {
+      if (!currentUser) {
+        openAccountDialog();
+        setAuthMode("login");
+        return;
+      }
+
+      avatarInput?.click();
+    });
+
+    avatarInput?.addEventListener(
+      "change",
+      handleAvatarUpload
+    );
+
+    renderAvatarProfile();
     renderCommunityChannels();
     renderCommunityMessages();
     renderCommunityMembers();
@@ -991,7 +1365,7 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     13. CHANNEL NAVIGATION
+     17. CHANNEL NAVIGATION
      ========================================== */
 
   function renderCommunityChannels() {
@@ -1006,9 +1380,11 @@ setupNotificationSoundToggle(hub);
       button.type = "button";
       button.className = "hub-channel";
       button.dataset.channel = channel.id;
+
       button.classList.toggle(
         "active",
-        activeView === "channel" && channel.id === activeChannel
+        activeView === "channel" &&
+        channel.id === activeChannel
       );
 
       const icon = document.createElement("span");
@@ -1035,9 +1411,14 @@ setupNotificationSoundToggle(hub);
     const title = $(".hub-channel-title");
     const description = $(".hub-channel-description");
 
-    if (activeView === "channel") {
-      if (title) title.textContent = `# ${active.name.toLowerCase()}`;
-      if (description) description.textContent = active.description;
+    if (activeView === "channel" && active) {
+      if (title) {
+        title.textContent = `# ${active.name.toLowerCase()}`;
+      }
+
+      if (description) {
+        description.textContent = active.description;
+      }
     }
   }
 
@@ -1051,12 +1432,16 @@ setupNotificationSoundToggle(hub);
 
     if (composer) composer.hidden = false;
     if (back) back.hidden = true;
-    if (inbox) inbox.classList.remove("active");
+
+    if (inbox) {
+      inbox.classList.remove("active");
+    }
 
     renderCommunityChannels();
     renderCommunityMessages();
 
     const input = $(".hub-message-input");
+
     if (input) {
       input.placeholder = currentUser
         ? "Write a message..."
@@ -1064,26 +1449,48 @@ setupNotificationSoundToggle(hub);
     }
 
     stopDirectMessageSubscription();
+
+    if (currentUser) {
+      subscribeToDirectMessages();
+    }
   }
 
   /* ==========================================
-     14. PLAYER PROFILE
+     18. PLAYER PROFILE LOADING
      ========================================== */
 
   async function loadCurrentProfile() {
     if (!currentUser || !supabaseClient) return;
 
+    const userId = currentUser.id;
+
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
         .select("id, username, avatar_url")
-        .eq("id", currentUser.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (error) throw error;
 
+      // Ignore outdated profile requests.
+      if (!currentUser || currentUser.id !== userId) return;
+
       currentProfile = data;
+
+      if (data) {
+        communityProfiles = [
+          ...communityProfiles.filter(
+            profile => profile.id !== data.id
+          ),
+          data
+        ];
+      }
+
+      renderAvatarProfile();
       renderCommunityMembers();
+      renderCommunityMessages();
+      renderDirectMessageInbox();
 
     } catch (error) {
       console.error("Profile loading error:", error);
@@ -1093,6 +1500,8 @@ setupNotificationSoundToggle(hub);
   async function loadCommunityProfiles() {
     if (!supabaseClient) return;
 
+    const userId = currentUser?.id;
+
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
@@ -1101,8 +1510,23 @@ setupNotificationSoundToggle(hub);
 
       if (error) throw error;
 
+      if (userId && currentUser?.id !== userId) return;
+
       communityProfiles = data || [];
+
+      // Preserve the latest local profile while the list loads.
+      if (currentProfile) {
+        communityProfiles = [
+          ...communityProfiles.filter(
+            profile => profile.id !== currentProfile.id
+          ),
+          currentProfile
+        ];
+      }
+
+      renderAvatarProfile();
       renderCommunityMembers();
+      renderCommunityMessages();
       renderDirectMessageInbox();
 
     } catch (error) {
@@ -1111,7 +1535,7 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     15. MEMBER LIST
+     19. MEMBER LIST
      ========================================== */
 
   function renderCommunityMembers() {
@@ -1124,6 +1548,7 @@ setupNotificationSoundToggle(hub);
       const message = document.createElement("div");
       message.className = "hub-empty";
       message.textContent = "Sign in to join the community.";
+
       container.appendChild(message);
       return;
     }
@@ -1132,6 +1557,7 @@ setupNotificationSoundToggle(hub);
       const message = document.createElement("div");
       message.className = "hub-empty";
       message.textContent = "No members found yet.";
+
       container.appendChild(message);
       return;
     }
@@ -1140,35 +1566,41 @@ setupNotificationSoundToggle(hub);
       if (profile.id === currentUser.id) return;
 
       const member = document.createElement("button");
+
       member.type = "button";
       member.className = "hub-member hub-member-button";
-      member.title = `Send a private message to ${profile.username}`;
+      member.title = `Send a private message to ${getUsername(profile)}`;
 
       const avatar = document.createElement("span");
       avatar.className = "hub-member-avatar";
 
       if (profile.avatar_url) {
         const image = document.createElement("img");
+
         image.src = profile.avatar_url;
         image.alt = "";
         image.loading = "lazy";
+
         image.onerror = () => {
           image.remove();
-          avatar.textContent = getInitial(profile.username);
+          avatar.textContent = getInitial(getUsername(profile));
         };
+
         avatar.appendChild(image);
+
       } else {
-        avatar.textContent = getInitial(profile.username);
+        avatar.textContent = getInitial(getUsername(profile));
       }
 
       const name = document.createElement("span");
       name.className = "hub-member-name";
-      name.textContent = profile.username;
+      name.textContent = getUsername(profile);
 
       const dot = document.createElement("span");
       dot.className = "hub-online-dot";
 
       const isOnline = onlineMembers.has(profile.id);
+
       dot.classList.toggle("is-online", isOnline);
       dot.title = isOnline ? "Online" : "Offline";
 
@@ -1183,7 +1615,7 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     16. ONLINE PRESENCE
+     20. ONLINE PRESENCE
      ========================================== */
 
   function stopPresence() {
@@ -1196,15 +1628,19 @@ setupNotificationSoundToggle(hub);
   }
 
   async function startPresence() {
-    if (!currentUser || !supabaseClient || !$("#community")) return;
+    if (!currentUser || !supabaseClient || !$("#community")) {
+      return;
+    }
 
     stopPresence();
+
+    const userId = currentUser.id;
 
     const channel = supabaseClient.channel(
       "nocturne-void-presence",
       {
         config: {
-          presence: { key: currentUser.id }
+          presence: { key: userId }
         }
       }
     );
@@ -1214,13 +1650,18 @@ setupNotificationSoundToggle(hub);
     channel
       .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState();
+
         onlineMembers = new Set(Object.keys(state));
+
         renderCommunityMembers();
       })
       .subscribe(async status => {
-        if (status === "SUBSCRIBED" && currentUser) {
+        if (
+          status === "SUBSCRIBED" &&
+          currentUser?.id === userId
+        ) {
           await channel.track({
-            user_id: currentUser.id,
+            user_id: userId,
             username: getUsername(currentProfile || currentUser)
           });
         }
@@ -1228,14 +1669,17 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     17. PUBLIC COMMUNITY MESSAGES
+     21. PUBLIC COMMUNITY MESSAGES
      ========================================== */
 
   async function loadCommunityMessages() {
     if (!supabaseClient) return;
 
     const container = $(".hub-messages");
+
     if (!container || activeView !== "channel") return;
+
+    const requestedChannel = activeChannel;
 
     container.textContent = "Loading messages...";
 
@@ -1243,18 +1687,25 @@ setupNotificationSoundToggle(hub);
       const { data, error } = await supabaseClient
         .from("community_messages")
         .select("id, user_id, username, message, channel, created_at")
-        .eq("channel", activeChannel)
+        .eq("channel", requestedChannel)
         .order("created_at", { ascending: true })
         .limit(100);
 
       if (error) throw error;
 
+      if (
+        activeView !== "channel" ||
+        activeChannel !== requestedChannel
+      ) return;
+
       communityMessages = data || [];
+
       renderCommunityMessages();
       subscribeToCommunityMessages();
 
     } catch (error) {
       console.error("Message loading error:", error);
+
       container.textContent =
         "Unable to load messages. Please refresh the page.";
     }
@@ -1273,29 +1724,38 @@ setupNotificationSoundToggle(hub);
 
     stopCommunitySubscriptions();
 
+    const channelName = activeChannel;
+
     communitySubscription = supabaseClient
-      .channel(`nocturne-community-${activeChannel}`)
+      .channel(`nocturne-community-${channelName}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "community_messages",
-          filter: `channel=eq.${activeChannel}`
+          filter: `channel=eq.${channelName}`
         },
         payload => {
+          if (activeChannel !== channelName) return;
+
           if (payload.eventType === "INSERT") {
             const incoming = payload.new;
-             
-             if (
-                incoming.user_id !== currentUser?.id
-             ) {
-               playNotificationSound("public");
-             }
 
-            if (!communityMessages.some(item => item.id === incoming.id)) {
+            if (incoming.user_id !== currentUser?.id) {
+              playNotificationSound("public");
+            }
+
+            if (
+              !communityMessages.some(
+                item => item.id === incoming.id
+              )
+            ) {
               communityMessages.push(incoming);
-              communityMessages = communityMessages.slice(-100);
+
+              communityMessages =
+                communityMessages.slice(-100);
+
               renderCommunityMessages();
             }
           }
@@ -1304,6 +1764,7 @@ setupNotificationSoundToggle(hub);
             communityMessages = communityMessages.filter(
               item => item.id !== payload.old.id
             );
+
             renderCommunityMessages();
           }
         }
@@ -1313,15 +1774,19 @@ setupNotificationSoundToggle(hub);
 
   function renderCommunityMessages() {
     const container = $(".hub-messages");
+
     if (!container || activeView !== "channel") return;
 
     container.replaceChildren();
 
     if (!communityMessages.length) {
       const welcome = document.createElement("div");
+
       welcome.className = "hub-welcome";
+
       welcome.textContent =
         "Welcome to this channel. Be respectful, meet other players, and enjoy your time in Nocturne Void.";
+
       container.appendChild(welcome);
       return;
     }
@@ -1331,6 +1796,7 @@ setupNotificationSoundToggle(hub);
       row.className = "hub-message";
 
       const profile = getProfile(message.user_id);
+
       const avatar = makeAvatar(
         profile || { username: message.username },
         "hub-avatar"
@@ -1357,6 +1823,7 @@ setupNotificationSoundToggle(hub);
       top.append(name, time);
       content.append(top, text);
       row.append(avatar, content);
+
       container.appendChild(row);
     });
 
@@ -1364,7 +1831,7 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     18. SEND PUBLIC MESSAGE
+     22. SEND PUBLIC MESSAGE
      ========================================== */
 
   async function handleCommunityMessage(event) {
@@ -1376,15 +1843,23 @@ setupNotificationSoundToggle(hub);
     if (!input || !supabaseClient || !currentUser) {
       openAccountDialog();
       setAuthMode("login");
-      showStatus("Please sign in before sending a message.");
+
+      showStatus(
+        "Please sign in before sending a message."
+      );
+
       return;
     }
 
     const messageText = input.value.trim();
+
     if (!messageText) return;
 
     if (messageText.length > 1000) {
-      showStatus("Messages cannot exceed 1000 characters.", true);
+      showStatus(
+        "Messages cannot exceed 1000 characters.",
+        true
+      );
       return;
     }
 
@@ -1411,7 +1886,11 @@ setupNotificationSoundToggle(hub);
 
     } catch (error) {
       console.error("Message sending error:", error);
-      showStatus(error.message || "Your message could not be sent.", true);
+
+      showStatus(
+        error.message || "Your message could not be sent.",
+        true
+      );
 
     } finally {
       if (submit) {
@@ -1422,30 +1901,34 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     19. PRIVATE MESSAGE INBOX
+     23. PRIVATE MESSAGE INBOX
      ========================================== */
 
   async function loadDirectMessageInbox() {
     if (!currentUser || !supabaseClient) return;
+
+    const userId = currentUser.id;
 
     try {
       const { data, error } = await supabaseClient
         .from("direct_messages")
         .select("id, sender_id, recipient_id, message, created_at")
         .or(
-          `sender_id.eq.${currentUser.id},recipient_id.eq.${currentUser.id}`
+          `sender_id.eq.${userId},recipient_id.eq.${userId}`
         )
         .order("created_at", { ascending: false })
         .limit(500);
 
       if (error) throw error;
 
+      if (currentUser?.id !== userId) return;
+
       directMessages = data || [];
 
       const otherIds = [
         ...new Set(
           directMessages.map(message =>
-            message.sender_id === currentUser.id
+            message.sender_id === userId
               ? message.recipient_id
               : message.sender_id
           )
@@ -1471,11 +1954,14 @@ setupNotificationSoundToggle(hub);
     list.replaceChildren();
 
     const message = document.createElement("div");
+
     message.className = "hub-empty";
+
     message.textContent =
       "Your inbox could not load. Check your private message table permissions.";
 
     list.appendChild(message);
+
     console.error(error);
   }
 
@@ -1487,8 +1973,10 @@ setupNotificationSoundToggle(hub);
 
     if (!currentUser) {
       const empty = document.createElement("div");
+
       empty.className = "hub-empty";
       empty.textContent = "Sign in to use private messages.";
+
       list.appendChild(empty);
       return;
     }
@@ -1508,8 +1996,12 @@ setupNotificationSoundToggle(hub);
 
     if (!latestByUser.size) {
       const empty = document.createElement("div");
+
       empty.className = "hub-empty";
-      empty.textContent = "No conversations yet. Select a member to message them.";
+
+      empty.textContent =
+        "No conversations yet. Select a member to message them.";
+
       list.appendChild(empty);
       return;
     }
@@ -1519,6 +2011,7 @@ setupNotificationSoundToggle(hub);
       if (!profile) return;
 
       const button = document.createElement("button");
+
       button.type = "button";
       button.className = "hub-conversation-button";
 
@@ -1526,17 +2019,23 @@ setupNotificationSoundToggle(hub);
         button.classList.add("active");
       }
 
-      const avatar = makeAvatar(profile, "hub-member-avatar");
+      const avatar = makeAvatar(
+        profile,
+        "hub-member-avatar"
+      );
 
       const details = document.createElement("span");
       details.className = "hub-conversation-details";
 
       const name = document.createElement("strong");
-      name.textContent = profile.username;
+      name.textContent = getUsername(profile);
 
       const preview = document.createElement("small");
+
       const prefix =
-        message.sender_id === currentUser.id ? "You: " : "";
+        message.sender_id === currentUser.id
+          ? "You: "
+          : "";
 
       preview.textContent = prefix + message.message;
 
@@ -1551,10 +2050,15 @@ setupNotificationSoundToggle(hub);
     });
   }
 
+  /* ==========================================
+     24. INBOX VIEW
+     ========================================== */
+
   function showInboxView() {
     if (!currentUser) {
       openAccountDialog();
       setAuthMode("login");
+
       showStatus("Sign in to use private messages.");
       return;
     }
@@ -1572,7 +2076,11 @@ setupNotificationSoundToggle(hub);
     const inbox = $(".hub-inbox-button");
 
     if (title) title.textContent = "Private Messages";
-    if (description) description.textContent = "Your personal conversations.";
+
+    if (description) {
+      description.textContent = "Your personal conversations.";
+    }
+
     if (composer) composer.hidden = true;
     if (back) back.hidden = false;
     if (inbox) inbox.classList.add("active");
@@ -1581,7 +2089,9 @@ setupNotificationSoundToggle(hub);
       messages.replaceChildren();
 
       const welcome = document.createElement("div");
+
       welcome.className = "hub-welcome";
+
       welcome.textContent =
         "Choose a conversation from your inbox, or select a member to start a new private conversation.";
 
@@ -1593,13 +2103,14 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     20. OPEN A PRIVATE CONVERSATION
+     25. OPEN PRIVATE CONVERSATION
      ========================================== */
 
   async function openDirectMessage(profile) {
     if (!currentUser) {
       openAccountDialog();
       setAuthMode("login");
+
       showStatus("Sign in to send private messages.");
       return;
     }
@@ -1616,17 +2127,25 @@ setupNotificationSoundToggle(hub);
     const inbox = $(".hub-inbox-button");
     const input = $(".hub-message-input");
 
-    if (title) title.textContent = profile.username;
+    if (title) {
+      title.textContent = getUsername(profile);
+    }
+
     if (description) {
       description.textContent = "Private conversation";
     }
 
     if (composer) composer.hidden = false;
     if (back) back.hidden = false;
-    if (inbox) inbox.classList.remove("active");
+
+    if (inbox) {
+      inbox.classList.remove("active");
+    }
 
     if (input) {
-      input.placeholder = `Message ${profile.username} privately...`;
+      input.placeholder =
+        `Message ${getUsername(profile)} privately...`;
+
       input.value = "";
     }
 
@@ -1637,7 +2156,7 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     21. LOAD PRIVATE CONVERSATION
+     26. LOAD PRIVATE CONVERSATION
      ========================================== */
 
   async function loadConversationMessages(otherUserId) {
@@ -1646,10 +2165,12 @@ setupNotificationSoundToggle(hub);
     const container = $(".hub-messages");
     if (!container) return;
 
+    const userId = currentUser.id;
+
     container.textContent = "Loading private messages...";
 
     try {
-      const me = currentUser.id;
+      const me = userId;
       const other = otherUserId;
 
       const { data, error } = await supabaseClient
@@ -1664,6 +2185,7 @@ setupNotificationSoundToggle(hub);
       if (error) throw error;
 
       if (
+        currentUser?.id !== userId ||
         activeView !== "dm" ||
         activeConversation?.id !== otherUserId
       ) return;
@@ -1689,15 +2211,19 @@ setupNotificationSoundToggle(hub);
 
   function renderDirectConversation(messages) {
     const container = $(".hub-messages");
+
     if (!container || activeView !== "dm") return;
 
     container.replaceChildren();
 
     if (!messages.length) {
       const empty = document.createElement("div");
+
       empty.className = "hub-welcome";
+
       empty.textContent =
-        `This is the beginning of your private conversation with ${activeConversation?.username || "this member"}.`;
+        `This is the beginning of your private conversation with ${getUsername(activeConversation)}.`;
+
       container.appendChild(empty);
       return;
     }
@@ -1706,9 +2232,12 @@ setupNotificationSoundToggle(hub);
       const mine = message.sender_id === currentUser.id;
 
       const row = document.createElement("div");
+
       row.className = mine
         ? "hub-message hub-message-mine"
         : "hub-message";
+
+      row.dataset.messageId = String(message.id);
 
       const otherProfile = mine
         ? currentProfile || currentUser
@@ -1727,9 +2256,10 @@ setupNotificationSoundToggle(hub);
 
       const name = document.createElement("span");
       name.className = "hub-message-name";
+
       name.textContent = mine
         ? "You"
-        : activeConversation?.username || "Player";
+        : getUsername(activeConversation);
 
       const time = document.createElement("span");
       time.className = "hub-message-time";
@@ -1742,6 +2272,7 @@ setupNotificationSoundToggle(hub);
       top.append(name, time);
       content.append(top, text);
       row.append(avatar, content);
+
       container.appendChild(row);
     });
 
@@ -1749,12 +2280,14 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     22. REAL-TIME PRIVATE MESSAGES
+     27. REAL-TIME PRIVATE MESSAGES
      ========================================== */
 
   function stopDirectMessageSubscription() {
     if (directMessageSubscription && supabaseClient) {
-      supabaseClient.removeChannel(directMessageSubscription);
+      supabaseClient.removeChannel(
+        directMessageSubscription
+      );
     }
 
     directMessageSubscription = null;
@@ -1791,20 +2324,27 @@ setupNotificationSoundToggle(hub);
       )
       .subscribe(status => {
         if (status === "CHANNEL_ERROR") {
-          console.error("Private message realtime subscription failed.");
+          console.error(
+            "Private message realtime subscription failed."
+          );
         }
       });
   }
 
   function handleIncomingDirectMessage(payload) {
     const incoming = payload.new;
-    if (!incoming || !currentUser) return;
-     
-     if (incoming.sender_id !== currentUser.id) {
-  playNotificationSound("private");
- }
 
-    if (!directMessages.some(message => message.id === incoming.id)) {
+    if (!incoming || !currentUser) return;
+
+    if (incoming.sender_id !== currentUser.id) {
+      playNotificationSound("private");
+    }
+
+    if (
+      !directMessages.some(
+        message => message.id === incoming.id
+      )
+    ) {
       directMessages.unshift(incoming);
     }
 
@@ -1842,16 +2382,11 @@ setupNotificationSoundToggle(hub);
         );
 
       renderDirectConversation(currentMessages);
-
-      $$(".hub-message", container).forEach((row, index) => {
-        const message = currentMessages[index];
-        if (message) row.dataset.messageId = String(message.id);
-      });
     }
   }
 
   /* ==========================================
-     23. SEND PRIVATE MESSAGE
+     28. SEND PRIVATE MESSAGE
      ========================================== */
 
   async function handleDirectMessage(event) {
@@ -1863,17 +2398,24 @@ setupNotificationSoundToggle(hub);
     if (!currentUser) {
       openAccountDialog();
       setAuthMode("login");
+
       showStatus("Sign in to send private messages.");
       return;
     }
 
-    if (!activeConversation || !input || !supabaseClient) return;
+    if (!activeConversation || !input || !supabaseClient) {
+      return;
+    }
 
     const messageText = input.value.trim();
+
     if (!messageText) return;
 
     if (messageText.length > 1000) {
-      showStatus("Messages cannot exceed 1000 characters.", true);
+      showStatus(
+        "Messages cannot exceed 1000 characters.",
+        true
+      );
       return;
     }
 
@@ -1898,7 +2440,9 @@ setupNotificationSoundToggle(hub);
       input.value = "";
 
       if (data) {
-        if (!directMessages.some(item => item.id === data.id)) {
+        if (
+          !directMessages.some(item => item.id === data.id)
+        ) {
           directMessages.unshift(data);
         }
 
@@ -1919,6 +2463,7 @@ setupNotificationSoundToggle(hub);
 
     } catch (error) {
       console.error("Private message sending error:", error);
+
       showStatus(
         error.message || "Your private message could not be sent.",
         true
@@ -1933,21 +2478,23 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     24. MESSAGE COMPOSER ROUTER
+     29. MESSAGE COMPOSER ROUTER
      ========================================== */
 
   function handleComposerSubmit(event) {
     if (activeView === "dm") {
       handleDirectMessage(event);
+
     } else if (activeView === "channel") {
       handleCommunityMessage(event);
+
     } else {
       event.preventDefault();
     }
   }
 
   /* ==========================================
-     25. MOBILE NAVIGATION
+     30. MOBILE NAVIGATION
      ========================================== */
 
   function initializeMobileNavigation() {
@@ -1966,6 +2513,7 @@ setupNotificationSoundToggle(hub);
     $$("#mainNav a").forEach(link => {
       link.addEventListener("click", () => {
         nav.classList.remove("open");
+
         toggle.setAttribute("aria-expanded", "false");
         toggle.textContent = "☰";
       });
@@ -1973,17 +2521,18 @@ setupNotificationSoundToggle(hub);
   }
 
   /* ==========================================
-     26. FOOTER
+     31. FOOTER
      ========================================== */
 
   function initializeFooter() {
     const year = new Date().getFullYear();
+
     setText("year", year);
     setText("footerYear", year);
   }
 
   /* ==========================================
-     27. START WEBSITE
+     32. START WEBSITE
      ========================================== */
 
   function initializeWebsite() {
@@ -1998,11 +2547,16 @@ setupNotificationSoundToggle(hub);
 
     connectSupabase();
 
-    console.log("NOCTURNE VOID initialized successfully.");
+    console.log(
+      "NOCTURNE VOID initialized successfully."
+    );
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeWebsite);
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeWebsite
+    );
   } else {
     initializeWebsite();
   }
