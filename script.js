@@ -118,7 +118,134 @@
       conversationProfiles.find(profile => profile.id === userId) ||
       null;
   }
+/* ==========================================
+   NOTIFICATION SOUNDS
+   ========================================== */
 
+const SOUND_SETTING_KEY = "nocturneVoidSounds";
+
+let notificationAudioContext = null;
+
+let notificationSoundsEnabled =
+  localStorage.getItem(SOUND_SETTING_KEY) !== "false";
+
+function initializeNotificationAudio() {
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
+
+  if (!AudioContextClass) return null;
+
+  if (!notificationAudioContext) {
+    notificationAudioContext = new AudioContextClass();
+  }
+
+  if (notificationAudioContext.state === "suspended") {
+    notificationAudioContext.resume().catch(console.warn);
+  }
+
+  return notificationAudioContext;
+}
+
+function playNotificationTone(frequency, startTime, duration, volume) {
+  const context = initializeNotificationAudio();
+  if (!context) return;
+
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(
+    volume,
+    startTime + 0.025
+  );
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    startTime + duration
+  );
+
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+
+  oscillator.start(startTime);
+  oscillator.stop(startTime + duration + 0.03);
+}
+
+function playNotificationSound(type = "private") {
+  if (!notificationSoundsEnabled) return;
+
+  const context = initializeNotificationAudio();
+  if (!context) return;
+
+  const now = context.currentTime;
+
+  if (type === "private") {
+    // A gentle two-note private message chime.
+    playNotificationTone(660, now, 0.20, 0.045);
+    playNotificationTone(880, now + 0.16, 0.28, 0.045);
+  } else {
+    // A quieter single-note public chat sound.
+    playNotificationTone(440, now, 0.16, 0.018);
+  }
+}
+
+function setupNotificationSoundToggle(hub) {
+  const header = $(".hub-header", hub);
+  if (!header) return;
+
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "hub-sound-toggle";
+
+  function updateButton() {
+    button.textContent = notificationSoundsEnabled
+      ? "♫ Sounds: ON"
+      : "♫ Sounds: OFF";
+
+    button.classList.toggle("sound-enabled", notificationSoundsEnabled);
+    button.setAttribute(
+      "aria-pressed",
+      String(notificationSoundsEnabled)
+    );
+    button.title = notificationSoundsEnabled
+      ? "Turn notification sounds off"
+      : "Turn notification sounds on";
+  }
+
+  button.addEventListener("click", () => {
+    notificationSoundsEnabled = !notificationSoundsEnabled;
+
+    localStorage.setItem(
+      SOUND_SETTING_KEY,
+      String(notificationSoundsEnabled)
+    );
+
+    if (notificationSoundsEnabled) {
+      initializeNotificationAudio();
+    }
+
+    updateButton();
+  });
+
+  updateButton();
+  header.appendChild(button);
+
+  // Browsers require a user interaction before audio can play.
+  document.addEventListener(
+    "pointerdown",
+    initializeNotificationAudio,
+    { once: true }
+  );
+
+  document.addEventListener(
+    "keydown",
+    initializeNotificationAudio,
+    { once: true }
+  );
+}
   /* ==========================================
      3. SUPABASE CONNECTION
      ========================================== */
@@ -843,7 +970,7 @@
     `;
 
     section.appendChild(hub);
-
+setupNotificationSoundToggle(hub);
     renderCommunityChannels();
     renderCommunityMessages();
     renderCommunityMembers();
@@ -1159,6 +1286,12 @@
         payload => {
           if (payload.eventType === "INSERT") {
             const incoming = payload.new;
+             
+             if (
+                incoming.user_id !== currentUser?.id
+             ) {
+               playNotificationSound("public");
+             }
 
             if (!communityMessages.some(item => item.id === incoming.id)) {
               communityMessages.push(incoming);
@@ -1666,6 +1799,10 @@
   function handleIncomingDirectMessage(payload) {
     const incoming = payload.new;
     if (!incoming || !currentUser) return;
+     
+     if (incoming.sender_id !== currentUser.id) {
+  playNotificationSound("private");
+ }
 
     if (!directMessages.some(message => message.id === incoming.id)) {
       directMessages.unshift(incoming);
