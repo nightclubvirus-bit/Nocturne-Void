@@ -1,24 +1,36 @@
 
+/* ==========================================
+   NOCTURNE VOID
+   Main Website Script
+   ========================================== */
 
-// ==========================================
-// NOCTURNE VOID — SUPABASE CONFIGURATION
-// ==========================================
+
+/* ==========================================
+   1. SUPABASE CONNECTION
+   ========================================== */
 
 const SUPABASE_URL = "https://huzjjefknbicqxbhcryk.supabase.co";
+
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_CxmbXvQwPwOSC0WDx5HJng_qytHjcqc";
+
+const WEBSITE_URL = "https://nightclubvirus-bit.github.io/Nocturne-Void/";
 
 const supabaseReady =
   window.supabase &&
+  SUPABASE_URL &&
   SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
 
 const supabaseClient = supabaseReady
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  ? window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    )
   : null;
 
 
-// ==========================================
-// GAME LIBRARY
-// ==========================================
+/* ==========================================
+   2. GAME LIBRARY
+   ========================================== */
 
 const games = [
   {
@@ -65,6 +77,71 @@ const games = [
   }
 ];
 
+let activeFilter = "All";
+
+const grid = document.getElementById("gameGrid");
+
+function renderGames() {
+  const searchInput = document.getElementById("gameSearch");
+  const term = searchInput.value.toLowerCase();
+
+  const shown = games.filter(game =>
+    (activeFilter === "All" || game.genre === activeFilter) &&
+    (
+      game.title + " " +
+      game.genre + " " +
+      game.description
+    ).toLowerCase().includes(term)
+  );
+
+  grid.innerHTML = shown.length
+    ? shown.map(game => `
+        <article class="game-card">
+          <div class="game-art"
+            style="background-image:url('${game.image}')">
+            <span class="game-tag">${game.genre}</span>
+          </div>
+
+          <div class="game-info">
+            <h3>${game.title}</h3>
+            <p>${game.description}</p>
+
+            <div class="game-meta">
+              <span>${game.players}</span>
+              <span>Discover ↗</span>
+            </div>
+          </div>
+        </article>
+      `).join("")
+    : '<p class="empty-state">No games found in this corner of the void.</p>';
+}
+
+renderGames();
+
+document.getElementById("gameSearch")
+  .addEventListener("input", renderGames);
+
+document.getElementById("filters")
+  .addEventListener("click", event => {
+
+    const button = event.target.closest("button[data-filter]");
+
+    if (!button) return;
+
+    activeFilter = button.dataset.filter;
+
+    document.querySelectorAll(".filter").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    renderGames();
+  });
+
+
+/* ==========================================
+   3. PLAYER LEADERBOARD
+   ========================================== */
+
 const rankings = [
   ["01", "Vesper", "VOID WALKER", "12,840"],
   ["02", "Morrow", "NIGHTBOUND", "11,260"],
@@ -73,69 +150,24 @@ const rankings = [
   ["05", "Wraith", "HOLLOW ONE", "8,860"]
 ];
 
-let activeFilter = "All";
+document.getElementById("leaderRows").innerHTML =
+  rankings.map(rank => `
+    <div class="leader-row">
+      <span class="rank">${rank[0]}</span>
 
-const grid = document.getElementById("gameGrid");
+      <span class="player">
+        ${rank[1]}
+        <small>${rank[2]}</small>
+      </span>
 
-function renderGames() {
-  const term = document.getElementById("gameSearch").value.toLowerCase();
-
-  const shown = games.filter(g =>
-    (activeFilter === "All" || g.genre === activeFilter) &&
-    (g.title + " " + g.genre + " " + g.description)
-      .toLowerCase()
-      .includes(term)
-  );
-
-  grid.innerHTML = shown.length
-    ? shown.map(g => `
-      <article class="game-card">
-        <div class="game-art" style="background-image:url('${g.image}')">
-          <span class="game-tag">${g.genre}</span>
-        </div>
-        <div class="game-info">
-          <h3>${g.title}</h3>
-          <p>${g.description}</p>
-          <div class="game-meta">
-            <span>${g.players}</span>
-            <span>Discover ↗</span>
-          </div>
-        </div>
-      </article>
-    `).join("")
-    : '<p class="empty-state">No games found in this corner of the void.</p>';
-}
-
-renderGames();
-
-document.getElementById("gameSearch").addEventListener("input", renderGames);
-
-document.getElementById("filters").addEventListener("click", e => {
-  const button = e.target.closest("button[data-filter]");
-
-  if (!button) return;
-
-  activeFilter = button.dataset.filter;
-
-  document.querySelectorAll(".filter").forEach(x =>
-    x.classList.toggle("active", x === button)
-  );
-
-  renderGames();
-});
-
-document.getElementById("leaderRows").innerHTML = rankings.map(r => `
-  <div class="leader-row">
-    <span class="rank">${r[0]}</span>
-    <span class="player">${r[1]}<small>${r[2]}</small></span>
-    <span class="score">${r[3]} XP</span>
-  </div>
-`).join("");
+      <span class="score">${rank[3]} XP</span>
+    </div>
+  `).join("");
 
 
-// ==========================================
-// ACCOUNT ELEMENTS
-// ==========================================
+/* ==========================================
+   4. ACCOUNT ELEMENTS
+   ========================================== */
 
 const dialog = document.getElementById("accountDialog");
 const accountButton = document.getElementById("accountButton");
@@ -143,10 +175,12 @@ const accountForm = document.getElementById("accountForm");
 const accountTitle = document.getElementById("accountTitle");
 const accountDescription = document.getElementById("accountDescription");
 const accountSubmit = document.getElementById("accountSubmit");
+
 const usernameLabel = document.getElementById("usernameLabel");
 const playerNameInput = document.getElementById("playerName");
 const emailInput = document.getElementById("accountEmail");
 const passwordInput = document.getElementById("accountPassword");
+
 const statusText = document.getElementById("profileStatus");
 const logoutButton = document.getElementById("logoutButton");
 const authTabs = document.getElementById("authTabs");
@@ -155,16 +189,67 @@ let authMode = "signup";
 let currentUser = null;
 
 
-// ==========================================
-// ACCOUNT STATUS
-// ==========================================
+/* ==========================================
+   5. FORGOT PASSWORD BUTTON
+   ========================================== */
+
+const forgotPasswordButton = document.createElement("button");
+
+forgotPasswordButton.type = "button";
+forgotPasswordButton.id = "forgotPasswordButton";
+forgotPasswordButton.textContent = "Forgot Password?";
+
+accountForm.appendChild(forgotPasswordButton);
+
+
+/* ==========================================
+   6. NEW PASSWORD FORM
+   ========================================== */
+
+const resetPasswordForm = document.createElement("form");
+
+resetPasswordForm.id = "resetPasswordForm";
+resetPasswordForm.hidden = true;
+
+resetPasswordForm.innerHTML = `
+  <label for="newPassword">New Password</label>
+
+  <input
+    type="password"
+    id="newPassword"
+    placeholder="Enter your new password"
+    minlength="6"
+    required
+  >
+
+  <button type="submit">
+    Update Password
+  </button>
+`;
+
+dialog.appendChild(resetPasswordForm);
+
+
+/* ==========================================
+   7. ACCOUNT STATUS
+   ========================================== */
 
 function showStatus(message, isError = false) {
   statusText.textContent = message;
-  statusText.classList.toggle("status-error", isError);
+
+  statusText.classList.toggle(
+    "status-error",
+    isError
+  );
 }
 
+
+/* ==========================================
+   8. SIGN UP / SIGN IN TABS
+   ========================================== */
+
 function setAuthMode(mode) {
+
   authMode = mode;
 
   const isSignup = mode === "signup";
@@ -178,21 +263,28 @@ function setAuthMode(mode) {
     : "Sign in with the email and password linked to your account.";
 
   usernameLabel.hidden = !isSignup;
+
   playerNameInput.required = isSignup;
   playerNameInput.disabled = !isSignup;
+
+  forgotPasswordButton.hidden = isSignup;
 
   accountSubmit.textContent = isSignup
     ? "Create account"
     : "Sign in";
 
-  authTabs.querySelectorAll(".auth-tab").forEach(button =>
-    button.classList.toggle("active", button.dataset.mode === mode)
-  );
+  authTabs.querySelectorAll(".auth-tab").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.mode === mode
+    );
+  });
 
   showStatus("");
 }
 
 authTabs.addEventListener("click", event => {
+
   const button = event.target.closest("[data-mode]");
 
   if (button) {
@@ -200,36 +292,52 @@ authTabs.addEventListener("click", event => {
   }
 });
 
+
+/* ==========================================
+   9. PLAYER DISPLAY NAME
+   ========================================== */
+
 function getDisplayName(user) {
-  return user?.user_metadata?.username ||
+
+  return (
+    user?.user_metadata?.username ||
     user?.email?.split("@")[0] ||
-    "Wanderer";
+    "Wanderer"
+  );
 }
 
 
-// ==========================================
-// UPDATE ACCOUNT DISPLAY
-// ==========================================
+/* ==========================================
+   10. UPDATE ACCOUNT DISPLAY
+   ========================================== */
 
 function updateAccountUI(user) {
+
   currentUser = user || null;
 
   if (currentUser) {
-    accountButton.textContent = getDisplayName(currentUser);
+
+    accountButton.textContent =
+      getDisplayName(currentUser);
 
     authTabs.hidden = true;
     accountForm.hidden = true;
     logoutButton.hidden = false;
 
-    accountTitle.innerHTML = 'WELCOME TO THE <em>VOID.</em>';
+    accountTitle.innerHTML =
+      'WELCOME TO THE <em>VOID.</em>';
 
     accountDescription.textContent =
       `You are signed in as ${currentUser.email}.`;
 
     usernameLabel.hidden = true;
 
-    showStatus(`Your account is active, ${getDisplayName(currentUser)}.`);
+    showStatus(
+      `Your account is active, ${getDisplayName(currentUser)}.`
+    );
+
   } else {
+
     accountButton.textContent = "Sign in";
 
     authTabs.hidden = false;
@@ -241,42 +349,52 @@ function updateAccountUI(user) {
 }
 
 
-// ==========================================
-// OPEN ACCOUNT WINDOW
-// ==========================================
+/* ==========================================
+   11. OPEN ACCOUNT WINDOW
+   ========================================== */
 
 function openAccountDialog() {
+
   if (!supabaseClient) {
+
     dialog.showModal();
 
     showStatus(
-      "Supabase is not configured. Check your connection settings.",
+      "Supabase is not configured correctly.",
       true
     );
 
     return;
   }
 
+  resetPasswordForm.hidden = true;
+  accountForm.hidden = false;
+
   if (currentUser) {
     updateAccountUI(currentUser);
   } else {
+    authTabs.hidden = false;
     setAuthMode("signup");
   }
 
   dialog.showModal();
 }
 
-accountButton.addEventListener("click", openAccountDialog);
+accountButton.addEventListener(
+  "click",
+  openAccountDialog
+);
 
 document.getElementById("joinButton")
   .addEventListener("click", openAccountDialog);
 
 
-// ==========================================
-// SIGN UP AND SIGN IN
-// ==========================================
+/* ==========================================
+   12. SIGN UP AND SIGN IN
+   ========================================== */
 
 accountForm.addEventListener("submit", async event => {
+
   event.preventDefault();
 
   if (!supabaseClient) {
@@ -289,47 +407,58 @@ accountForm.addEventListener("submit", async event => {
 
   accountSubmit.disabled = true;
 
-  accountSubmit.textContent = authMode === "signup"
-    ? "Creating account..."
-    : "Signing in...";
+  accountSubmit.textContent =
+    authMode === "signup"
+      ? "Creating account..."
+      : "Signing in...";
 
   showStatus("");
 
   try {
+
     if (authMode === "signup") {
+
       const username = playerNameInput.value.trim();
 
       if (!username) {
         throw new Error("Choose a player name first.");
       }
 
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+
+          email,
+          password,
+
+          options: {
+            data: {
+              username
+            }
           }
-        }
-      });
+        });
 
       if (error) throw error;
 
       if (data.session) {
+
         updateAccountUI(data.user);
 
         showStatus(
           `Welcome to the void, ${username}. Your account has been created.`
         );
+
       } else {
+
         showStatus(
           "Account created! Check your email for a confirmation link, then return here to sign in."
         );
       }
 
     } else {
+
       const { data, error } =
         await supabaseClient.auth.signInWithPassword({
+
           email,
           password
         });
@@ -338,81 +467,264 @@ accountForm.addEventListener("submit", async event => {
 
       updateAccountUI(data.user);
 
-      showStatus(`Welcome back, ${getDisplayName(data.user)}.`);
+      showStatus(
+        `Welcome back, ${getDisplayName(data.user)}.`
+      );
     }
 
     passwordInput.value = "";
 
   } catch (error) {
+
     showStatus(
       error.message || "Something went wrong. Please try again.",
       true
     );
 
   } finally {
+
     accountSubmit.disabled = false;
 
-    accountSubmit.textContent = authMode === "signup"
-      ? "Create account"
-      : "Sign in";
+    accountSubmit.textContent =
+      authMode === "signup"
+        ? "Create account"
+        : "Sign in";
   }
 });
 
 
-// ==========================================
-// LOG OUT
-// ==========================================
+/* ==========================================
+   13. FORGOT PASSWORD
+   ========================================== */
 
-logoutButton.addEventListener("click", async () => {
-  if (!supabaseClient) return;
+forgotPasswordButton.addEventListener(
+  "click",
+  async () => {
 
-  logoutButton.disabled = true;
-
-  const { error } = await supabaseClient.auth.signOut();
-
-  logoutButton.disabled = false;
-
-  if (error) {
-    showStatus(error.message, true);
-    return;
-  }
-
-  updateAccountUI(null);
-
-  showStatus("You have signed out of the void.");
-});
-
-
-// ==========================================
-// CHECK EXISTING LOGIN SESSION
-// ==========================================
-
-if (supabaseClient) {
-  supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) {
-      showStatus(error.message, true);
+    if (!supabaseClient) {
+      showStatus("Supabase is not configured.", true);
+      return;
     }
 
-    updateAccountUI(data?.session?.user || null);
-  });
+    const email = emailInput.value.trim();
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    updateAccountUI(session?.user || null);
-  });
+    if (!email) {
+
+      showStatus(
+        "Please enter your email address first.",
+        true
+      );
+
+      emailInput.focus();
+
+      return;
+    }
+
+    forgotPasswordButton.disabled = true;
+    forgotPasswordButton.textContent = "Sending email...";
+
+    showStatus("");
+
+    try {
+
+      const { error } =
+        await supabaseClient.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: WEBSITE_URL
+          }
+        );
+
+      if (error) throw error;
+
+      showStatus(
+        "Password reset email sent! Check your inbox."
+      );
+
+    } catch (error) {
+
+      showStatus(
+        error.message || "Unable to send reset email.",
+        true
+      );
+
+    } finally {
+
+      forgotPasswordButton.disabled = false;
+      forgotPasswordButton.textContent = "Forgot Password?";
+    }
+  }
+);
+
+
+/* ==========================================
+   14. PASSWORD RECOVERY SCREEN
+   ========================================== */
+
+function openPasswordRecovery() {
+
+  accountForm.hidden = true;
+  authTabs.hidden = true;
+  logoutButton.hidden = true;
+
+  resetPasswordForm.hidden = false;
+
+  accountTitle.innerHTML =
+    'CREATE A NEW <em>PASSWORD.</em>';
+
+  accountDescription.textContent =
+    "Choose a new password to return to the void.";
+
+  showStatus(
+    "Enter your new password below."
+  );
+
+  if (!dialog.open) {
+    dialog.showModal();
+  }
+}
+
+
+/* ==========================================
+   15. SAVE NEW PASSWORD
+   ========================================== */
+
+resetPasswordForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    if (!supabaseClient) {
+      showStatus("Supabase is not configured.", true);
+      return;
+    }
+
+    const newPassword =
+      document.getElementById("newPassword").value;
+
+    const updateButton =
+      resetPasswordForm.querySelector("button");
+
+    updateButton.disabled = true;
+    updateButton.textContent = "Updating password...";
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.auth.updateUser({
+          password: newPassword
+        });
+
+      if (error) throw error;
+
+      document.getElementById("newPassword").value = "";
+
+      resetPasswordForm.hidden = true;
+
+      updateAccountUI(data.user);
+
+      showStatus(
+        "Your password has been successfully updated!"
+      );
+
+    } catch (error) {
+
+      showStatus(
+        error.message || "Unable to update password.",
+        true
+      );
+
+    } finally {
+
+      updateButton.disabled = false;
+      updateButton.textContent = "Update Password";
+    }
+  }
+);
+
+
+/* ==========================================
+   16. LOG OUT
+   ========================================== */
+
+logoutButton.addEventListener(
+  "click",
+  async () => {
+
+    if (!supabaseClient) return;
+
+    logoutButton.disabled = true;
+
+    const { error } =
+      await supabaseClient.auth.signOut();
+
+    logoutButton.disabled = false;
+
+    if (error) {
+
+      showStatus(error.message, true);
+
+      return;
+    }
+
+    updateAccountUI(null);
+
+    showStatus(
+      "You have signed out of the void."
+    );
+  }
+);
+
+
+/* ==========================================
+   17. SUPABASE AUTHENTICATION LISTENER
+   ========================================== */
+
+if (supabaseClient) {
+
+  supabaseClient.auth.getSession().then(
+    ({ data, error }) => {
+
+      if (error) {
+        showStatus(error.message, true);
+      }
+
+      updateAccountUI(
+        data?.session?.user || null
+      );
+    }
+  );
+
+  supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+
+      updateAccountUI(
+        session?.user || null
+      );
+
+      if (event === "PASSWORD_RECOVERY") {
+        openPasswordRecovery();
+      }
+    }
+  );
 
 } else {
+
   updateAccountUI(null);
 }
 
 
-// ==========================================
-// COMMUNITY CHAT
-// Local demo chat — not shared live chat
-// ==========================================
+/* ==========================================
+   18. COMMUNITY CHAT
+   LOCAL DEMO CHAT
+   ========================================== */
 
-const chatMessages = document.getElementById("chatMessages");
+const chatMessages =
+  document.getElementById("chatMessages");
 
 function addMessage(message) {
+
   const div = document.createElement("div");
 
   div.className = "message";
@@ -432,70 +744,114 @@ function addMessage(message) {
 }
 
 function loadChat() {
-  const saved = JSON.parse(localStorage.getItem("nv-chat") || "[]");
+
+  const saved = JSON.parse(
+    localStorage.getItem("nv-chat") || "[]"
+  );
 
   saved.forEach(addMessage);
 
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatMessages.scrollTop =
+    chatMessages.scrollHeight;
 }
 
 loadChat();
 
-document.getElementById("chatForm").addEventListener("submit", event => {
-  event.preventDefault();
+document.getElementById("chatForm")
+  .addEventListener("submit", event => {
 
-  const input = document.getElementById("chatInput");
-  const messageText = input.value.trim();
+    event.preventDefault();
 
-  if (!messageText) return;
+    const input =
+      document.getElementById("chatInput");
 
-  const message = {
-    name: currentUser
-      ? getDisplayName(currentUser)
-      : (localStorage.getItem("nv-player-name") || "Wanderer"),
+    const messageText = input.value.trim();
 
-    text: messageText,
+    if (!messageText) return;
 
-    time: new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    })
-  };
+    const message = {
 
-  const saved = JSON.parse(localStorage.getItem("nv-chat") || "[]");
+      name: currentUser
+        ? getDisplayName(currentUser)
+        : (
+            localStorage.getItem("nv-player-name") ||
+            "Wanderer"
+          ),
 
-  saved.push(message);
+      text: messageText,
 
-  localStorage.setItem(
-    "nv-chat",
-    JSON.stringify(saved.slice(-40))
-  );
+      time: new Date().toLocaleTimeString(
+        [],
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      )
+    };
 
-  addMessage(message);
+    const saved = JSON.parse(
+      localStorage.getItem("nv-chat") || "[]"
+    );
 
-  input.value = "";
+    saved.push(message);
 
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
+    localStorage.setItem(
+      "nv-chat",
+      JSON.stringify(saved.slice(-40))
+    );
+
+    addMessage(message);
+
+    input.value = "";
+
+    chatMessages.scrollTop =
+      chatMessages.scrollHeight;
+  });
 
 
-// ==========================================
-// NAVIGATION AND FOOTER
-// ==========================================
+/* ==========================================
+   19. CHAT NAVIGATION
+   ========================================== */
 
-document.getElementById("chatJump").addEventListener("click", () => {
-  document.getElementById("chatInput").focus();
-});
+document.getElementById("chatJump")
+  .addEventListener("click", () => {
+
+    document.getElementById("chatInput").focus();
+  });
+
+
+/* ==========================================
+   20. FOOTER YEAR
+   ========================================== */
 
 document.getElementById("year").textContent =
   new Date().getFullYear();
 
-document.getElementById("menuToggle").addEventListener("click", () => {
-  document.getElementById("mainNav").classList.toggle("open");
-});
 
-document.querySelectorAll(".nav-link").forEach(link => {
-  link.addEventListener("click", () => {
-    document.getElementById("mainNav").classList.remove("open");
+/* ==========================================
+   21. MOBILE NAVIGATION
+   ========================================== */
+
+document.getElementById("menuToggle")
+  .addEventListener("click", () => {
+
+    document.getElementById("mainNav")
+      .classList.toggle("open");
   });
-});
+
+document.querySelectorAll(".nav-link")
+  .forEach(link => {
+
+    link.addEventListener("click", () => {
+
+      document.getElementById("mainNav")
+        .classList.remove("open");
+    });
+  });
+
+
+/* ==========================================
+   END OF NOCTURNE VOID SCRIPT
+   ========================================== */
+
+
