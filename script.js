@@ -430,9 +430,12 @@ accountForm.addEventListener("submit", async event => {
           email,
           password,
 
-          options: {
-            data: {
-              username
+        options: {
+  emailRedirectTo: WEBSITE_URL,
+  data: {
+    username
+  }
+}
             }
           }
         });
