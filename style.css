@@ -1630,3 +1630,36 @@ dialog p {
     font-size: 9px;
   }
 }
+/* ==========================================
+   NOTIFICATION SOUND CONTROL
+   ========================================== */
+
+.hub-sound-toggle {
+  flex-shrink: 0;
+  padding: 8px 11px;
+  border: 1px solid rgba(220,190,200,.18);
+  border-radius: 4px;
+  background: rgba(18,13,18,.9);
+  color: #a89ba1;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.hub-sound-toggle:hover {
+  border-color: var(--red2);
+  color: white;
+}
+
+.hub-sound-toggle.sound-enabled {
+  border-color: rgba(85,185,135,.35);
+  color: #75c99e;
+}
+
+@media(max-width: 520px) {
+  .hub-sound-toggle {
+    padding: 7px;
+    font-size: 8px;
+  }
+}
