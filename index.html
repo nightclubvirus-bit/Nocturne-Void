@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09070a">
+  <title>NOCTURNE VOID — Where Darkness Meets Gaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#home"><span class="brand-mark">✦</span><span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span></a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open navigation">☰</button>
+    <nav id="mainNav">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#library" class="nav-link">Games</a>
+      <a href="#leaderboard" class="nav-link">Leaderboard</a>
+      <a href="#community" class="nav-link">Community</a>
+    </nav>
+    <button class="button button-outline" id="accountButton">Sign in</button>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <p class="eyebrow"><span></span> ENTER THE UNKNOWN <span></span></p>
+        <h1>WHERE DARKNESS<br><em>MEETS GAMING</em></h1>
+        <p class="hero-copy">A realm for the players who find beauty in the shadows. Discover games, challenge rivals, and find your place in the void.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#library">Explore games <span>↗</span></a>
+          <a class="button button-ghost" href="#community">Enter the community</a>
+        </div>
+        <div class="hero-foot"><span>EST. IN THE SHADOWS</span><span>SCROLL TO EXPLORE ↓</span></div>
+      </div>
+      <div class="hero-seal" aria-hidden="true"><span>NV</span><small>NOCTURNE<br>VOID</small></div>
+    </section>
+
+    <section class="intro section-wrap">
+      <div><p class="eyebrow">A WORLD OF ITS OWN</p><h2>THE VOID<br><em>AWAITS YOU.</em></h2></div>
+      <p class="intro-copy">More than a collection of games. NOCTURNE VOID is a gathering place for curious minds, fierce competitors, and players who refuse to stay ordinary.</p>
+    </section>
+
+    <section class="section-wrap" id="library">
+      <div class="section-heading"><div><p class="eyebrow">DISCOVER YOUR NEXT OBSESSION</p><h2>THE <em>GAME LIBRARY</em></h2></div><span class="section-count">01 / DISCOVER</span></div>
+      <div class="library-tools">
+        <label class="search-box"><span>⌕</span><input id="gameSearch" type="search" placeholder="Search the library..." aria-label="Search games"></label>
+        <div class="filter-row" id="filters">
+          <button class="filter active" data-filter="All">All games</button><button class="filter" data-filter="Action">Action</button><button class="filter" data-filter="Horror">Horror</button><button class="filter" data-filter="Adventure">Adventure</button>
+        </div>
+      </div>
+      <div class="game-grid" id="gameGrid"></div>
+    </section>
+
+    <section class="leader-section" id="leaderboard">
+      <div class="section-wrap">
+        <div class="section-heading"><div><p class="eyebrow">GLORY BELONGS TO THE FEARLESS</p><h2>HALL OF <em>SHADOWS</em></h2></div><span class="section-count">02 / COMPETE</span></div>
+        <div class="leader-card">
+          <div class="leader-top"><span>TOP PLAYERS</span><span>SEASON 01 · DEMO DATA</span></div>
+          <div id="leaderRows"></div>
+          <p class="demo-note">Sample rankings for the prototype. Real player scores will be connected to a database in a later step.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap community-section" id="community">
+      <div class="community-copy"><p class="eyebrow">NO ONE WALKS THE VOID ALONE</p><h2>FIND YOUR<br><em>PEOPLE.</em></h2><p>Meet fellow players, share discoveries, and make your mark on the community.</p><button class="button button-primary" id="chatJump">Open community chat ↗</button></div>
+      <div class="chat-card">
+        <div class="chat-header"><div><span class="online-dot"></span><b>THE COMMON ROOM</b><small>COMMUNITY CHAT · LOCAL DEMO</small></div><span class="chat-lock">✦</span></div>
+        <div class="chat-messages" id="chatMessages"><div class="system-message">Welcome to the Common Room. Be kind to one another.</div></div>
+        <form class="chat-form" id="chatForm"><input id="chatInput" maxlength="180" placeholder="Leave a message in the void..." autocomplete="off" aria-label="Chat message"><button aria-label="Send message">➤</button></form>
+        <p class="demo-note">Messages are saved only in this browser on this device.</p>
+      </div>
+    </section>
+
+    <section class="join-band">
+      <p class="eyebrow">YOUR STORY STARTS HERE</p><h2>STEP INTO THE <em>VOID.</em></h2>
+      <p>Create your player identity and become part of something darker.</p>
+      <button class="button button-primary" id="joinButton">Create your profile ↗</button>
+    </section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#home"><span class="brand-mark">✦</span><span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span></a><p>BUILT FOR THE ONES WHO WANDER AFTER DARK.</p><span>© <span id="year"></span> NOCTURNE VOID</span></footer>
+
+  <dialog id="accountDialog" class="modal">
+    <form method="dialog" class="modal-close"><button aria-label="Close">×</button></form>
+    <p class="eyebrow">CLAIM YOUR IDENTITY</p><h2>ENTER THE <em>VOID.</em></h2>
+    <p class="modal-sub">This is a local profile demo, not a secure account system yet.</p>
+    <form id="profileForm" class="profile-form"><label>PLAYER NAME<input id="playerName" maxlength="18" required placeholder="Choose an alias"></label><button class="button button-primary" type="submit">Save local profile</button></form>
+    <p id="profileStatus" class="profile-status"></p>
+  </dialog>
+  <script src="script.js"></script>
+</body>
+</html>
