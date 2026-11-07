@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,11 +89,34 @@
 
   <dialog id="accountDialog" class="modal">
     <form method="dialog" class="modal-close"><button aria-label="Close">×</button></form>
-    <p class="eyebrow">CLAIM YOUR IDENTITY</p><h2>ENTER THE <em>VOID.</em></h2>
-    <p class="modal-sub">This is a local profile demo, not a secure account system yet.</p>
-    <form id="profileForm" class="profile-form"><label>PLAYER NAME<input id="playerName" maxlength="18" required placeholder="Choose an alias"></label><button class="button button-primary" type="submit">Save local profile</button></form>
-    <p id="profileStatus" class="profile-status"></p>
+    <p class="eyebrow">CLAIM YOUR IDENTITY</p>
+    <h2 id="accountTitle">ENTER THE <em>VOID.</em></h2>
+    <p class="modal-sub" id="accountDescription">Create an account or sign in to return to your place in the void.</p>
+
+    <div class="auth-tabs" id="authTabs">
+      <button type="button" class="auth-tab active" data-mode="signup">Create account</button>
+      <button type="button" class="auth-tab" data-mode="login">Sign in</button>
+    </div>
+
+    <form id="accountForm" class="profile-form">
+      <label id="usernameLabel">PLAYER NAME
+        <input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Choose an alias">
+      </label>
+      <label>EMAIL ADDRESS
+        <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </label>
+      <label>PASSWORD
+        <input id="accountPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters">
+      </label>
+      <button class="button button-primary" id="accountSubmit" type="submit">Create account</button>
+    </form>
+
+    <button type="button" class="button button-outline logout-button" id="logoutButton" hidden>Sign out</button>
+    <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p>
+    <p class="auth-footnote">Use an email address you can access. If email confirmation is enabled, check your inbox after registering.</p>
   </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
