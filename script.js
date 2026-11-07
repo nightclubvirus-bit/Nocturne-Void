@@ -2,6 +2,7 @@
 /* ==========================================
    NOCTURNE VOID
    COMPLETE WEBSITE SCRIPT
+   SUPABASE COMMUNITY EDITION
    ========================================== */
 
 (() => {
@@ -20,12 +21,19 @@
   const WEBSITE_URL =
     "https://nightclubvirus-bit.github.io/Nocturne-Void/";
 
-  const COMMUNITY_STORAGE_KEY = "nv-community-channels";
-
   let supabaseClient = null;
   let currentUser = null;
+  let currentProfile = null;
+
   let activeChannel = "general";
   let activeFilter = "All";
+
+  let communitySubscription = null;
+  let presenceSubscription = null;
+
+  let communityMessages = [];
+  let communityProfiles = [];
+  let onlineMembers = new Set();
 
   /* ==========================================
      2. HELPERS
@@ -44,25 +52,27 @@
 
   function showStatus(message, isError = false) {
     const status = $("#profileStatus");
-
     if (!status) return;
 
     status.textContent = message;
     status.classList.toggle("status-error", isError);
   }
 
-  function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, character => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    })[character]);
-  }
-
   function getInitial(value) {
     return String(value || "?").trim().charAt(0).toUpperCase();
+  }
+
+  function formatDate(value) {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
   }
 
   /* ==========================================
@@ -70,14 +80,9 @@
      ========================================== */
 
   function connectSupabase() {
-    if (!window.supabase || !window.supabase.createClient) {
-      console.error("Supabase library could not be loaded.");
-      showStatus("Account services could not load. Refresh the page.", true);
-      return;
-    }
-
-    if (!SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")) {
-      console.error("Supabase publishable key is missing.");
+    if (!window.supabase?.createClient) {
+      console.error("Supabase library could not load.");
+      showStatus("Account services could not load.", true);
       return;
     }
 
@@ -88,6 +93,7 @@
       );
 
       initializeAuthentication();
+
     } catch (error) {
       console.error("Supabase connection error:", error);
     }
@@ -146,26 +152,25 @@
     const grid = $("#gameGrid");
     if (!grid) return;
 
-    const searchInput = $("#gameSearch");
-    const searchTerm = searchInput
-      ? searchInput.value.trim().toLowerCase()
-      : "";
+    const search = $("#gameSearch");
+    const term = search ? search.value.trim().toLowerCase() : "";
 
-    const filteredGames = games.filter(game => {
+    const filtered = games.filter(game => {
       const matchesSearch =
-        game.title.toLowerCase().includes(searchTerm) ||
-        game.description.toLowerCase().includes(searchTerm) ||
-        game.category.toLowerCase().includes(searchTerm);
+        game.title.toLowerCase().includes(term) ||
+        game.description.toLowerCase().includes(term) ||
+        game.category.toLowerCase().includes(term);
 
       const matchesFilter =
-        activeFilter === "All" || game.category === activeFilter;
+        activeFilter === "All" ||
+        game.category === activeFilter;
 
       return matchesSearch && matchesFilter;
     });
 
     grid.replaceChildren();
 
-    if (filteredGames.length === 0) {
+    if (!filtered.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
       empty.textContent = "No games found. Try another search.";
@@ -173,7 +178,7 @@
       return;
     }
 
-    filteredGames.forEach(game => {
+    filtered.forEach(game => {
       const card = document.createElement("article");
       card.className = "game-card";
 
@@ -184,6 +189,7 @@
       const tag = document.createElement("span");
       tag.className = "game-tag";
       tag.textContent = game.category;
+
       art.appendChild(tag);
 
       const info = document.createElement("div");
@@ -207,16 +213,13 @@
       meta.append(platform, category);
       info.append(title, description, meta);
       card.append(art, info);
+
       grid.appendChild(card);
     });
   }
 
   function initializeGameLibrary() {
-    const search = $("#gameSearch");
-
-    if (search) {
-      search.addEventListener("input", renderGames);
-    }
+    $("#gameSearch")?.addEventListener("input", renderGames);
 
     $$("#filters button").forEach(button => {
       button.addEventListener("click", () => {
@@ -265,6 +268,7 @@
 
       const level = document.createElement("small");
       level.textContent = player.level;
+
       name.appendChild(level);
 
       const score = document.createElement("div");
@@ -283,72 +287,65 @@
   const accountDialog = $("#accountDialog");
 
   let authMode = "login";
-  let resetMode = false;
 
   function openAccountDialog() {
     if (!accountDialog) return;
 
-    if (typeof accountDialog.showModal === "function") {
-      if (!accountDialog.open) accountDialog.showModal();
-    } else {
-      accountDialog.setAttribute("open", "");
+    if (!accountDialog.open) {
+      accountDialog.showModal();
     }
   }
 
   function closeAccountDialog() {
     if (!accountDialog) return;
 
-    if (typeof accountDialog.close === "function") {
+    if (accountDialog.open) {
       accountDialog.close();
-    } else {
-      accountDialog.removeAttribute("open");
     }
   }
 
   function setAuthMode(mode) {
     authMode = mode;
-    resetMode = false;
 
     const form = $("#accountForm");
-    const title = $("#accountTitle");
-    const description = $("#accountDescription");
-    const usernameLabel = $("#usernameLabel");
     const tabs = $("#authTabs");
+    const resetForm = $("#resetPasswordForm");
 
     if (form) form.hidden = false;
     if (tabs) tabs.hidden = false;
 
-    const resetForm = $("#resetPasswordForm");
-    if (resetForm) resetForm.remove();
+    resetForm?.remove();
 
-    if (title) {
-      title.textContent = mode === "signup"
-        ? "Create Your Account"
-        : "Welcome Back";
-    }
+    setText(
+      "accountTitle",
+      mode === "signup" ? "Create Your Account" : "Welcome Back"
+    );
 
-    if (description) {
-      description.textContent = mode === "signup"
+    setText(
+      "accountDescription",
+      mode === "signup"
         ? "Join the world of Nocturne Void."
-        : "Enter the darkness and continue your journey.";
-    }
+        : "Enter the darkness and continue your journey."
+    );
+
+    const usernameLabel = $("#usernameLabel");
 
     if (usernameLabel) {
       usernameLabel.hidden = mode !== "signup";
     }
 
     const submit = $("#accountSubmit");
+
     if (submit) {
-      submit.textContent = mode === "signup"
-        ? "Create Account"
-        : "Sign In";
+      submit.textContent =
+        mode === "signup" ? "Create Account" : "Sign In";
     }
 
     const password = $("#accountPassword");
+
     if (password) {
-      password.autocomplete = mode === "signup"
-        ? "new-password"
-        : "current-password";
+      password.autocomplete =
+        mode === "signup" ? "new-password" : "current-password";
     }
 
     $$("#authTabs button").forEach(button => {
@@ -363,96 +360,59 @@
     showStatus("");
   }
 
-  function updateAccountUI(user) {
-    currentUser = user || null;
-
-    const accountButton = $("#accountButton");
-    const logoutButton = $("#logoutButton");
-    const usernameLabel = $("#usernameLabel");
-    const profileStatus = $("#profileStatus");
-
-    if (accountButton) {
-      accountButton.textContent = currentUser
-        ? "My Account"
-        : "Sign In";
-    }
-
-    if (logoutButton) {
-      logoutButton.hidden = !currentUser;
-    }
-
-    if (usernameLabel) {
-      usernameLabel.hidden = currentUser || authMode !== "signup";
-    }
-
-    if (profileStatus && currentUser) {
-      profileStatus.textContent =
-        `Signed in as ${currentUser.email}`;
-    }
-
-    refreshCommunityMembers();
-  }
-
   function initializeAccountButtons() {
-    const accountButton = $("#accountButton");
+    $("#accountButton")?.addEventListener("click", () => {
+      openAccountDialog();
 
-    if (accountButton) {
-      accountButton.addEventListener("click", () => {
-        if (currentUser) {
-          openAccountDialog();
-          showStatus(`Signed in as ${currentUser.email}`);
-        } else {
-          setAuthMode("login");
-          openAccountDialog();
-        }
-      });
+      if (currentUser) {
+        showStatus(
+          `Signed in as ${currentProfile?.username || currentUser.email}`
+        );
+      } else {
+        setAuthMode("login");
+      }
+    });
+
+    $("#authTabs")?.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      const mode =
+        button.dataset.mode ||
+        button.dataset.authMode ||
+        button.value;
+
+      if (mode === "login" || mode === "signup") {
+        setAuthMode(mode);
+      }
+    });
+
+    accountDialog?.addEventListener("click", event => {
+      if (event.target === accountDialog) {
+        closeAccountDialog();
+      }
+    });
+
+    $("#accountForm")?.addEventListener(
+      "submit",
+      handleAccountSubmit
+    );
+
+    const form = $("#accountForm");
+
+    if (form) {
+      const forgot = document.createElement("button");
+
+      forgot.type = "button";
+      forgot.className = "forgot-password";
+      forgot.textContent = "Forgot your password?";
+
+      forgot.addEventListener("click", handleForgotPassword);
+
+      form.appendChild(forgot);
     }
 
-    const tabs = $("#authTabs");
-
-    if (tabs) {
-      tabs.addEventListener("click", event => {
-        const button = event.target.closest("button");
-        if (!button) return;
-
-        const mode =
-          button.dataset.mode ||
-          button.dataset.authMode ||
-          button.value;
-
-        if (mode === "login" || mode === "signup") {
-          setAuthMode(mode);
-        }
-      });
-    }
-
-    if (accountDialog) {
-      accountDialog.addEventListener("click", event => {
-        if (event.target === accountDialog) {
-          closeAccountDialog();
-        }
-      });
-    }
-
-    const accountForm = $("#accountForm");
-
-    if (accountForm) {
-      accountForm.addEventListener("submit", handleAccountSubmit);
-
-      const forgotButton = document.createElement("button");
-      forgotButton.type = "button";
-      forgotButton.className = "forgot-password";
-      forgotButton.textContent = "Forgot your password?";
-      forgotButton.addEventListener("click", handleForgotPassword);
-
-      accountForm.appendChild(forgotButton);
-    }
-
-    const logoutButton = $("#logoutButton");
-
-    if (logoutButton) {
-      logoutButton.addEventListener("click", handleLogout);
-    }
+    $("#logoutButton")?.addEventListener("click", handleLogout);
 
     setAuthMode("login");
   }
@@ -465,7 +425,7 @@
     event.preventDefault();
 
     if (!supabaseClient) {
-      showStatus("Account services are unavailable. Refresh the page.", true);
+      showStatus("Account services are unavailable.", true);
       return;
     }
 
@@ -474,7 +434,7 @@
     const password = $("#accountPassword")?.value || "";
 
     if (!email || !password) {
-      showStatus("Please enter your email and password.", true);
+      showStatus("Enter your email and password.", true);
       return;
     }
 
@@ -483,8 +443,13 @@
       return;
     }
 
-    if (password.length < 6) {
-      showStatus("Your password must contain at least 6 characters.", true);
+    if (password.length < 8) {
+      showStatus("Password must contain at least 8 characters.", true);
+      return;
+    }
+
+    if (username.length > 18) {
+      showStatus("Username must be 18 characters or fewer.", true);
       return;
     }
 
@@ -504,9 +469,7 @@
           password,
           options: {
             emailRedirectTo: WEBSITE_URL,
-            data: {
-              username
-            }
+            data: { username }
           }
         });
 
@@ -515,27 +478,32 @@
         if (data.session) {
           showStatus("Account created successfully!");
         } else {
-          showStatus("Account created! Check your email for the confirmation link.");
+          showStatus(
+            "Account created! Check your email for confirmation."
+          );
         }
+
       } else {
-        const { error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
+        const { error } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
 
         if (error) throw error;
 
         showStatus("You are now signed in!");
       }
+
     } catch (error) {
       console.error("Authentication error:", error);
-      showStatus(error.message || "Something went wrong. Please try again.", true);
+      showStatus(error.message || "Something went wrong.", true);
+
     } finally {
       if (submit) {
         submit.disabled = false;
-        submit.textContent = authMode === "signup"
-          ? "Create Account"
-          : "Sign In";
+        submit.textContent =
+          authMode === "signup" ? "Create Account" : "Sign In";
       }
     }
   }
@@ -545,10 +513,7 @@
      ========================================== */
 
   async function handleForgotPassword() {
-    if (!supabaseClient) {
-      showStatus("Account services are unavailable.", true);
-      return;
-    }
+    if (!supabaseClient) return;
 
     const email = $("#accountEmail")?.value.trim() || "";
 
@@ -569,70 +534,68 @@
       if (error) throw error;
 
       showStatus("Password reset email sent! Check your inbox.");
+
     } catch (error) {
-      console.error("Password reset error:", error);
-      showStatus(error.message || "Unable to send reset email.", true);
+      console.error(error);
+      showStatus(error.message, true);
     }
   }
 
   function showPasswordUpdateForm() {
     if (!accountDialog) return;
 
-    resetMode = true;
-
-    const accountForm = $("#accountForm");
-    const tabs = $("#authTabs");
-
-    if (accountForm) accountForm.hidden = true;
-    if (tabs) tabs.hidden = true;
+    $("#accountForm").hidden = true;
+    $("#authTabs").hidden = true;
 
     setText("accountTitle", "Create a New Password");
-    setText("accountDescription", "Choose a new password for your account.");
+    setText("accountDescription", "Choose a new password.");
 
-    let resetForm = $("#resetPasswordForm");
+    let form = $("#resetPasswordForm");
 
-    if (!resetForm) {
-      resetForm = document.createElement("form");
-      resetForm.id = "resetPasswordForm";
+    if (!form) {
+      form = document.createElement("form");
+      form.id = "resetPasswordForm";
 
-      resetForm.innerHTML = `
-        <label>
-          New Password
-          <input
-            id="newPassword"
-            type="password"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          >
-        </label>
+      const firstLabel = document.createElement("label");
+      firstLabel.textContent = "New Password";
 
-        <label>
-          Confirm New Password
-          <input
-            id="confirmNewPassword"
-            type="password"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          >
-        </label>
+      const firstInput = document.createElement("input");
+      firstInput.type = "password";
+      firstInput.id = "newPassword";
+      firstInput.minLength = 8;
+      firstInput.required = true;
+      firstInput.autocomplete = "new-password";
 
-        <button class="button button-primary" type="submit">
-          Update Password
-        </button>
-      `;
+      firstLabel.appendChild(firstInput);
 
-      accountDialog.appendChild(resetForm);
+      const secondLabel = document.createElement("label");
+      secondLabel.textContent = "Confirm New Password";
 
-      resetForm.addEventListener("submit", async event => {
+      const secondInput = document.createElement("input");
+      secondInput.type = "password";
+      secondInput.id = "confirmNewPassword";
+      secondInput.minLength = 8;
+      secondInput.required = true;
+      secondInput.autocomplete = "new-password";
+
+      secondLabel.appendChild(secondInput);
+
+      const submit = document.createElement("button");
+      submit.type = "submit";
+      submit.className = "button button-primary";
+      submit.textContent = "Update Password";
+
+      form.append(firstLabel, secondLabel, submit);
+      accountDialog.appendChild(form);
+
+      form.addEventListener("submit", async event => {
         event.preventDefault();
 
-        const password = $("#newPassword")?.value || "";
-        const confirm = $("#confirmNewPassword")?.value || "";
+        const password = $("#newPassword").value;
+        const confirm = $("#confirmNewPassword").value;
 
-        if (password.length < 6) {
-          showStatus("Password must be at least 6 characters.", true);
+        if (password.length < 8) {
+          showStatus("Password must be at least 8 characters.", true);
           return;
         }
 
@@ -641,7 +604,7 @@
           return;
         }
 
-        showStatus("Updating your password...");
+        showStatus("Updating password...");
 
         try {
           const { error } = await supabaseClient.auth.updateUser({
@@ -651,21 +614,16 @@
           if (error) throw error;
 
           showStatus("Password updated successfully!");
-          resetForm.remove();
-          resetMode = false;
 
-          if ($("#accountForm")) {
-            $("#accountForm").hidden = false;
-          }
-
-          if ($("#authTabs")) {
-            $("#authTabs").hidden = false;
-          }
+          form.remove();
+          $("#accountForm").hidden = false;
+          $("#authTabs").hidden = false;
 
           setAuthMode("login");
+
         } catch (error) {
-          console.error("Password update error:", error);
-          showStatus(error.message || "Unable to update password.", true);
+          console.error(error);
+          showStatus(error.message, true);
         }
       });
     }
@@ -688,19 +646,18 @@
       showStatus("You have signed out.");
       updateAccountUI(null);
       setAuthMode("login");
+
     } catch (error) {
-      console.error("Logout error:", error);
-      showStatus(error.message || "Unable to sign out.", true);
+      console.error(error);
+      showStatus(error.message, true);
     }
   }
 
   /* ==========================================
-     10. AUTHENTICATION INITIALIZATION
+     10. AUTHENTICATION
      ========================================== */
 
   function initializeAuthentication() {
-    if (!supabaseClient) return;
-
     supabaseClient.auth.onAuthStateChange((event, session) => {
       const user = session?.user || null;
 
@@ -709,22 +666,65 @@
       if (event === "PASSWORD_RECOVERY") {
         setTimeout(showPasswordUpdateForm, 0);
       }
+
+      if (user) {
+        setTimeout(() => {
+          loadCurrentProfile();
+          loadCommunityMessages();
+          loadCommunityProfiles();
+          startPresence();
+        }, 0);
+      } else {
+        currentProfile = null;
+        onlineMembers.clear();
+
+        stopCommunitySubscriptions();
+        renderCommunityMembers();
+      }
     });
 
     supabaseClient.auth.getSession().then(({ data, error }) => {
       if (error) {
-        console.error("Session error:", error);
+        console.error(error);
         return;
       }
 
-      updateAccountUI(data.session?.user || null);
+      const user = data.session?.user || null;
 
-      const hash = window.location.hash;
+      updateAccountUI(user);
 
-      if (hash.includes("type=recovery")) {
+      if (user) {
+        loadCurrentProfile();
+        loadCommunityMessages();
+        loadCommunityProfiles();
+        startPresence();
+      }
+
+      if (window.location.hash.includes("type=recovery")) {
         showPasswordUpdateForm();
       }
     });
+  }
+
+  function updateAccountUI(user) {
+    currentUser = user || null;
+
+    const button = $("#accountButton");
+    const logout = $("#logoutButton");
+
+    if (button) {
+      button.textContent = currentUser ? "My Account" : "Sign In";
+    }
+
+    if (logout) {
+      logout.hidden = !currentUser;
+    }
+
+    if (!currentUser) {
+      currentProfile = null;
+    }
+
+    renderCommunityMembers();
   }
 
   /* ==========================================
@@ -759,36 +759,10 @@
     }
   ];
 
-  function loadCommunityMessages() {
-    try {
-      const saved = localStorage.getItem(COMMUNITY_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : {};
-    } catch (error) {
-      console.error("Could not load community messages:", error);
-      return {};
-    }
-  }
-
-  let communityMessages = loadCommunityMessages();
-
-  function saveCommunityMessages() {
-    try {
-      localStorage.setItem(
-        COMMUNITY_STORAGE_KEY,
-        JSON.stringify(communityMessages)
-      );
-    } catch (error) {
-      console.error("Could not save community messages:", error);
-    }
-  }
-
   function initializeCommunity() {
-    const communitySection = $("#community");
+    const section = $("#community");
 
-    if (!communitySection) return;
-
-    const existingHub = $(".community-hub", communitySection);
-    if (existingHub) return;
+    if (!section || $(".community-hub", section)) return;
 
     const hub = document.createElement("div");
     hub.className = "community-hub";
@@ -796,9 +770,7 @@
     hub.innerHTML = `
       <aside class="hub-sidebar">
         <div class="hub-server-name">NOCTURNE VOID</div>
-
         <div class="hub-category">COMMUNITY</div>
-
         <div class="hub-channels"></div>
       </aside>
 
@@ -808,7 +780,7 @@
           <p class="hub-channel-description"></p>
         </header>
 
-        <div class="hub-messages"></div>
+        <div class="hub-messages" aria-live="polite"></div>
 
         <form class="hub-composer">
           <input
@@ -829,16 +801,25 @@
       </aside>
     `;
 
-    communitySection.appendChild(hub);
+    section.appendChild(hub);
 
     renderCommunityChannels();
     renderCommunityMessages();
-    refreshCommunityMembers();
+    renderCommunityMembers();
 
-    const composer = $(".hub-composer", hub);
+    $(".hub-composer", hub)?.addEventListener(
+      "submit",
+      handleCommunityMessage
+    );
 
-    if (composer) {
-      composer.addEventListener("submit", handleCommunityMessage);
+    const input = $(".hub-message-input", hub);
+
+    if (input) {
+      input.addEventListener("focus", () => {
+        if (!currentUser) {
+          input.placeholder = "Sign in to send a message...";
+        }
+      });
     }
   }
 
@@ -850,10 +831,14 @@
 
     channels.forEach(channel => {
       const button = document.createElement("button");
+
       button.type = "button";
       button.className = "hub-channel";
-      button.classList.toggle("active", channel.id === activeChannel);
       button.dataset.channel = channel.id;
+      button.classList.toggle(
+        "active",
+        channel.id === activeChannel
+      );
 
       const icon = document.createElement("span");
       icon.textContent = "#";
@@ -865,135 +850,84 @@
 
       button.addEventListener("click", () => {
         activeChannel = channel.id;
+
         renderCommunityChannels();
-        renderCommunityMessages();
+        loadCommunityMessages();
       });
 
       container.appendChild(button);
     });
 
-    const active = channels.find(channel => channel.id === activeChannel);
-
-    setText("unused", "");
+    const active = channels.find(
+      channel => channel.id === activeChannel
+    );
 
     const title = $(".hub-channel-title");
     const description = $(".hub-channel-description");
 
-    if (title) title.textContent = `# ${active.name.toLowerCase()}`;
-    if (description) description.textContent = active.description;
+    if (title) {
+      title.textContent = `# ${active.name.toLowerCase()}`;
+    }
+
+    if (description) {
+      description.textContent = active.description;
+    }
   }
 
   /* ==========================================
-     12. COMMUNITY MESSAGE DISPLAY
+     12. LOAD PLAYER PROFILE
      ========================================== */
 
-  function renderCommunityMessages() {
-    const container = $(".hub-messages");
-    if (!container) return;
+  async function loadCurrentProfile() {
+    if (!currentUser || !supabaseClient) return;
 
-    container.replaceChildren();
+    try {
+      const { data, error } = await supabaseClient
+        .from("community_profiles")
+        .select("id, username, avatar_url")
+        .eq("id", currentUser.id)
+        .maybeSingle();
 
-    const messages = communityMessages[activeChannel] || [];
+      if (error) throw error;
 
-    if (messages.length === 0) {
-      const welcome = document.createElement("div");
-      welcome.className = "hub-welcome";
-      welcome.textContent =
-        "Welcome to this channel. Be respectful, meet other players, and enjoy your time in Nocturne Void.";
+      currentProfile = data;
 
-      container.appendChild(welcome);
-      return;
+      renderCommunityMembers();
+
+    } catch (error) {
+      console.error("Profile loading error:", error);
     }
-
-    messages.forEach(message => {
-      const row = document.createElement("div");
-      row.className = "hub-message";
-
-      const avatar = document.createElement("div");
-      avatar.className = "hub-avatar";
-      avatar.textContent = getInitial(message.username);
-
-      const content = document.createElement("div");
-      content.className = "hub-message-content";
-
-      const top = document.createElement("div");
-      top.className = "hub-message-top";
-
-      const name = document.createElement("span");
-      name.className = "hub-message-name";
-      name.textContent = message.username;
-
-      const time = document.createElement("span");
-      time.className = "hub-message-time";
-
-      const date = new Date(message.createdAt);
-      time.textContent = Number.isNaN(date.getTime())
-        ? ""
-        : date.toLocaleString();
-
-      const text = document.createElement("div");
-      text.className = "hub-message-text";
-      text.textContent = message.text;
-
-      top.append(name, time);
-      content.append(top, text);
-      row.append(avatar, content);
-      container.appendChild(row);
-    });
-
-    container.scrollTop = container.scrollHeight;
   }
 
   /* ==========================================
-     13. SEND COMMUNITY MESSAGE
+     13. LOAD COMMUNITY MEMBERS
      ========================================== */
 
-  function handleCommunityMessage(event) {
-    event.preventDefault();
+  async function loadCommunityProfiles() {
+    if (!supabaseClient) return;
 
-    const input = $(".hub-message-input");
-    if (!input) return;
+    try {
+      const { data, error } = await supabaseClient
+        .from("community_profiles")
+        .select("id, username, avatar_url")
+        .order("username", { ascending: true });
 
-    if (!currentUser) {
-      openAccountDialog();
-      setAuthMode("login");
-      showStatus("Please sign in before sending a message.");
-      return;
+      if (error) throw error;
+
+      communityProfiles = data || [];
+
+      renderCommunityMembers();
+
+    } catch (error) {
+      console.error("Community member loading error:", error);
     }
-
-    const messageText = input.value.trim();
-
-    if (!messageText) return;
-
-    const username =
-      currentUser.user_metadata?.username ||
-      currentUser.email?.split("@")[0] ||
-      "Player";
-
-    if (!communityMessages[activeChannel]) {
-      communityMessages[activeChannel] = [];
-    }
-
-    communityMessages[activeChannel].push({
-      username,
-      text: messageText,
-      createdAt: new Date().toISOString()
-    });
-
-    communityMessages[activeChannel] =
-      communityMessages[activeChannel].slice(-100);
-
-    saveCommunityMessages();
-
-    input.value = "";
-    renderCommunityMessages();
   }
 
   /* ==========================================
-     14. COMMUNITY MEMBER LIST
+     14. COMMUNITY MEMBER DISPLAY
      ========================================== */
 
-  function refreshCommunityMembers() {
+  function renderCommunityMembers() {
     const container = $(".hub-member-list");
     if (!container) return;
 
@@ -1008,30 +942,351 @@
       return;
     }
 
+    if (!communityProfiles.length) {
+      const message = document.createElement("div");
+      message.className = "hub-empty";
+      message.textContent = "No members found yet.";
+
+      container.appendChild(message);
+      return;
+    }
+
+    communityProfiles.forEach(profile => {
+      const member = document.createElement("div");
+      member.className = "hub-member";
+
+      const avatar = document.createElement("span");
+      avatar.className = "hub-member-avatar";
+
+      if (profile.avatar_url) {
+        const image = document.createElement("img");
+
+        image.src = profile.avatar_url;
+        image.alt = "";
+        image.loading = "lazy";
+
+        image.onerror = () => {
+          image.remove();
+          avatar.textContent = getInitial(profile.username);
+        };
+
+        avatar.appendChild(image);
+      } else {
+        avatar.textContent = getInitial(profile.username);
+      }
+
+      const name = document.createElement("span");
+      name.className = "hub-member-name";
+      name.textContent = profile.username;
+
+      const dot = document.createElement("span");
+      dot.className = "hub-online-dot";
+
+      const isOnline = onlineMembers.has(profile.id);
+
+      dot.classList.toggle("is-online", isOnline);
+      dot.title = isOnline ? "Online" : "Offline";
+
+      member.append(avatar, name, dot);
+      container.appendChild(member);
+    });
+  }
+
+  /* ==========================================
+     15. REAL-TIME MEMBER PRESENCE
+     ========================================== */
+
+  function stopPresence() {
+    if (!presenceSubscription || !supabaseClient) return;
+
+    supabaseClient.removeChannel(presenceSubscription);
+
+    presenceSubscription = null;
+    onlineMembers.clear();
+  }
+
+  async function startPresence() {
+    if (!currentUser || !supabaseClient || !$("#community")) return;
+
+    stopPresence();
+
+    presenceSubscription = supabaseClient.channel(
+      "nocturne-void-presence",
+      {
+        config: {
+          presence: {
+            key: currentUser.id
+          }
+        }
+      }
+    );
+
+    presenceSubscription
+      .on("presence", { event: "sync" }, () => {
+        const state = presenceSubscription.presenceState();
+
+        onlineMembers = new Set(Object.keys(state));
+
+        renderCommunityMembers();
+      })
+      .subscribe(async status => {
+        if (status === "SUBSCRIBED") {
+          await presenceSubscription.track({
+            user_id: currentUser.id,
+            username:
+              currentProfile?.username ||
+              currentUser.user_metadata?.username ||
+              "Player"
+          });
+        }
+      });
+  }
+
+  /* ==========================================
+     16. LOAD SHARED MESSAGES
+     ========================================== */
+
+  async function loadCommunityMessages() {
+    if (!supabaseClient) return;
+
+    const container = $(".hub-messages");
+    if (!container) return;
+
+    container.textContent = "Loading messages...";
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("community_messages")
+        .select("id, user_id, username, message, channel, created_at")
+        .eq("channel", activeChannel)
+        .order("created_at", { ascending: true })
+        .limit(100);
+
+      if (error) throw error;
+
+      communityMessages = data || [];
+
+      renderCommunityMessages();
+
+      subscribeToCommunityMessages();
+
+    } catch (error) {
+      console.error("Message loading error:", error);
+
+      container.textContent =
+        "Unable to load messages. Please refresh the page.";
+    }
+  }
+
+  /* ==========================================
+     17. REAL-TIME MESSAGE SUBSCRIPTION
+     ========================================== */
+
+  function stopCommunitySubscriptions() {
+    if (communitySubscription && supabaseClient) {
+      supabaseClient.removeChannel(communitySubscription);
+    }
+
+    communitySubscription = null;
+  }
+
+  function subscribeToCommunityMessages() {
+    if (!supabaseClient || !currentUser) return;
+
+    stopCommunitySubscriptions();
+
+    communitySubscription = supabaseClient
+      .channel("nocturne-community-messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "community_messages",
+          filter: `channel=eq.${activeChannel}`
+        },
+        payload => {
+          if (payload.eventType === "INSERT") {
+            const incoming = payload.new;
+
+            if (!communityMessages.some(
+              message => message.id === incoming.id
+            )) {
+              communityMessages.push(incoming);
+
+              communityMessages =
+                communityMessages.slice(-100);
+
+              renderCommunityMessages();
+            }
+          }
+
+          if (payload.eventType === "DELETE") {
+            communityMessages = communityMessages.filter(
+              message => message.id !== payload.old.id
+            );
+
+            renderCommunityMessages();
+          }
+        }
+      )
+      .subscribe(status => {
+        if (status === "CHANNEL_ERROR") {
+          console.error("Community realtime subscription failed.");
+        }
+      });
+  }
+
+  /* ==========================================
+     18. DISPLAY COMMUNITY MESSAGES
+     ========================================== */
+
+  function renderCommunityMessages() {
+    const container = $(".hub-messages");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    if (!communityMessages.length) {
+      const welcome = document.createElement("div");
+      welcome.className = "hub-welcome";
+
+      welcome.textContent =
+        "Welcome to this channel. Be respectful, meet other players, and enjoy your time in Nocturne Void.";
+
+      container.appendChild(welcome);
+      return;
+    }
+
+    communityMessages.forEach(message => {
+      const row = document.createElement("div");
+      row.className = "hub-message";
+
+      const avatar = document.createElement("div");
+      avatar.className = "hub-avatar";
+
+      const profile = communityProfiles.find(
+        item => item.id === message.user_id
+      );
+
+      if (profile?.avatar_url) {
+        const image = document.createElement("img");
+
+        image.src = profile.avatar_url;
+        image.alt = "";
+        image.loading = "lazy";
+
+        image.onerror = () => {
+          image.remove();
+          avatar.textContent = getInitial(message.username);
+        };
+
+        avatar.appendChild(image);
+      } else {
+        avatar.textContent = getInitial(message.username);
+      }
+
+      const content = document.createElement("div");
+      content.className = "hub-message-content";
+
+      const top = document.createElement("div");
+      top.className = "hub-message-top";
+
+      const name = document.createElement("span");
+      name.className = "hub-message-name";
+      name.textContent = message.username;
+
+      const time = document.createElement("span");
+      time.className = "hub-message-time";
+      time.textContent = formatDate(message.created_at);
+
+      const text = document.createElement("div");
+      text.className = "hub-message-text";
+      text.textContent = message.message;
+
+      top.append(name, time);
+      content.append(top, text);
+
+      row.append(avatar, content);
+
+      container.appendChild(row);
+    });
+
+    container.scrollTop = container.scrollHeight;
+  }
+
+  /* ==========================================
+     19. SEND SHARED COMMUNITY MESSAGE
+     ========================================== */
+
+  async function handleCommunityMessage(event) {
+    event.preventDefault();
+
+    const input = $(".hub-message-input");
+    const submit = $(".hub-composer button");
+
+    if (!input || !supabaseClient) return;
+
+    if (!currentUser) {
+      openAccountDialog();
+      setAuthMode("login");
+
+      showStatus("Please sign in before sending a message.");
+      return;
+    }
+
+    const messageText = input.value.trim();
+
+    if (!messageText) return;
+
+    if (messageText.length > 1000) {
+      showStatus("Messages cannot exceed 1000 characters.", true);
+      return;
+    }
+
     const username =
+      currentProfile?.username ||
       currentUser.user_metadata?.username ||
       currentUser.email?.split("@")[0] ||
       "Player";
 
-    const member = document.createElement("div");
-    member.className = "hub-member";
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = "Sending...";
+    }
 
-    const avatar = document.createElement("span");
-    avatar.className = "hub-member-avatar";
-    avatar.textContent = getInitial(username);
+    try {
+      const { error } = await supabaseClient
+        .from("community_messages")
+        .insert({
+          user_id: currentUser.id,
+          username,
+          message: messageText,
+          channel: activeChannel
+        });
 
-    const name = document.createElement("span");
-    name.textContent = username;
+      if (error) throw error;
 
-    const dot = document.createElement("span");
-    dot.className = "hub-online-dot";
+      input.value = "";
 
-    member.append(avatar, name, dot);
-    container.appendChild(member);
+    } catch (error) {
+      console.error("Message sending error:", error);
+
+      showStatus(
+        error.message || "Your message could not be sent.",
+        true
+      );
+
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = "Send";
+      }
+    }
   }
 
   /* ==========================================
-     15. MOBILE NAVIGATION
+     20. MOBILE NAVIGATION
      ========================================== */
 
   function initializeMobileNavigation() {
@@ -1041,15 +1296,16 @@
     if (!toggle || !nav) return;
 
     toggle.addEventListener("click", () => {
-      const isOpen = nav.classList.toggle("open");
+      const open = nav.classList.toggle("open");
 
-      toggle.setAttribute("aria-expanded", String(isOpen));
-      toggle.textContent = isOpen ? "✕" : "☰";
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.textContent = open ? "✕" : "☰";
     });
 
     $$("#mainNav a").forEach(link => {
       link.addEventListener("click", () => {
         nav.classList.remove("open");
+
         toggle.setAttribute("aria-expanded", "false");
         toggle.textContent = "☰";
       });
@@ -1057,7 +1313,7 @@
   }
 
   /* ==========================================
-     16. FOOTER YEAR
+     21. FOOTER
      ========================================== */
 
   function initializeFooter() {
@@ -1068,23 +1324,29 @@
   }
 
   /* ==========================================
-     17. START WEBSITE
+     22. START WEBSITE
      ========================================== */
 
   function initializeWebsite() {
     initializeGameLibrary();
     renderLeaderboard();
+
     initializeAccountButtons();
     initializeCommunity();
+
     initializeMobileNavigation();
     initializeFooter();
+
     connectSupabase();
 
-    console.log("NOCTURNE VOID website initialized.");
+    console.log("NOCTURNE VOID initialized successfully.");
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeWebsite);
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeWebsite
+    );
   } else {
     initializeWebsite();
   }
