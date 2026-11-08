@@ -10,14 +10,78 @@
 </head>
 <body>
   <div id="game">
-    <div id="hud"></div>
-    <div id="mission"></div>
-    <div id="startScreen">
-      <h1>THE HOLLOW</h1>
-      <p>Something is waiting in the dark.</p>
-      <button id="start-button">DEPLOY</button>
+
+    <div id="hud">
+      <div class="hud-top">
+        <div class="brand">NOCTURNE <span>VOID</span></div>
+        <div class="mission-tag">OPERATION: THE HOLLOW</div>
+      </div>
+
+      <div class="objective-panel">
+        <div class="eyebrow">CURRENT OBJECTIVE</div>
+        <div id="objective">Find the security key</div>
+        <div id="objective-detail">Search the hospital corridor.</div>
+      </div>
+
+      <div class="status-panel">
+        <div class="health-line">
+          <span>HEALTH</span>
+          <strong id="health">100</strong>
+        </div>
+        <div class="health-track">
+          <div id="health-fill"></div>
+        </div>
+        <div class="ammo-line">
+          <span>AMMUNITION</span>
+          <strong id="ammo">12 / 48</strong>
+        </div>
+        <div class="hint">WASD: MOVE | SHIFT: SPRINT<br>E: INTERACT | R: RELOAD | MOUSE: AIM</div>
+      </div>
+
+      <div id="crosshair"><i></i><b></b></div>
+      <div id="hit-marker" class="hit-marker">×</div>
+      <div id="prompt" class="prompt"></div>
     </div>
-    <div id="endScreen" hidden></div>
+
+    <div id="overlay" class="screen">
+      <div class="title-card">
+        <div class="eyebrow">NOCTURNE VOID PRESENTS</div>
+        <h1>THE HOLLOW</h1>
+        <p class="subtitle">SURVIVAL IS NOT GUARANTEED</p>
+        <p class="intro">
+          Something is waiting in the dark.
+          Find the security key, restore emergency power,
+          eliminate the threat, and reach extraction.
+        </p>
+        <button id="start-button">DEPLOY</button>
+        <p class="controls">WASD TO MOVE · MOUSE TO AIM · LEFT CLICK TO FIRE</p>
+        <p class="small-note">HEADPHONES RECOMMENDED</p>
+      </div>
+    </div>
+
+    <div id="end-screen" class="screen hidden">
+      <div class="title-card">
+        <h1 id="end-title">MISSION COMPLETE</h1>
+        <p id="end-copy"></p>
+        <button id="restart-button">REDEPLOY</button>
+      </div>
+    </div>
+
+    <div class="mobile-controls">
+      <div class="move-pad">
+        <button data-move="forward">W</button>
+        <div>
+          <button data-move="left">A</button>
+          <button data-move="back">S</button>
+          <button data-move="right">D</button>
+        </div>
+      </div>
+      <div class="action-pad">
+        <button id="mobile-interact">USE</button>
+        <button id="mobile-fire">FIRE</button>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
