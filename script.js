@@ -402,24 +402,8 @@ function initializeNotificationAudio() {
     notificationAudioContext = new AudioContextClass();
   }
 
-  if (notificationAudioContext.state === "suspended") {
-    notificationAudioContext.resume().catch(console.warn);
-  }
-
   return notificationAudioContext;
 }
-
-document.addEventListener(
-  "pointerdown",
-  initializeNotificationAudio,
-  { once: true }
-);
-
-document.addEventListener(
-  "keydown",
-  initializeNotificationAudio,
-  { once: true }
-);
   function playNotificationTone(
     frequency,
     startTime,
