@@ -2362,6 +2362,24 @@ async function openCommunityAdmin(hub) {
   const description = document.createElement("p");
   description.textContent =
     "Manage moderators and community staff.";
+   
+   const announcementHeading = document.createElement("h3");
+announcementHeading.textContent = "Community Announcements";
+
+const announcementTitle = document.createElement("input");
+announcementTitle.type = "text";
+announcementTitle.placeholder = "Announcement title";
+
+const announcementMessage = document.createElement("textarea");
+announcementMessage.placeholder = "Write your announcement...";
+announcementMessage.rows = 4;
+
+const publishButton = document.createElement("button");
+publishButton.type = "button";
+publishButton.textContent = "Publish Announcement";
+
+const announcementList = document.createElement("div");
+announcementList.textContent = "Announcements will appear here.";
 
   const closeButton = document.createElement("button");
   closeButton.type = "button";
@@ -2369,9 +2387,99 @@ async function openCommunityAdmin(hub) {
   closeButton.addEventListener("click", () => panel.remove());
 
   const memberList = document.createElement("div");
-
-  panel.append(heading, description, closeButton, memberList);
+   
+panel.append(
+  heading,
+  description,
+  closeButton,
+  announcementHeading,
+  announcementTitle,
+  announcementMessage,
+  publishButton,
+  announcementList,
+  memberList
+);
   hub.appendChild(panel);
+   async function loadAnnouncements() {
+  announcementList.textContent = "Loading announcements...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_announcements")
+      .select("id, title, message, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    announcementList.replaceChildren();
+
+    if (!data || !data.length) {
+      announcementList.textContent = "No announcements yet.";
+      return;
+    }
+
+    data.forEach(item => {
+      const entry = document.createElement("div");
+      entry.style.cssText =
+        "padding:12px 0;border-bottom:1px solid #444;";
+
+      const title = document.createElement("h4");
+      title.textContent = item.title;
+
+      const message = document.createElement("p");
+      message.textContent = item.message;
+
+      const date = document.createElement("small");
+      date.textContent =
+        new Date(item.created_at).toLocaleString();
+
+      entry.append(title, message, date);
+      announcementList.appendChild(entry);
+    });
+
+  } catch (error) {
+    console.error("Announcement loading error:", error);
+    announcementList.textContent =
+      "Could not load announcements.";
+  }
+}
+
+loadAnnouncements();
+   publishButton.addEventListener("click", async () => {
+  const title = announcementTitle.value.trim();
+  const message = announcementMessage.value.trim();
+
+  if (!title || !message) {
+    showStatus("Enter an announcement title and message.", true);
+    return;
+  }
+
+  publishButton.disabled = true;
+
+  try {
+    const { error } = await supabaseClient
+      .from("community_announcements")
+      .insert({
+        title: title,
+        message: message,
+        created_by: currentUser.id
+      });
+
+    if (error) throw error;
+
+    announcementTitle.value = "";
+    announcementMessage.value = "";
+
+    showStatus("Announcement published!");
+
+  } catch (error) {
+    console.error("Announcement error:", error);
+    showStatus(error.message || "Could not publish announcement.", true);
+
+  } finally {
+    publishButton.disabled = false;
+  }
+});
 
   memberList.textContent = "Loading community members...";
 
