@@ -43,6 +43,7 @@
 
   let communityMessages = [];
   let communityProfiles = [];
+  let currentCommunityRole = null;
   let onlineMembers = new Set();
   let directMessages = [];
   let conversationProfiles = [];
@@ -247,7 +248,7 @@
           avatar_url: avatarUrl
         })
         .eq("id", userId)
-        .select("id, username, avatar_url")
+       .select("id, username, avatar_url")
         .maybeSingle();
 
       if (updateError) throw updateError;
@@ -2622,8 +2623,30 @@ function renderCommunityChannels() {
       console.error("Profile loading error:", error);
     }
   }
+   
+async function loadCommunityStaffRole() {
+  currentCommunityRole = null;
+
+  if (!supabaseClient || !currentUser) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_staff")
+      .select("role")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    currentCommunityRole = data?.role || null;
+
+  } catch (error) {
+    console.error("Staff role loading error:", error);
+  }
+}
 
   async function loadCommunityProfiles() {
+     await loadCommunityStaffRole();
     if (!supabaseClient) return;
 
     const userId = currentUser?.id;
