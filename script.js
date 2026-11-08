@@ -548,7 +548,8 @@
     }
   }
 
-  /* ==========================================
+
+    /* ==========================================
      8. GAME LIBRARY
      ========================================== */
 
@@ -558,42 +559,56 @@
       category: "Horror",
       description: "Return to a haunting town filled with memories, mysteries, and nightmares.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/2124490/SILENT_HILL_2/"
     },
     {
       title: "Elden Ring",
       category: "Adventure",
       description: "Explore a mysterious world filled with ancient secrets and powerful enemies.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/1245620/ELDEN_RING/"
     },
     {
       title: "Resident Evil",
       category: "Horror",
       description: "Survive terrifying encounters in a world where danger waits around every corner.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/franchise/residentevil"
     },
     {
       title: "Dark Souls III",
       category: "Action",
       description: "Face unforgiving challenges in a dark fantasy world.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/374320/DARK_SOULS_III/"
     },
     {
       title: "The Witcher 3",
       category: "Adventure",
       description: "Discover a vast fantasy world filled with monsters, magic, and choices.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/"
     },
     {
       title: "Dead by Daylight",
       category: "Horror",
       description: "Escape the nightmare or become the thing everyone fears.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80"
+      image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/381210/Dead_by_Daylight/"
+    },
+    {
+      title: "THE HOLLOW",
+      category: "Horror",
+      description: "Something is waiting inside the abandoned hospital. Find the key. Reach the exit. Do not let it find you.",
+      platform: "Browser · Original NV Game",
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
+      original: true
     }
   ];
 
@@ -637,7 +652,7 @@
 
       const tag = document.createElement("span");
       tag.className = "game-tag";
-      tag.textContent = game.category;
+      tag.textContent = game.original ? "NOCTURNE ORIGINAL" : game.category;
       art.appendChild(tag);
 
       const info = document.createElement("div");
@@ -659,7 +674,17 @@
       category.textContent = game.category.toUpperCase();
 
       meta.append(platform, category);
-      info.append(title, description, meta);
+
+      const discover = document.createElement("button");
+      discover.type = "button";
+      discover.className = "nv-discover-button";
+      discover.textContent = "Discover ↗";
+
+      discover.addEventListener("click", () => {
+        openGameDetails(game);
+      });
+
+      info.append(title, description, meta, discover);
       card.append(art, info);
       grid.appendChild(card);
     });
@@ -681,9 +706,1083 @@
     });
 
     renderGames();
+  } 
+     /* ==========================================
+     8.5. NOCTURNE VOID 3D GAME SYSTEM
+     THE HOLLOW — FIRST PERSON HORROR
+     ========================================== */
+
+  let gameThreePromise = null;
+  let activeGame = null;
+
+  function installGameStyles() {
+    if ($("#nv-game-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "nv-game-styles";
+
+    style.textContent = `
+      .nv-discover-button {
+        display: block;
+        width: 100%;
+        margin-top: 16px;
+        padding: 12px;
+        color: #fff;
+        background: #741b2a;
+        border: 1px solid #a52b40;
+        border-radius: 5px;
+        cursor: pointer;
+        font: inherit;
+        transition: .2s;
+      }
+
+      .nv-discover-button:hover {
+        background: #a52b40;
+        transform: translateY(-2px);
+      }
+
+      .nv-game-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(0,0,0,.94);
+        color: #fff;
+      }
+
+      .nv-game-overlay.nv-visible {
+        display: flex;
+      }
+
+      .nv-game-panel {
+        width: min(1100px, 100%);
+        max-height: 95vh;
+        overflow-y: auto;
+        background: #100b10;
+        border: 1px solid rgba(190,35,55,.45);
+        border-radius: 12px;
+        box-shadow: 0 20px 90px #000;
+      }
+
+      .nv-game-detail {
+        padding: 30px;
+      }
+
+      .nv-game-detail h2 {
+        font-family: Cinzel, serif;
+        font-size: clamp(28px, 5vw, 48px);
+        margin: 10px 0;
+      }
+
+      .nv-game-detail p {
+        color: #c4b9c0;
+        line-height: 1.8;
+      }
+
+      .nv-game-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .nv-game-action {
+        padding: 13px 22px;
+        border: 1px solid #852336;
+        border-radius: 5px;
+        background: #771d2b;
+        color: white;
+        cursor: pointer;
+        text-decoration: none;
+        font: inherit;
+      }
+
+      .nv-game-action:hover {
+        background: #a52b40;
+      }
+
+      .nv-game-close {
+        float: right;
+        background: transparent;
+        color: white;
+        border: 0;
+        font-size: 28px;
+        cursor: pointer;
+      }
+
+      .nv-game-screen {
+        position: relative;
+        width: 100%;
+        height: min(72vh, 720px);
+        min-height: 380px;
+        overflow: hidden;
+        background: #030303;
+      }
+
+      .nv-game-screen canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .nv-game-hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        padding: 20px;
+        font-family: Inter, sans-serif;
+        text-shadow: 0 2px 5px #000;
+      }
+
+      .nv-hud-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        letter-spacing: 1px;
+      }
+
+      .nv-hud-health {
+        color: #ff536c;
+      }
+
+      .nv-hud-objective {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        max-width: 75%;
+        font-size: 13px;
+        color: #eee;
+      }
+
+      .nv-hud-message {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 85%;
+        font-size: clamp(15px, 3vw, 23px);
+        color: #fff;
+        line-height: 1.6;
+      }
+
+      .nv-game-start {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 25px;
+        background: rgba(0,0,0,.82);
+      }
+
+      .nv-game-start h2 {
+        font-family: Cinzel, serif;
+        font-size: clamp(30px, 5vw, 55px);
+        margin: 0 0 12px;
+      }
+
+      .nv-game-start p {
+        max-width: 540px;
+        color: #c9c0c5;
+        line-height: 1.7;
+      }
+
+      .nv-game-start button {
+        margin-top: 20px;
+        padding: 14px 30px;
+        background: #821f31;
+        color: white;
+        border: 1px solid #c43b51;
+        border-radius: 5px;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .nv-game-start button:hover {
+        background: #a52b40;
+      }
+
+      .nv-game-controls {
+        padding: 15px 20px;
+        color: #aaa;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      .nv-game-controls strong {
+        color: #eee;
+      }
+
+      .nv-game-mobile {
+        position: absolute;
+        bottom: 65px;
+        right: 15px;
+        display: none;
+        gap: 8px;
+        pointer-events: auto;
+      }
+
+      .nv-game-mobile button {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(100,20,35,.8);
+        color: white;
+        border: 1px solid #b43b50;
+      }
+
+      @media (max-width: 700px) {
+        .nv-game-detail {
+          padding: 20px;
+        }
+
+        .nv-game-mobile {
+          display: flex;
+        }
+
+        .nv-game-screen {
+          min-height: 350px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
   }
 
-  /* ==========================================
+  function createGameOverlay() {
+    let overlay = $("#nvGameOverlay");
+
+    if (overlay) return overlay;
+
+    overlay = document.createElement("div");
+    overlay.id = "nvGameOverlay";
+    overlay.className = "nv-game-overlay";
+
+    overlay.innerHTML = `
+      <div class="nv-game-panel">
+        <div class="nv-game-detail" id="nvGameDetails">
+          <button class="nv-game-close" id="nvGameClose" aria-label="Close">×</button>
+          <p class="eyebrow">NOCTURNE VOID ORIGINAL</p>
+          <h2 id="nvGameTitle"></h2>
+          <p id="nvGameDescription"></p>
+          <div class="nv-game-actions" id="nvGameActions"></div>
+        </div>
+
+        <div class="nv-game-screen" id="nvGameScreen" hidden>
+          <div class="nv-game-hud">
+            <div class="nv-hud-top">
+              <span>THE HOLLOW</span>
+              <span class="nv-hud-health" id="nvGameHealth">HEALTH: 100</span>
+            </div>
+            <div class="nv-hud-objective" id="nvGameObjective">
+              OBJECTIVE: Find the exit key.
+            </div>
+            <div class="nv-hud-message" id="nvGameMessage"></div>
+          </div>
+
+          <div class="nv-game-start" id="nvGameStart">
+            <h2>THE HOLLOW</h2>
+            <p>
+              You wake up inside an abandoned hospital.
+              The doors are locked. Your flashlight flickers.
+              Something is moving in the darkness.
+            </p>
+            <p>Find the key. Reach the exit. Survive.</p>
+            <button id="nvGameBegin">ENTER THE HOSPITAL</button>
+          </div>
+
+          <div class="nv-game-mobile">
+            <button data-move="forward">↑</button>
+            <button data-move="backward">↓</button>
+            <button data-move="left">←</button>
+            <button data-move="right">→</button>
+          </div>
+        </div>
+
+        <div class="nv-game-controls" id="nvGameControls" hidden>
+          <strong>CONTROLS:</strong>
+          WASD — Move · Mouse — Look around · SHIFT — Run · E — Interact · ESC — Pause
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    $("#nvGameClose", overlay).addEventListener("click", closeGameOverlay);
+
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) closeGameOverlay();
+    });
+
+    return overlay;
+  }
+
+  function openGameDetails(game) {
+    installGameStyles();
+
+    const overlay = createGameOverlay();
+
+    $("#nvGameDetails").hidden = false;
+    $("#nvGameScreen").hidden = true;
+    $("#nvGameControls").hidden = true;
+
+    setText("nvGameTitle", game.title);
+    setText("nvGameDescription", game.description);
+
+    const actions = $("#nvGameActions");
+    actions.replaceChildren();
+
+    const play = document.createElement("button");
+    play.type = "button";
+    play.className = "nv-game-action";
+    play.textContent = game.original ? "Play Now ↗" : "View on Steam ↗";
+
+    play.addEventListener("click", () => {
+      if (game.original) {
+        startHollowGame();
+      } else if (game.url) {
+        window.open(game.url, "_blank", "noopener,noreferrer");
+      }
+    });
+
+    actions.appendChild(play);
+
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "nv-game-action";
+    back.textContent = "Back to Library";
+
+    back.addEventListener("click", closeGameOverlay);
+
+    actions.appendChild(back);
+
+    overlay.classList.add("nv-visible");
+  }
+
+  function closeGameOverlay() {
+    stopHollowGame();
+
+    const overlay = $("#nvGameOverlay");
+    if (overlay) overlay.classList.remove("nv-visible");
+  }
+
+  async function loadThreeJS() {
+    if (window.THREE) return window.THREE;
+
+    if (!gameThreePromise) {
+      gameThreePromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+
+        script.src =
+          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+
+        script.onload = () => {
+          if (window.THREE) {
+            resolve(window.THREE);
+          } else {
+            reject(new Error("3D engine failed to initialize."));
+          }
+        };
+
+        script.onerror = () => {
+          gameThreePromise = null;
+          reject(new Error("Could not load the 3D game engine. Check your internet connection."));
+        };
+
+        document.head.appendChild(script);
+      });
+    }
+
+    return gameThreePromise;
+  }
+
+  async function startHollowGame() {
+    const overlay = createGameOverlay();
+
+    $("#nvGameDetails").hidden = true;
+    $("#nvGameScreen").hidden = false;
+    $("#nvGameControls").hidden = false;
+
+    overlay.classList.add("nv-visible");
+
+    const start = $("#nvGameStart");
+    start.hidden = false;
+
+    try {
+      await loadThreeJS();
+
+      if (!$("#nvGameOverlay")?.classList.contains("nv-visible")) {
+        return;
+      }
+
+      createHollowWorld();
+
+    } catch (error) {
+      console.error("THE HOLLOW loading error:", error);
+
+      start.innerHTML = `
+        <h2>GAME COULD NOT LOAD</h2>
+        <p>${error.message}</p>
+        <button id="nvGameRetry">TRY AGAIN</button>
+      `;
+
+      $("#nvGameRetry").addEventListener("click", startHollowGame);
+    }
+  }
+
+  function createHollowWorld() {
+    stopHollowGame();
+
+    const THREE = window.THREE;
+    const screen = $("#nvGameScreen");
+
+    if (!THREE || !screen) return;
+
+    const scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0x030406);
+    scene.fog = new THREE.FogExp2(0x08090d, 0.045);
+
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      screen.clientWidth / screen.clientHeight,
+      0.1,
+      100
+    );
+
+    camera.position.set(0, 1.65, 4);
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: "high-performance"
+    });
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(screen.clientWidth, screen.clientHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    screen.prepend(renderer.domElement);
+
+    const ambient = new THREE.HemisphereLight(
+      0x75809b,
+      0x100b0c,
+      0.25
+    );
+
+    scene.add(ambient);
+
+    const ceilingLight = new THREE.PointLight(
+      0x9b172b,
+      3,
+      12
+    );
+
+    ceilingLight.position.set(0, 3.4, -12);
+    ceilingLight.castShadow = true;
+    scene.add(ceilingLight);
+
+    const cameraTarget = new THREE.Object3D();
+    cameraTarget.position.set(0, 0, -5);
+    camera.add(cameraTarget);
+
+    const flashlight = new THREE.SpotLight(
+      0xe0e7ff,
+      90,
+      24,
+      Math.PI / 7,
+      0.55,
+      1.2
+    );
+
+    flashlight.position.set(0, 0, 0);
+    flashlight.target = cameraTarget;
+    camera.add(flashlight);
+    camera.add(flashlight.target);
+
+    scene.add(camera);
+
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      color: 0x28252a,
+      roughness: 0.95
+    });
+
+    const wallMaterial = new THREE.MeshStandardMaterial({
+      color: 0x343039,
+      roughness: 0.95
+    });
+
+    const darkMaterial = new THREE.MeshStandardMaterial({
+      color: 0x100e13,
+      roughness: 1
+    });
+
+    const metalMaterial = new THREE.MeshStandardMaterial({
+      color: 0x55545b,
+      metalness: 0.65,
+      roughness: 0.45
+    });
+
+    const redMaterial = new THREE.MeshStandardMaterial({
+      color: 0x50101c,
+      roughness: 0.8
+    });
+
+    function addBox(x, y, z, width, height, depth, material) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, depth),
+        material
+      );
+
+      mesh.position.set(x, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      scene.add(mesh);
+
+      return mesh;
+    }
+
+    // Hospital floor and ceiling.
+    addBox(0, -0.15, -17, 8, 0.3, 46, floorMaterial);
+    addBox(0, 4, -17, 8, 0.3, 46, darkMaterial);
+
+    // Main corridor walls.
+    addBox(-4, 2, -17, 0.3, 4, 46, wallMaterial);
+    addBox(4, 2, -17, 0.3, 4, 46, wallMaterial);
+
+    // End wall.
+    addBox(0, 2, -40, 8, 4, 0.3, wallMaterial);
+
+    // Ceiling lamps.
+    [-5, -14, -23, -32].forEach((z, index) => {
+      const lamp = new THREE.PointLight(
+        index % 2 === 0 ? 0x5a1722 : 0x77809a,
+        1.2,
+        7
+      );
+
+      lamp.position.set(0, 3.55, z);
+      scene.add(lamp);
+
+      const fixture = addBox(
+        0,
+        3.7,
+        z,
+        1.1,
+        0.08,
+        0.35,
+        metalMaterial
+      );
+    });
+
+    // Hospital room openings and furniture.
+    addBox(-2.5, 0.7, -10, 1.4, 1.4, 0.8, metalMaterial);
+    addBox(2.3, 0.5, -23, 1.6, 1, 1, darkMaterial);
+    addBox(-2.4, 1, -30, 1.5, 2, 0.3, redMaterial);
+
+    // Bed-like hospital furniture.
+    addBox(-2.1, 0.55, -11, 1.5, 0.15, 2.4, metalMaterial);
+    addBox(-2.1, 0.8, -11, 1.35, 0.35, 2.1, darkMaterial);
+
+    // Medical cabinets.
+    addBox(2.7, 1.1, -7, 0.7, 2.2, 0.6, metalMaterial);
+    addBox(2.7, 1.1, -27, 0.7, 2.2, 0.6, metalMaterial);
+
+    // Exit door.
+    const exitDoor = addBox(
+      0,
+      1.65,
+      -39.4,
+      2.2,
+      3.3,
+      0.25,
+      redMaterial
+    );
+
+    // Door sign.
+    addBox(0, 3.3, -39.15, 1.2, 0.25, 0.05, metalMaterial);
+
+    // Collectible key.
+    const key = new THREE.Mesh(
+      new THREE.TorusGeometry(0.22, 0.065, 8, 18),
+      new THREE.MeshStandardMaterial({
+        color: 0xf2c75c,
+        metalness: 0.85,
+        roughness: 0.25,
+        emissive: 0x6a3d00
+      })
+    );
+
+    key.position.set(2.2, 1.1, -17);
+    key.castShadow = true;
+    scene.add(key);
+
+    const keyLight = new THREE.PointLight(
+      0xffbd44,
+      2,
+      4
+    );
+
+    keyLight.position.copy(key.position);
+    scene.add(keyLight);
+
+    // Enemy model.
+    const enemy = new THREE.Group();
+
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.25, 0.38, 1.35, 8),
+      new THREE.MeshStandardMaterial({
+        color: 0x171016,
+        roughness: 1
+      })
+    );
+
+    body.position.y = 0.9;
+    body.castShadow = true;
+
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.3, 12, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0x080608,
+        roughness: 1
+      })
+    );
+
+    head.position.y = 1.75;
+    head.castShadow = true;
+
+    const eyeMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff152b
+    });
+
+    const leftEye = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 8, 8),
+      eyeMaterial
+    );
+
+    leftEye.position.set(-0.12, 1.78, -0.25);
+
+    const rightEye = leftEye.clone();
+    rightEye.position.x = 0.12;
+
+    enemy.add(body, head, leftEye, rightEye);
+    enemy.position.set(-1, 0, -30);
+    scene.add(enemy);
+
+    let health = 100;
+    let hasKey = false;
+    let gameRunning = false;
+    let gameEnded = false;
+    let isPaused = false;
+    let damageCooldown = 0;
+    let enemySpeed = 1.15;
+
+    const keys = {};
+    const mobileMoves = new Set();
+
+    let animationFrame = null;
+    let previousTime = 0;
+    let yaw = 0;
+    let pitch = 0;
+
+    const velocity = new THREE.Vector3();
+    const direction = new THREE.Vector3();
+
+    function updateHUD() {
+      setText("nvGameHealth", `HEALTH: ${health}`);
+
+      setText(
+        "nvGameObjective",
+        hasKey
+          ? "OBJECTIVE: Reach the exit door."
+          : "OBJECTIVE: Find the hospital exit key."
+      );
+    }
+
+    function showGameMessage(message) {
+      const element = $("#nvGameMessage");
+      if (!element) return;
+
+      element.textContent = message;
+
+      clearTimeout(showGameMessage.timeout);
+
+      showGameMessage.timeout = setTimeout(() => {
+        if (element) element.textContent = "";
+      }, 2600);
+    }
+
+    function finishGame(won) {
+      if (gameEnded) return;
+
+      gameEnded = true;
+      gameRunning = false;
+
+      document.exitPointerLock?.();
+
+      const start = $("#nvGameStart");
+      start.hidden = false;
+
+      start.innerHTML = won
+        ? `
+          <h2>YOU ESCAPED.</h2>
+          <p>The doors open. You made it out of the hospital.</p>
+          <button id="nvGameRestart">PLAY AGAIN</button>
+        `
+        : `
+          <h2>YOU DIDN'T MAKE IT.</h2>
+          <p>The darkness finally caught up with you.</p>
+          <button id="nvGameRestart">TRY AGAIN</button>
+        `;
+
+      $("#nvGameRestart").addEventListener("click", () => {
+        startHollowGame();
+      });
+    }
+
+    function interact() {
+      if (gameEnded || isPaused) return;
+
+      const player = camera.position;
+
+      if (!hasKey && player.distanceTo(key.position) < 2.2) {
+        hasKey = true;
+        scene.remove(key);
+        scene.remove(keyLight);
+
+        showGameMessage("You found the exit key.");
+        updateHUD();
+
+        return;
+      }
+
+      if (player.distanceTo(exitDoor.position) < 3) {
+        if (hasKey) {
+          finishGame(true);
+        } else {
+          showGameMessage("The door is locked. Find the key.");
+        }
+
+        return;
+      }
+
+      showGameMessage("There is nothing to interact with here.");
+    }
+
+    function onKeyDown(event) {
+      keys[event.code] = true;
+
+      if (
+        ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]
+          .includes(event.code)
+      ) {
+        event.preventDefault();
+      }
+
+      if (event.code === "KeyE") interact();
+
+      if (event.code === "Escape" && gameRunning) {
+        isPaused = true;
+        showGameMessage("PAUSED — Click the game to continue.");
+      }
+    }
+
+    function onKeyUp(event) {
+      keys[event.code] = false;
+    }
+
+    function onMouseMove(event) {
+      if (!gameRunning || document.pointerLockElement !== renderer.domElement) {
+        return;
+      }
+
+      yaw -= event.movementX * 0.002;
+      pitch -= event.movementY * 0.002;
+
+      pitch = Math.max(
+        -Math.PI / 2.2,
+        Math.min(Math.PI / 2.2, pitch)
+      );
+
+      camera.rotation.order = "YXZ";
+      camera.rotation.y = yaw;
+      camera.rotation.x = pitch;
+    }
+
+    function onPointerLockChange() {
+      if (
+        document.pointerLockElement !== renderer.domElement &&
+        gameRunning &&
+        !gameEnded
+      ) {
+        isPaused = true;
+      } else if (document.pointerLockElement === renderer.domElement) {
+        isPaused = false;
+      }
+    }
+
+    function onCanvasClick() {
+      if (gameRunning && !gameEnded) {
+        renderer.domElement.requestPointerLock?.();
+      }
+    }
+
+    function onResize() {
+      if (!activeGame || !renderer.domElement.isConnected) return;
+
+      const width = screen.clientWidth;
+      const height = screen.clientHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(width, height);
+    }
+
+    function update(delta) {
+      if (!gameRunning || isPaused || gameEnded) return;
+
+      const movingForward =
+        keys.KeyW || keys.ArrowUp || mobileMoves.has("forward");
+
+      const movingBackward =
+        keys.KeyS || keys.ArrowDown || mobileMoves.has("backward");
+
+      const movingLeft =
+        keys.KeyA || keys.ArrowLeft || mobileMoves.has("left");
+
+      const movingRight =
+        keys.KeyD || keys.ArrowRight || mobileMoves.has("right");
+
+      const sprinting = keys.ShiftLeft || keys.ShiftRight;
+
+      const speed = sprinting ? 5.2 : 3.1;
+
+      direction.set(0, 0, 0);
+
+      if (movingForward) direction.z -= 1;
+      if (movingBackward) direction.z += 1;
+      if (movingLeft) direction.x -= 1;
+      if (movingRight) direction.x += 1;
+
+      if (direction.lengthSq() > 0) {
+        direction.normalize();
+
+        const forward = new THREE.Vector3(
+          -Math.sin(yaw),
+          0,
+          -Math.cos(yaw)
+        );
+
+        const right = new THREE.Vector3(
+          Math.cos(yaw),
+          0,
+          -Math.sin(yaw)
+        );
+
+        velocity
+          .copy(forward)
+          .multiplyScalar(-direction.z)
+          .addScaledVector(right, direction.x)
+          .normalize()
+          .multiplyScalar(speed * delta);
+
+        camera.position.add(velocity);
+      }
+
+      // Keep player inside the hospital corridor.
+      camera.position.x = THREE.MathUtils.clamp(
+        camera.position.x,
+        -3.35,
+        3.35
+      );
+
+      camera.position.z = THREE.MathUtils.clamp(
+        camera.position.z,
+        -38,
+        4
+      );
+
+      camera.position.y = 1.65;
+
+      // The enemy hunts the player.
+      const enemyDistance = enemy.position.distanceTo(
+        camera.position
+      );
+
+      if (enemyDistance < 22) {
+        const chaseDirection = new THREE.Vector3()
+          .subVectors(camera.position, enemy.position);
+
+        chaseDirection.y = 0;
+
+        if (chaseDirection.lengthSq() > 0.001) {
+          chaseDirection.normalize();
+
+          enemy.position.addScaledVector(
+            chaseDirection,
+            enemySpeed * delta
+          );
+
+          enemy.lookAt(
+            camera.position.x,
+            enemy.position.y,
+            camera.position.z
+          );
+        }
+      }
+
+      // Damage when the enemy reaches the player.
+      damageCooldown -= delta;
+
+      if (enemyDistance < 1.35 && damageCooldown <= 0) {
+        health = Math.max(0, health - 15);
+        damageCooldown = 1.2;
+
+        updateHUD();
+        showGameMessage("THE CREATURE FOUND YOU.");
+
+        if (health <= 0) {
+          finishGame(false);
+        }
+      }
+
+      key.rotation.y += delta * 1.8;
+
+      // Slightly unstable hospital lighting.
+      ceilingLight.intensity =
+        2.3 + Math.sin(performance.now() * 0.006) * 0.7;
+    }
+
+    function animate(time) {
+      if (!activeGame || activeGame.renderer !== renderer) return;
+
+      animationFrame = requestAnimationFrame(animate);
+
+      const delta = Math.min(
+        (time - previousTime) / 1000 || 0,
+        0.05
+      );
+
+      previousTime = time;
+
+      update(delta);
+      renderer.render(scene, camera);
+    }
+
+    function startPlaying() {
+      if (gameEnded) return;
+
+      gameRunning = true;
+      isPaused = false;
+
+      $("#nvGameStart").hidden = true;
+
+      renderer.domElement.requestPointerLock?.();
+    }
+
+    function bindMobileControls() {
+      $$(".nv-game-mobile button", screen).forEach(button => {
+        const move = button.dataset.move;
+
+        button.addEventListener("pointerdown", event => {
+          event.preventDefault();
+          mobileMoves.add(move);
+        });
+
+        ["pointerup", "pointerleave", "pointercancel"].forEach(type => {
+          button.addEventListener(type, () => {
+            mobileMoves.delete(move);
+          });
+        });
+      });
+    }
+
+    $("#nvGameBegin").onclick = startPlaying;
+
+    renderer.domElement.addEventListener("click", onCanvasClick);
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("resize", onResize);
+
+    document.addEventListener(
+      "pointerlockchange",
+      onPointerLockChange
+    );
+
+    bindMobileControls();
+    updateHUD();
+
+    activeGame = {
+      renderer,
+      scene,
+      camera,
+      animationFrame,
+      cleanup() {
+        gameRunning = false;
+
+        cancelAnimationFrame(animationFrame);
+
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("resize", onResize);
+
+        document.removeEventListener(
+          "pointerlockchange",
+          onPointerLockChange
+        );
+
+        renderer.domElement.removeEventListener(
+          "click",
+          onCanvasClick
+        );
+
+        renderer.dispose();
+
+        scene.traverse(object => {
+          object.geometry?.dispose();
+
+          if (Array.isArray(object.material)) {
+            object.material.forEach(material => material.dispose());
+          } else {
+            object.material?.dispose();
+          }
+        });
+
+        renderer.domElement.remove();
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    activeGame.animationFrame = animationFrame;
+  }
+
+  function stopHollowGame() {
+    if (activeGame) {
+      activeGame.cleanup();
+      activeGame = null;
+    }
+
+    if (document.pointerLockElement) {
+      document.exitPointerLock?.();
+    }
+  }
+
+  installGameStyles();
+   
+    /* ==========================================
      9. LEADERBOARD
      ========================================== */
 
