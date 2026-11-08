@@ -2897,7 +2897,83 @@ function renderCommunityChannels() {
       )
       .subscribe();
   }
+async function editCommunityMessage(message) {
+  if (!currentUser || message.user_id !== currentUser.id) return;
 
+  const updatedMessage = prompt(
+    "Edit your message:",
+    message.message
+  );
+
+  if (updatedMessage === null) return;
+
+  const newText = updatedMessage.trim();
+
+  if (!newText) {
+    showStatus("A message cannot be empty.", true);
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_messages")
+      .update({ message: newText })
+      .eq("id", message.id)
+      .eq("user_id", currentUser.id)
+      .select("id, user_id, username, message, channel, created_at");
+
+    if (error) throw error;
+
+    if (!data || !data.length) {
+      throw new Error("Message could not be updated.");
+    }
+
+    communityMessages = communityMessages.map(item =>
+      item.id === message.id ? data[0] : item
+    );
+
+    renderCommunityMessages();
+    showStatus("Message updated.");
+
+  } catch (error) {
+    console.error("Message editing error:", error);
+    showStatus(error.message || "Could not edit message.", true);
+  }
+}
+
+async function deleteCommunityMessage(message) {
+  if (!currentUser || message.user_id !== currentUser.id) return;
+
+  if (!confirm("Are you sure you want to delete this message?")) {
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_messages")
+      .delete()
+      .eq("id", message.id)
+      .eq("user_id", currentUser.id)
+      .select("id");
+
+    if (error) throw error;
+
+    if (!data || !data.length) {
+      throw new Error("Message could not be deleted.");
+    }
+
+    communityMessages = communityMessages.filter(
+      item => item.id !== message.id
+    );
+
+    renderCommunityMessages();
+    showStatus("Message deleted.");
+
+  } catch (error) {
+    console.error("Message deletion error:", error);
+    showStatus(error.message || "Could not delete message.", true);
+  }
+}
   function renderCommunityMessages() {
     const container = $(".hub-messages");
 
@@ -2946,9 +3022,35 @@ function renderCommunityChannels() {
       text.className = "hub-message-text";
       text.textContent = message.message;
 
-      top.append(name, time);
-      content.append(top, text);
-      row.append(avatar, content);
+    
+top.append(name, time);
+
+content.append(top, text);
+
+if (currentUser && message.user_id === currentUser.id) {
+  const actions = document.createElement("div");
+  actions.className = "hub-message-actions";
+
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.textContent = "Edit";
+  editButton.addEventListener("click", () => {
+    editCommunityMessage(message);
+  });
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.textContent = "Delete";
+  deleteButton.addEventListener("click", () => {
+    deleteCommunityMessage(message);
+  });
+
+  actions.append(editButton, deleteButton);
+  content.appendChild(actions);
+}
+
+row.append(avatar, content);
+
 
       container.appendChild(row);
     });
