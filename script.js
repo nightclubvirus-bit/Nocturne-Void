@@ -4195,12 +4195,13 @@ row.append(avatar, content);
     renderLeaderboard();
 
     initializeAccountButtons();
-    initializeCommunity();
 
-    initializeMobileNavigation();
-    initializeFooter();
+connectSupabase();
 
-    connectSupabase();
+initializeCommunity();
+
+initializeMobileNavigation();
+initializeFooter();
 
     console.log(
       "NOCTURNE VOID initialized successfully."
