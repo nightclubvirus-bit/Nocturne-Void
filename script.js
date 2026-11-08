@@ -1082,7 +1082,7 @@
         const script = document.createElement("script");
 
         script.src =
-          "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+         "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js";
 
         script.onload = () => {
           if (window.THREE) {
