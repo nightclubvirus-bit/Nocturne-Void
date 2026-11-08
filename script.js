@@ -2717,6 +2717,78 @@ banButton.addEventListener("click", async () => {
     `;
 
     section.appendChild(hub);
+     const announcementFeed = document.createElement("div");
+announcementFeed.className = "hub-announcement-feed";
+
+announcementFeed.style.cssText = `
+  padding: 12px 16px;
+  margin: 10px;
+  background: #181818;
+  border: 1px solid #555;
+  border-radius: 8px;
+`;
+
+const announcementFeedTitle = document.createElement("h3");
+announcementFeedTitle.textContent = "COMMUNITY ANNOUNCEMENTS";
+
+const announcementFeedList = document.createElement("div");
+
+announcementFeed.append(
+  announcementFeedTitle,
+  announcementFeedList
+);
+
+const communityMain = $(".hub-main", hub);
+
+if (communityMain) {
+  communityMain.prepend(announcementFeed);
+}
+     async function loadPublicAnnouncements() {
+  announcementFeedList.textContent = "Loading announcements...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_announcements")
+      .select("id, title, message, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    announcementFeedList.replaceChildren();
+
+    if (!data || !data.length) {
+      announcementFeedList.textContent =
+        "No announcements yet.";
+      return;
+    }
+
+    data.forEach(item => {
+      const entry = document.createElement("div");
+      entry.style.cssText =
+        "padding:10px 0;border-bottom:1px solid #444;";
+
+      const title = document.createElement("h4");
+      title.textContent = item.title;
+
+      const message = document.createElement("p");
+      message.textContent = item.message;
+
+      const date = document.createElement("small");
+      date.textContent =
+        new Date(item.created_at).toLocaleString();
+
+      entry.append(title, message, date);
+      announcementFeedList.appendChild(entry);
+    });
+
+  } catch (error) {
+    console.error("Public announcement error:", error);
+    announcementFeedList.textContent =
+      "Could not load announcements.";
+  }
+}
+
+loadPublicAnnouncements();
      const adminArea = $(".hub-admin-area", hub);
 
 if (adminArea && currentCommunityRole === "admin") {
