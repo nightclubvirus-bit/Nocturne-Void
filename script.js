@@ -2335,6 +2335,126 @@ const channels = [
      16. BUILD COMMUNITY INTERFACE
      ========================================== */
 
+async function openCommunityAdmin(hub) {
+  if (currentCommunityRole !== "admin") return;
+
+  const existingPanel = $(".hub-admin-panel", hub);
+  if (existingPanel) existingPanel.remove();
+
+  const panel = document.createElement("div");
+  panel.className = "hub-admin-panel";
+
+  panel.style.cssText = `
+    position: fixed;
+    inset: 5%;
+    z-index: 9999;
+    background: #111;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 12px;
+    padding: 24px;
+    overflow-y: auto;
+  `;
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Community Administration";
+
+  const description = document.createElement("p");
+  description.textContent =
+    "Manage moderators and community staff.";
+
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.textContent = "Close";
+  closeButton.addEventListener("click", () => panel.remove());
+
+  const memberList = document.createElement("div");
+
+  panel.append(heading, description, closeButton, memberList);
+  hub.appendChild(panel);
+
+  memberList.textContent = "Loading community members...";
+
+  try {
+    const { data: staff, error } = await supabaseClient
+      .from("community_staff")
+      .select("user_id, role");
+
+    if (error) throw error;
+
+    memberList.replaceChildren();
+
+    communityProfiles.forEach(profile => {
+      if (profile.id === currentUser.id) return;
+
+      const staffMember = staff.find(
+        item => item.user_id === profile.id
+      );
+
+      const role = staffMember?.role || "member";
+
+      const row = document.createElement("div");
+      row.style.cssText =
+        "display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #444;";
+
+      const name = document.createElement("span");
+      name.textContent =
+        `${getUsername(profile)} — ${role}`;
+
+      const action = document.createElement("button");
+      action.type = "button";
+
+      if (role === "moderator") {
+        action.textContent = "Remove Moderator";
+      } else {
+        action.textContent = "Make Moderator";
+      }
+
+      action.addEventListener("click", async () => {
+        action.disabled = true;
+
+        try {
+          const { error } = await supabaseClient.rpc(
+            "manage_community_moderator",
+            {
+              p_user_id: profile.id,
+              p_make_moderator: role !== "moderator"
+            }
+          );
+
+          if (error) throw error;
+
+          showStatus(
+            role === "moderator"
+              ? "Moderator permissions removed."
+              : "Member promoted to moderator."
+          );
+
+          panel.remove();
+          openCommunityAdmin(hub);
+
+        } catch (error) {
+          console.error("Staff management error:", error);
+          showStatus(error.message, true);
+          action.disabled = false;
+        }
+      });
+
+      row.append(name, action);
+      memberList.appendChild(row);
+    });
+
+    if (!communityProfiles.length) {
+      memberList.textContent = "No community members found.";
+    }
+
+  } catch (error) {
+    console.error("Community administration error:", error);
+    memberList.textContent =
+      "Could not load community members.";
+  }
+}
+   
   function initializeCommunity() {
     const section = $("#community");
 
@@ -2438,7 +2558,7 @@ if (adminArea && currentCommunityRole === "admin") {
    const adminButton = $(".hub-admin-button", hub);
 
 adminButton?.addEventListener("click", () => {
- alert("Admin button is working!");
+   openCommunityAdmin(hub);
 });
     installAvatarStyles();
     setupNotificationSoundToggle(hub);
