@@ -392,24 +392,34 @@
   /* ==========================================
      6. NOTIFICATION SOUNDS
      ========================================== */
+function initializeNotificationAudio() {
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
 
-  function initializeNotificationAudio() {
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
 
-    if (!AudioContextClass) return null;
-
-    if (!notificationAudioContext) {
-      notificationAudioContext = new AudioContextClass();
-    }
-
-    if (notificationAudioContext.state === "suspended") {
-      notificationAudioContext.resume().catch(console.warn);
-    }
-
-    return notificationAudioContext;
+  if (!notificationAudioContext) {
+    notificationAudioContext = new AudioContextClass();
   }
 
+  if (notificationAudioContext.state === "suspended") {
+    notificationAudioContext.resume().catch(console.warn);
+  }
+
+  return notificationAudioContext;
+}
+
+document.addEventListener(
+  "pointerdown",
+  initializeNotificationAudio,
+  { once: true }
+);
+
+document.addEventListener(
+  "keydown",
+  initializeNotificationAudio,
+  { once: true }
+);
   function playNotificationTone(
     frequency,
     startTime,
@@ -548,7 +558,6 @@
       console.error("Supabase connection error:", error);
     }
   }
-
 
     /* ==========================================
      8. GAME LIBRARY
