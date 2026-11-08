@@ -506,19 +506,28 @@ function initializeNotificationAudio() {
     updateButton();
     header.appendChild(button);
 
-    document.addEventListener(
-      "pointerdown",
-      initializeNotificationAudio,
-      { once: true }
-    );
-
-    document.addEventListener(
-      "keydown",
-      initializeNotificationAudio,
-      { once: true }
-    );
+  function unlockNotificationAudio() {
+  if (!notificationAudioContext) {
+    initializeNotificationAudio();
   }
 
+  if (
+    notificationAudioContext &&
+    notificationAudioContext.state === "suspended"
+  ) {
+    notificationAudioContext.resume().catch(console.warn);
+  }
+}
+
+document.addEventListener(
+  "pointerdown",
+  unlockNotificationAudio
+);
+
+document.addEventListener(
+  "keydown",
+  unlockNotificationAudio
+);
   /* ==========================================
      7. SUPABASE CONNECTION
      ========================================== */
