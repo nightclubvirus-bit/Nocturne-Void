@@ -2297,33 +2297,38 @@
      15. COMMUNITY CHANNELS
      ========================================== */
 
-  const channels = [
-    {
-      id: "general",
-      name: "General",
-      description: "Talk about anything and everything."
-    },
-    {
-      id: "introductions",
-      name: "Introductions",
-      description: "Introduce yourself to the community."
-    },
-    {
-      id: "gaming",
-      name: "Gaming",
-      description: "Discuss your favorite games."
-    },
-    {
-      id: "looking-for-group",
-      name: "Looking for Group",
-      description: "Find other players to game with."
-    },
-    {
-      id: "media",
-      name: "Media",
-      description: "Share gaming clips, screenshots, and artwork."
-    }
-  ];
+const channels = [
+  {
+    id: "general",
+    name: "General",
+    description: "Talk about anything and everything.",
+    category: "COMMUNITY"
+  },
+  {
+    id: "introductions",
+    name: "Introductions",
+    description: "Introduce yourself to the community.",
+    category: "COMMUNITY"
+  },
+  {
+    id: "gaming",
+    name: "Gaming",
+    description: "Discuss your favorite games.",
+    category: "GAMING"
+  },
+  {
+    id: "looking-for-group",
+    name: "Looking for Group",
+    description: "Find other players to game with.",
+    category: "GAMING"
+  },
+  {
+    id: "media",
+    name: "Media",
+    description: "Share gaming clips, screenshots, and artwork.",
+    category: "GAMING"
+  }
+];
 
   /* ==========================================
      16. BUILD COMMUNITY INTERFACE
