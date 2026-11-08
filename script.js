@@ -2382,6 +2382,11 @@ publishButton.textContent = "Publish Announcement";
 
 const announcementList = document.createElement("div");
 announcementList.textContent = "Announcements will appear here.";
+   const moderationHeading = document.createElement("h3");
+moderationHeading.textContent = "Moderation Logs";
+
+const moderationLogList = document.createElement("div");
+moderationLogList.textContent = "Moderation activity will appear here.";
 
   const closeButton = document.createElement("button");
   closeButton.type = "button";
@@ -2399,8 +2404,11 @@ panel.append(
   announcementMessage,
   publishButton,
   announcementList,
+  moderationHeading,
+  moderationLogList,
   memberList
 );
+
   hub.appendChild(panel);
    async function loadAnnouncements() {
   announcementList.textContent = "Loading announcements...";
@@ -2447,6 +2455,97 @@ panel.append(
 }
 
 loadAnnouncements();
+   async function loadModerationLogs() {
+  moderationLogList.textContent = "Loading moderation logs...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_moderation_logs")
+      .select("id, action, actor_id, target_user_id, target_message_id, details, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    moderationLogList.replaceChildren();
+
+    if (!data || !data.length) {
+      moderationLogList.textContent =
+        "No moderation activity recorded yet.";
+      return;
+    }
+
+    data.forEach(item => {
+      const entry = document.createElement("div");
+      entry.style.cssText =
+        "padding:12px 0;border-bottom:1px solid #444;";
+
+      const actor = communityProfiles.find(
+        profile => profile.id === item.actor_id
+      );
+
+      const target = communityProfiles.find(
+        profile => profile.id === item.target_user_id
+      );
+
+      const actionLabels = {
+        message_deleted: "Message deleted",
+        message_self_deleted: "Member deleted own message",
+        member_banned: "Member banned",
+        member_ban_updated: "Ban reason updated",
+        member_unbanned: "Member unbanned",
+        moderator_promoted: "Moderator promoted",
+        moderator_removed: "Moderator removed"
+      };
+
+      const title = document.createElement("strong");
+      title.textContent =
+        actionLabels[item.action] || item.action;
+
+      const description = document.createElement("p");
+      description.textContent =
+        `${actor ? getUsername(actor) : "Unknown staff/member"} → ${target ? getUsername(target) : "Unknown member"}`;
+
+      const details = document.createElement("p");
+      const detailParts = [];
+
+      if (item.details?.channel) {
+        detailParts.push(`Channel: ${item.details.channel}`);
+      }
+
+      if (item.details?.reason) {
+        detailParts.push(`Reason: ${item.details.reason}`);
+      }
+
+      if (item.details?.message) {
+        detailParts.push(`Message: ${item.details.message}`);
+      }
+
+      details.textContent = detailParts.join(" • ");
+
+      const date = document.createElement("small");
+      date.textContent =
+        new Date(item.created_at).toLocaleString();
+
+      entry.append(title, description);
+
+      if (details.textContent) {
+        entry.appendChild(details);
+      }
+
+      entry.appendChild(date);
+      moderationLogList.appendChild(entry);
+    });
+
+  } catch (error) {
+    console.error("Moderation log loading error:", error);
+    moderationLogList.textContent =
+      "Could not load moderation logs.";
+  }
+}
+
+loadModerationLogs();
+   
    publishButton.addEventListener("click", async () => {
   const title = announcementTitle.value.trim();
   const message = announcementMessage.value.trim();
