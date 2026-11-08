@@ -505,6 +505,7 @@ function initializeNotificationAudio() {
 
     updateButton();
     header.appendChild(button);
+  }
 
   function unlockNotificationAudio() {
   if (!notificationAudioContext) {
