@@ -808,8 +808,8 @@
       const currentZ = player.position.z;
 
       const nextX = Math.max(
-        -4.05,
-        Math.min(4.05, currentX + dir.x * speed)
+     -4.05 + PLAYER_RADIUS,
+Math.min(4.05 - PLAYER_RADIUS, currentX + dir.x * speed))
       );
 
       const nextZ = Math.max(
