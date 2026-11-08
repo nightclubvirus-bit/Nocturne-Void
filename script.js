@@ -2438,7 +2438,7 @@ if (adminArea && currentCommunityRole === "admin") {
    const adminButton = $(".hub-admin-button", hub);
 
 adminButton?.addEventListener("click", () => {
-  showStatus("Community administration is opening soon.");
+ alert("Admin button is working!");
 });
     installAvatarStyles();
     setupNotificationSoundToggle(hub);
