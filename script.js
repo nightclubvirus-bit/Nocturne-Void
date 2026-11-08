@@ -2381,7 +2381,12 @@ async function openCommunityAdmin(hub) {
       .select("user_id, role");
 
     if (error) throw error;
+     
+const { data: bans, error: banError } = await supabaseClient
+  .from("community_bans")
+  .select("user_id, reason");
 
+if (banError) throw banError;
     memberList.replaceChildren();
 
     communityProfiles.forEach(profile => {
@@ -2390,8 +2395,12 @@ async function openCommunityAdmin(hub) {
       const staffMember = staff.find(
         item => item.user_id === profile.id
       );
-
+       
       const role = staffMember?.role || "member";
+       
+       const banRecord = bans.find(
+  item => item.user_id === profile.id
+);
 
       const row = document.createElement("div");
       row.style.cssText =
@@ -2440,8 +2449,58 @@ async function openCommunityAdmin(hub) {
         }
       });
 
-      row.append(name, action);
-      memberList.appendChild(row);
+      const banButton = document.createElement("button");
+banButton.type = "button";
+
+banButton.textContent = banRecord
+  ? "Unban Member"
+  : "Ban Member";
+
+banButton.addEventListener("click", async () => {
+  const enteredReason = banRecord
+    ? ""
+    : prompt(`Reason for banning ${getUsername(profile)}?`);
+
+  if (!banRecord && enteredReason === null) return;
+
+  const confirmed = confirm(
+    banRecord
+      ? `Unban ${getUsername(profile)}?`
+      : `Ban ${getUsername(profile)} from posting public community messages?`
+  );
+
+  if (!confirmed) return;
+
+  banButton.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.rpc(
+      "manage_community_ban",
+      {
+        p_user_id: profile.id,
+        p_ban: !banRecord,
+        p_reason: enteredReason || ""
+      }
+    );
+
+    if (error) throw error;
+
+    showStatus(
+      banRecord ? "Member unbanned." : "Member banned."
+    );
+
+    panel.remove();
+    await openCommunityAdmin(hub);
+
+  } catch (error) {
+    console.error("Member ban error:", error);
+    showStatus(error.message, true);
+    banButton.disabled = false;
+  }
+});
+
+       row.append(name, action, banButton);
+       memberList.appendChild(row);
     });
 
     if (!communityProfiles.length) {
