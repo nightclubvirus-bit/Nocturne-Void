@@ -126,7 +126,10 @@
 
     // Enemy model: intentionally simple placeholder geometry for first playable pass.
     enemy=new THREE.Group(); enemy.position.set(1.2,0,-31); scene.add(enemy);
-    const body= new THREE.Mesh(new THREE.CapsuleGeometry(.36,1.0,3,7),mat(0x171719));
+const body = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.28, 0.38, 1.0, 8),
+  mat(0x171719)
+);
     body.position.y=1.05; enemy.add(body);
     const head=new THREE.Mesh(new THREE.SphereGeometry(.27,8,7),mat(0x292326));
     head.position.y=1.9; enemy.add(head);
