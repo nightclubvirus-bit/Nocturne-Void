@@ -2371,6 +2371,12 @@ const channels = [
           </div>
         </div>
 
+        <div class="hub-admin-area" hidden>
+  <div class="hub-category">ADMINISTRATION</div>
+  <button class="hub-admin-button" type="button">
+    Manage Community
+  </button>
+</div>
         <div class="hub-category">COMMUNITY CHANNELS</div>
         <div class="hub-channels"></div>
 
@@ -2424,7 +2430,16 @@ const channels = [
     `;
 
     section.appendChild(hub);
+     const adminArea = $(".hub-admin-area", hub);
 
+if (adminArea && currentCommunityRole === "admin") {
+  adminArea.hidden = false;
+}
+   const adminButton = $(".hub-admin-button", hub);
+
+adminButton?.addEventListener("click", () => {
+  showStatus("Community administration is opening soon.");
+});
     installAvatarStyles();
     setupNotificationSoundToggle(hub);
 
@@ -2443,7 +2458,7 @@ const channels = [
 
       avatarInput?.click();
     });
-
+   
     avatarInput?.addEventListener(
       "change",
       handleAvatarUpload
@@ -2639,6 +2654,11 @@ async function loadCommunityStaffRole() {
     if (error) throw error;
 
     currentCommunityRole = data?.role || null;
+     const adminArea = $(".hub-admin-area");
+
+if (adminArea) {
+  adminArea.hidden = currentCommunityRole !== "admin";
+}
 
   } catch (error) {
     console.error("Staff role loading error:", error);
