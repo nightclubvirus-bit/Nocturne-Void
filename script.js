@@ -2472,13 +2472,33 @@ const channels = [
      17. CHANNEL NAVIGATION
      ========================================== */
 
-  function renderCommunityChannels() {
-    const container = $(".hub-channels");
-    if (!container) return;
 
-    container.replaceChildren();
+function renderCommunityChannels() {
+  const container = $(".hub-channels");
+  if (!container) return;
 
-    channels.forEach(channel => {
+  container.replaceChildren();
+
+  const categories = new Map();
+
+  channels.forEach(channel => {
+    const category = channel.category || "CHANNELS";
+
+    if (!categories.has(category)) {
+      categories.set(category, []);
+    }
+
+    categories.get(category).push(channel);
+  });
+
+  categories.forEach((categoryChannels, categoryName) => {
+    const heading = document.createElement("div");
+    heading.className = "hub-channel-category";
+    heading.textContent = categoryName;
+
+    container.appendChild(heading);
+
+    categoryChannels.forEach(channel => {
       const button = document.createElement("button");
 
       button.type = "button";
@@ -2507,24 +2527,26 @@ const channels = [
 
       container.appendChild(button);
     });
+  });
 
-    const active = channels.find(
-      channel => channel.id === activeChannel
-    );
+  const active = channels.find(
+    channel => channel.id === activeChannel
+  );
 
-    const title = $(".hub-channel-title");
-    const description = $(".hub-channel-description");
+  const title = $(".hub-channel-title");
+  const description = $(".hub-channel-description");
 
-    if (activeView === "channel" && active) {
-      if (title) {
-        title.textContent = `# ${active.name.toLowerCase()}`;
-      }
+  if (activeView === "channel" && active) {
+    if (title) {
+      title.textContent = `# ${active.name.toLowerCase()}`;
+    }
 
-      if (description) {
-        description.textContent = active.description;
-      }
+    if (description) {
+      description.textContent = active.description;
     }
   }
+}
+
 
   function showChannelView() {
     activeView = "channel";
