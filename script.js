@@ -2964,20 +2964,32 @@ async function editCommunityMessage(message) {
   }
 }
 
+
 async function deleteCommunityMessage(message) {
-  if (!currentUser || message.user_id !== currentUser.id) return;
+  const isOwnMessage =
+    currentUser && message.user_id === currentUser.id;
+
+  const canModerateMessages =
+    currentCommunityRole === "admin" ||
+    currentCommunityRole === "moderator";
+
+  if (!currentUser || (!isOwnMessage && !canModerateMessages)) return;
 
   if (!confirm("Are you sure you want to delete this message?")) {
     return;
   }
 
   try {
-    const { data, error } = await supabaseClient
+    let query = supabaseClient
       .from("community_messages")
       .delete()
-      .eq("id", message.id)
-      .eq("user_id", currentUser.id)
-      .select("id");
+      .eq("id", message.id);
+
+    if (!canModerateMessages) {
+      query = query.eq("user_id", currentUser.id);
+    }
+
+    const { data, error } = await query.select("id");
 
     if (error) throw error;
 
@@ -2997,6 +3009,7 @@ async function deleteCommunityMessage(message) {
     showStatus(error.message || "Could not delete message.", true);
   }
 }
+
   function renderCommunityMessages() {
     const container = $(".hub-messages");
 
@@ -3050,16 +3063,28 @@ top.append(name, time);
 
 content.append(top, text);
 
-if (currentUser && message.user_id === currentUser.id) {
+
+const isOwnMessage =
+  currentUser && message.user_id === currentUser.id;
+
+const canModerateMessages =
+  currentCommunityRole === "admin" ||
+  currentCommunityRole === "moderator";
+
+if (isOwnMessage || canModerateMessages) {
   const actions = document.createElement("div");
   actions.className = "hub-message-actions";
 
-  const editButton = document.createElement("button");
-  editButton.type = "button";
-  editButton.textContent = "Edit";
-  editButton.addEventListener("click", () => {
-    editCommunityMessage(message);
-  });
+  if (isOwnMessage) {
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => {
+      editCommunityMessage(message);
+    });
+
+    actions.appendChild(editButton);
+  }
 
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
@@ -3068,7 +3093,7 @@ if (currentUser && message.user_id === currentUser.id) {
     deleteCommunityMessage(message);
   });
 
-  actions.append(editButton, deleteButton);
+  actions.appendChild(deleteButton);
   content.appendChild(actions);
 }
 
