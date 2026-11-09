@@ -3221,7 +3221,7 @@ if (adminArea) {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url")
+        .select("id, username, avatar_url, created_at, last_seen")
         .order("username", { ascending: true });
 
       if (error) throw error;
@@ -3253,7 +3253,121 @@ if (adminArea) {
   /* ==========================================
      19. MEMBER LIST
      ========================================== */
+   
+function openMemberProfile(profile) {
+  const overlay = document.createElement("div");
 
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.8);
+  `;
+
+  const card = document.createElement("div");
+
+  card.style.cssText = `
+    width: 100%;
+    max-width: 360px;
+    padding: 25px;
+    background: #171318;
+    border: 1px solid #771d2b;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+  `;
+
+  const avatar = makeAvatar(profile);
+
+  avatar.style.cssText += `
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 15px;
+    overflow: hidden;
+    border-radius: 50%;
+  `;
+
+  const name = document.createElement("h2");
+  name.textContent = getUsername(profile);
+
+  const status = document.createElement("p");
+  const isOnline = onlineMembers.has(profile.id);
+
+  status.textContent = isOnline ? "● Online" : "● Offline";
+  status.style.color = isOnline ? "#55cc88" : "#999";
+
+  const joined = document.createElement("p");
+  joined.textContent = profile.created_at
+    ? `Joined: ${formatDate(profile.created_at)}`
+    : "Join date unavailable";
+
+  const lastSeen = document.createElement("p");
+  lastSeen.textContent = isOnline
+    ? "Currently active"
+    : profile.last_seen
+      ? `Last seen: ${formatDate(profile.last_seen)}`
+      : "Last activity unavailable";
+
+  const messageButton = document.createElement("button");
+  messageButton.textContent = "Send Private Message";
+  messageButton.type = "button";
+
+  messageButton.style.cssText = `
+    padding: 10px 16px;
+    margin: 12px 5px 0;
+    color: white;
+    background: #771d2b;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  `;
+
+  messageButton.addEventListener("click", () => {
+    overlay.remove();
+    openDirectMessage(profile);
+  });
+
+  const closeButton = document.createElement("button");
+  closeButton.textContent = "Close";
+  closeButton.type = "button";
+
+  closeButton.style.cssText = `
+    padding: 10px 16px;
+    margin: 12px 5px 0;
+    color: white;
+    background: #383238;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  `;
+
+  closeButton.addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) {
+      overlay.remove();
+    }
+  });
+
+  card.append(
+    avatar,
+    name,
+    status,
+    joined,
+    lastSeen,
+    messageButton,
+    closeButton
+  );
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
   function renderCommunityMembers() {
     const container = $(".hub-member-list");
     if (!container) return;
@@ -3322,10 +3436,9 @@ if (adminArea) {
 
       member.append(avatar, name, dot);
 
-      member.addEventListener("click", () => {
-        openDirectMessage(profile);
-      });
-
+  member.addEventListener("click", () => {
+    openMemberProfile(profile);
+ });
       container.appendChild(member);
     });
   }
