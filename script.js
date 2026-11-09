@@ -149,6 +149,12 @@
     const preview = $(".hub-profile-preview", hub);
     const username = $(".hub-profile-username", hub);
     const button = $(".hub-avatar-upload-button", hub);
+   const usernameButton = 
+      $(".hub-username-edit-button", hub);
+
+if (usernameButton) {
+  usernameButton.disabled = !currentUser;
+}
 
     if (preview) {
       preview.replaceChildren(
@@ -2742,6 +2748,13 @@ banButton.addEventListener("click", async () => {
 
           <div class="hub-profile-details">
             <strong class="hub-profile-username">Guest</strong>
+             <button
+                 class="hub-username-edit-button"
+                type="button"
+               disabled
+             >
+               Change Username
+             </button>
 
             <button
               class="hub-avatar-upload-button"
@@ -2924,6 +2937,79 @@ adminButton?.addEventListener("click", () => {
       "change",
       handleAvatarUpload
     );
+     const usernameButton =
+  $(".hub-username-edit-button", hub);
+
+usernameButton?.addEventListener("click", async () => {
+  if (!currentUser) {
+    openAccountDialog();
+    setAuthMode("login");
+    return;
+  }
+
+  const newUsername = prompt(
+    "Enter your new username:",
+    getUsername(currentProfile || currentUser)
+  );
+
+  if (newUsername === null) return;
+
+  const cleanedUsername = newUsername.trim();
+
+  if (cleanedUsername.length < 3 || cleanedUsername.length > 24) {
+    showStatus("Username must be between 3 and 24 characters.", true);
+    return;
+  }
+
+  usernameButton.disabled = true;
+  showStatus("Updating your username...");
+
+  try {
+    const userId = currentUser.id;
+
+    const { data, error } = await supabaseClient
+      .from("community_profiles")
+      .update({ username: cleanedUsername })
+      .eq("id", userId)
+      .select("id, username, avatar_url")
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === "23505") {
+        throw new Error("That username is already taken.");
+      }
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error("Your profile could not be updated.");
+    }
+
+    currentProfile = data;
+
+    communityProfiles = communityProfiles.map(profile =>
+      profile.id === userId ? data : profile
+    );
+
+    conversationProfiles = conversationProfiles.map(profile =>
+      profile.id === userId ? data : profile
+    );
+
+    renderAvatarProfile();
+    renderCommunityMembers();
+    renderCommunityMessages();
+    renderDirectMessageInbox();
+
+    showStatus("Your username has been updated!");
+
+  } catch (error) {
+    console.error("Username update error:", error);
+    showStatus(error.message || "Unable to update username.", true);
+
+  } finally {
+    usernameButton.disabled = !currentUser;
+  }
+});
 
     renderAvatarProfile();
     renderCommunityChannels();
