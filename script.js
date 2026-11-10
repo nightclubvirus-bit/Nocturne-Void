@@ -777,16 +777,20 @@ document.addEventListener(
         openGameDetails(game);
       });
 
-       const statsButton = document.createElement("button");
-      statsButton.type = "button";
-      statsButton.className = "nv-discover-button";
-      statsButton.textContent = "Submit Statistics";
+        if (!game.original) {
+        const statsButton = document.createElement("button");
+        statsButton.type = "button";
+        statsButton.className = "nv-discover-button";
+        statsButton.textContent = "Submit Statistics";
 
-      statsButton.addEventListener("click", () => {
-        submitGameStats(game);
-      });
+        statsButton.addEventListener("click", () => {
+          submitGameStats(game);
+        });
 
-      info.append(title, description, meta, discover, statsButton);
+        info.append(title, description, meta, discover, statsButton);
+      } else {
+        info.append(title, description, meta, discover);
+      }
       card.append(art, info);
       grid.appendChild(card);
     });
@@ -1938,15 +1942,46 @@ document.addEventListener(
      9. LEADERBOARD
      ========================================== */
 
-  const leaderboardPlayers = [
-    { name: "NightWalker", level: "Elite Player", score: "9,850" },
-    { name: "CrimsonSoul", level: "Veteran", score: "8,420" },
-    { name: "VoidHunter", level: "Veteran", score: "7,900" },
-    { name: "ShadowBloom", level: "Rising Player", score: "6,750" },
-    { name: "GrimReaper", level: "Rising Player", score: "5,980" }
-  ];
+  let leaderboardPlayers = [];
+     async function loadCommunityLeaderboard() {
+    if (!supabaseClient) return;
 
-  function renderLeaderboard() {
+    const { data, error } = await supabaseClient
+      .from("community_game_stats")
+      .select("user_id, username, wins");
+
+    if (error) {
+      console.error("Leaderboard loading error:", error);
+      return;
+    }
+
+    const playerTotals = {};
+
+    data.forEach(stat => {
+      if (!playerTotals[stat.user_id]) {
+        playerTotals[stat.user_id] = {
+          name: stat.username,
+          wins: 0
+        };
+      }
+
+      playerTotals[stat.user_id].wins += stat.wins;
+    });
+
+    leaderboardPlayers = Object.values(playerTotals)
+      .sort((a, b) => b.wins - a.wins)
+      .slice(0, 10)
+      .map(player => ({
+        name: player.name,
+        level: player.wins >= 100 ? "Elite Player" :
+               player.wins >= 25 ? "Veteran" : "Rising Player",
+        score: player.wins
+      }));
+
+    renderLeaderboard();
+  }
+   
+function renderLeaderboard() {
     const container = $("#leaderRows");
     if (!container) return;
 
@@ -1970,7 +2005,7 @@ document.addEventListener(
 
       const score = document.createElement("div");
       score.className = "score";
-      score.textContent = `${player.score} XP`;
+     score.textContent = `${player.score} WINS`;
 
       row.append(rank, name, score);
       container.appendChild(row);
@@ -4633,24 +4668,22 @@ row.append(avatar, content);
      32. START WEBSITE
      ========================================== */
 
-  function initializeWebsite() {
-    initializeGameLibrary();
-    renderLeaderboard();
-
+ function initializeWebsite() {
     initializeAccountButtons();
 
-connectSupabase();
+    connectSupabase();
 
-initializeCommunity();
+    initializeGameLibrary();
+    loadCommunityLeaderboard();
 
-initializeMobileNavigation();
-initializeFooter();
+    initializeCommunity();
+    initializeMobileNavigation();
+    initializeFooter();
 
     console.log(
       "NOCTURNE VOID initialized successfully."
     );
   }
-
   if (document.readyState === "loading") {
     document.addEventListener(
       "DOMContentLoaded",
