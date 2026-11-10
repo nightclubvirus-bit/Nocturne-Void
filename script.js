@@ -623,6 +623,38 @@ document.addEventListener(
       image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
       original: true
     }
+         {
+      title: "Outlast",
+      category: "Horror",
+      description: "Investigate an abandoned asylum filled with terrifying secrets.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/238320/Outlast/"
+    },
+    {
+      title: "Phasmophobia",
+      category: "Horror",
+      description: "Investigate haunted locations and identify dangerous spirits.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/739630/Phasmophobia/"
+    },
+    {
+      title: "Hollow Knight",
+      category: "Adventure",
+      description: "Explore a mysterious kingdom beneath the surface.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/367520/Hollow_Knight/"
+    },
+    {
+      title: "Cyberpunk 2077",
+      category: "Adventure",
+      description: "Explore a futuristic city filled with danger and choices.",
+      platform: "PC / Console",
+      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+      url: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/"
+    }
   ];
 
   function renderGames() {
