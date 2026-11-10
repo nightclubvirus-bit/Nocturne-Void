@@ -572,15 +572,15 @@ document.addEventListener(
       category: "Horror",
       description: "Return to a haunting town filled with memories, mysteries, and nightmares.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
-      url: "https://store.steampowered.com/app/2124490/SILENT_HILL_2/"
+     image: "https://cdn.akamai.steamstatic.com/steam/apps/2124490/header.jpg",
+   url: "https://store.steampowered.com/app/2124490/SILENT_HILL_2/"
     },
     {
       title: "Elden Ring",
       category: "Adventure",
       description: "Explore a mysterious world filled with ancient secrets and powerful enemies.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+     image: "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
       url: "https://store.steampowered.com/app/1245620/ELDEN_RING/"
     },
     {
@@ -588,7 +588,7 @@ document.addEventListener(
       category: "Horror",
       description: "Survive terrifying encounters in a world where danger waits around every corner.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80",
+   image: "https://cdn.akamai.steamstatic.com/steam/apps/304240/header.jpg",
       url: "https://store.steampowered.com/franchise/residentevil"
     },
     {
@@ -596,7 +596,7 @@ document.addEventListener(
       category: "Action",
       description: "Face unforgiving challenges in a dark fantasy world.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/374320/header.jpg",
       url: "https://store.steampowered.com/app/374320/DARK_SOULS_III/"
     },
     {
@@ -604,7 +604,7 @@ document.addEventListener(
       category: "Adventure",
       description: "Discover a vast fantasy world filled with monsters, magic, and choices.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?auto=format&fit=crop&w=900&q=80",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/292030/header.jpg",
       url: "https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/"
     },
     {
@@ -612,7 +612,7 @@ document.addEventListener(
       category: "Horror",
       description: "Escape the nightmare or become the thing everyone fears.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/381210/header.jpg",
       url: "https://store.steampowered.com/app/381210/Dead_by_Daylight/"
     },
     {
@@ -628,7 +628,7 @@ document.addEventListener(
       category: "Horror",
       description: "Investigate an abandoned asylum filled with terrifying secrets.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/238320/header.jpg",
       url: "https://store.steampowered.com/app/238320/Outlast/"
     },
     {
@@ -636,7 +636,7 @@ document.addEventListener(
       category: "Horror",
       description: "Investigate haunted locations and identify dangerous spirits.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=900&q=80",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/739630/header.jpg",
       url: "https://store.steampowered.com/app/739630/Phasmophobia/"
     },
     {
@@ -644,7 +644,7 @@ document.addEventListener(
       category: "Adventure",
       description: "Explore a mysterious kingdom beneath the surface.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+     image: "https://cdn.akamai.steamstatic.com/steam/apps/367520/header.jpg",
       url: "https://store.steampowered.com/app/367520/Hollow_Knight/"
     },
     {
@@ -652,7 +652,7 @@ document.addEventListener(
       category: "Adventure",
       description: "Explore a futuristic city filled with danger and choices.",
       platform: "PC / Console",
-      image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg",
     url: "https://store.steampowered.com/app/1091500/Cyberpunk_2077/"
     },
     {
