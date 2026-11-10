@@ -662,6 +662,46 @@ document.addEventListener(
       platform: "PC / Console / Mobile",
       image: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=900&q=80",
       url: "https://www.roblox.com/"
+    },
+     {
+      title: "Minecraft",
+      category: "Sandbox",
+      description: "Build, explore, and survive in an endless block-based world.",
+      platform: "PC / Console / Mobile",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/1672970/header.jpg",
+      url: "https://www.minecraft.net/"
+    },
+    {
+      title: "Five Nights at Freddy's",
+      category: "Horror",
+      description: "Survive terrifying nights inside a haunted family pizzeria.",
+      platform: "PC / Console",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/319510/header.jpg",
+      url: "https://store.steampowered.com/app/319510/Five_Nights_at_Freddys/"
+    },
+    {
+      title: "Grand Theft Auto V",
+      category: "Action",
+      description: "Explore Los Santos in a massive open-world crime adventure.",
+      platform: "PC / Console",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/3240220/header.jpg",
+      url: "https://store.steampowered.com/app/3240220/Grand_Theft_Auto_V_Enhanced/"
+    },
+    {
+      title: "Lethal Company",
+      category: "Horror",
+      description: "Team up to scavenge abandoned moons while avoiding deadly creatures.",
+      platform: "PC",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/1966720/header.jpg",
+      url: "https://store.steampowered.com/app/1966720/Lethal_Company/"
+    },
+    {
+      title: "Terraria",
+      category: "Adventure",
+      description: "Dig, fight, explore, and build in a vast 2D sandbox world.",
+      platform: "PC / Console / Mobile",
+      image: "https://cdn.akamai.steamstatic.com/steam/apps/105600/header.jpg",
+      url: "https://store.steampowered.com/app/105600/Terraria/"
     }
   ];
 
