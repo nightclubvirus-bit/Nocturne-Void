@@ -777,12 +777,71 @@ document.addEventListener(
         openGameDetails(game);
       });
 
-      info.append(title, description, meta, discover);
+       const statsButton = document.createElement("button");
+      statsButton.type = "button";
+      statsButton.className = "nv-discover-button";
+      statsButton.textContent = "Submit Statistics";
+
+      statsButton.addEventListener("click", () => {
+        submitGameStats(game);
+      });
+
+      info.append(title, description, meta, discover, statsButton);
       card.append(art, info);
       grid.appendChild(card);
     });
   }
+  async function submitGameStats(game) {
+    if (!currentUser) {
+      alert("Please sign in to submit game statistics.");
+      return;
+    }
 
+    const wins = prompt("How many wins do you have?");
+    if (wins === null) return;
+
+    const losses = prompt("How many losses do you have?");
+    if (losses === null) return;
+
+    const gamesPlayed = prompt("How many games have you played?");
+    if (gamesPlayed === null) return;
+
+    const highScore = prompt("What is your highest score?");
+    if (highScore === null) return;
+
+    const values = [wins, losses, gamesPlayed, highScore];
+
+    if (values.some(value =>
+      !/^\d+$/.test(value.trim()) ||
+      !Number.isSafeInteger(Number(value))
+    )) {
+      alert("Please enter valid non-negative whole numbers.");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("community_game_stats")
+      .upsert({
+        user_id: currentUser.id,
+        username: currentProfile?.username || "Player",
+        game_name: game.title,
+        wins: Number(wins),
+        losses: Number(losses),
+        games_played: Number(gamesPlayed),
+        high_score: Number(highScore),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: "user_id,game_name"
+      });
+
+    if (error) {
+      console.error("Game stats error:", error);
+      alert("Could not save your statistics.");
+      return;
+    }
+
+    alert("Your game statistics have been saved!");
+  }
   function initializeGameLibrary() {
     $("#gameSearch")?.addEventListener("input", renderGames);
 
