@@ -1658,7 +1658,110 @@ document.addEventListener(
   image: "https://cdn.akamai.steamstatic.com/steam/apps/3059520/header.jpg",
   url: "https://store.steampowered.com/app/3059520/F1_25/"
 },
-     
+     {
+  title: "Need for Speed Unbound",
+  category: "Racing",
+  description: "Race through a vibrant open-world city, customize high-performance cars, escape police pursuits, and compete in intense street racing events.",
+  platform: "PC / PlayStation 5 / Xbox Series X|S",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1846380/header.jpg",
+  url: "https://store.steampowered.com/app/1846380/Need_for_Speed_Unbound/"
+},
+     {
+  title: "Ultimate Chicken Horse",
+  category: "Party",
+  description: "Build dangerous obstacle courses with your friends, place traps, and race to the finish in this chaotic multiplayer party game.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/386940/header.jpg",
+  url: "https://store.steampowered.com/app/386940/Ultimate_Chicken_Horse/"
+},
+     {
+  title: "Move or Die",
+  category: "Party",
+  description: "Compete in frantic mini-games where standing still means instant elimination, with constantly changing rules and chaotic multiplayer action.",
+  platform: "PC",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/323850/header.jpg",
+  url: "https://store.steampowered.com/app/323850/Move_or_Die/"
+},
+     {
+  title: "Stick Fight: The Game",
+  category: "Party",
+  description: "Battle your friends as stick figures in fast-paced arenas filled with ridiculous weapons, physics-based chaos, and unpredictable combat.",
+  platform: "PC / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/674940/header.jpg",
+  url: "https://store.steampowered.com/app/674940/Stick_Fight_The_Game/"
+},
+     {
+  title: "Gang Beasts",
+  category: "Party",
+  description: "Throw your friends around in ridiculous physics-based brawls across hazardous arenas filled with unpredictable obstacles.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/285900/header.jpg",
+  url: "https://store.steampowered.com/app/285900/Gang_Beasts/"
+},
+     {
+  title: "PICO PARK 2",
+  category: "Party",
+  description: "Team up with friends in cooperative puzzle stages that require teamwork, coordination, and clever problem-solving.",
+  platform: "PC / Nintendo Switch / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/2644470/header.jpg",
+  url: "https://store.steampowered.com/app/2644470/PICO_PARK_2/"
+},
+     {
+  title: "Overcooked! All You Can Eat",
+  category: "Party",
+  description: "Work together in chaotic kitchens, prepare meals under pressure, and overcome ridiculous cooking challenges with friends.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1243830/header.jpg",
+  url: "https://store.steampowered.com/app/1243830/Overcooked_All_You_Can_Eat/"
+},
+     {
+  title: "Unrailed!",
+  category: "Party",
+  description: "Work together to build railway tracks across unpredictable landscapes, gather resources, and keep your train moving before it crashes.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1016920/header.jpg",
+  url: "https://store.steampowered.com/app/1016920/Unrailed/"
+},
+     {
+  title: "Heave Ho",
+  category: "Party",
+  description: "Grab your friends, swing across dangerous gaps, and try not to fall in this hilarious cooperative physics-based party game.",
+  platform: "PC / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/905340/header.jpg",
+  url: "https://store.steampowered.com/app/905340/Heave_Ho/"
+},
+     {
+  title: "Boomerang Fu",
+  category: "Party",
+  description: "Battle your friends as adorable food characters, throwing boomerangs and using wild power-ups in fast-paced arena battles.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/965680/header.jpg",
+  url: "https://store.steampowered.com/app/965680/Boomerang_Fu/"
+},
+     {
+  title: "ROUNDS",
+  category: "Party",
+  description: "Battle your friends in fast-paced duels, unlock powerful upgrades, and create ridiculous combinations in physics-based combat.",
+  platform: "PC",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1557740/header.jpg",
+  url: "https://store.steampowered.com/app/1557740/ROUNDS/"
+},
+     {
+  title: "PowerWash Simulator",
+  category: "Simulation",
+  description: "Relax and clean everything from houses to massive vehicles using powerful pressure washers, completing satisfying cleaning jobs.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1290000/header.jpg",
+  url: "https://store.steampowered.com/app/1290000/PowerWash_Simulator/"
+},
+     {
+  title: "Gas Station Simulator",
+  category: "Simulation",
+  description: "Restore an abandoned gas station, serve customers, manage supplies, expand your business, and build a successful roadside empire.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1149620/header.jpg",
+  url: "https://store.steampowered.com/app/1149620/Gas_Station_Simulator/"
+},
    ];
 
   function renderGames() {
