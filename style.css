@@ -1776,3 +1776,238 @@ dialog p {
   margin: 8px 4px;
   background: rgba(255, 255, 255, .1);
 }
+
+/* =====================================
+   NOCTURNE VOID ACCOUNT CENTER
+   ===================================== */
+
+.account-center {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 85vh;
+  background: #0b080d;
+  border-top: 1px solid rgba(190, 35, 55, .2);
+}
+
+.account-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 18px;
+  background: #100b12;
+  border-right: 1px solid rgba(190, 35, 55, .25);
+}
+
+.account-sidebar-title {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 12px 30px;
+  font-family: Cinzel, serif;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+.account-sidebar-title small {
+  color: #a52b40;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+.account-sidebar-label {
+  margin: 20px 12px 10px;
+  color: #8c7783;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.account-nav {
+  width: 100%;
+  padding: 13px 12px;
+  margin: 3px 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #bfb3bc;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.account-nav:hover,
+.account-nav.active {
+  background: rgba(165, 43, 64, .2);
+  color: #fff;
+}
+
+.account-nav.active {
+  border-left: 3px solid #a52b40;
+}
+
+.account-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: auto;
+  padding: 30px 12px 0;
+}
+
+.account-sidebar-bottom a {
+  color: #b99ba7;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.account-sidebar-bottom a:hover {
+  color: #fff;
+}
+
+.account-content {
+  width: 100%;
+  max-width: 1100px;
+  padding: 55px clamp(20px, 5vw, 65px);
+}
+
+.account-view {
+  display: none;
+}
+
+.account-view.active {
+  display: block;
+}
+
+.account-content h1 {
+  margin: 10px 0 15px;
+  font-family: Cinzel, serif;
+  font-size: clamp(30px, 5vw, 48px);
+  color: #fff;
+}
+
+.account-content h1 em {
+  color: #a52b40;
+}
+
+.account-content > .account-view > p:not(.eyebrow) {
+  color: #a99ba4;
+  line-height: 1.7;
+}
+
+.account-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-top: 40px;
+  padding: 30px;
+  background: #151018;
+  border: 1px solid rgba(190, 35, 55, .3);
+  border-radius: 10px;
+}
+
+.account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #32121d;
+  border: 2px solid #a52b40;
+  color: #fff;
+  font-size: 32px;
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-profile-card h2 {
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.account-profile-card p {
+  color: #a99ba4;
+  margin: 0 0 10px;
+}
+
+.account-profile-card span {
+  color: #d35b70;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.account-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.account-stat {
+  padding: 22px;
+  background: #151018;
+  border: 1px solid rgba(190, 35, 55, .2);
+  border-radius: 8px;
+}
+
+.account-stat span,
+.account-stat strong {
+  display: block;
+}
+
+.account-stat span {
+  color: #a99ba4;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.account-stat strong {
+  margin-top: 12px;
+  color: #fff;
+  font-size: 25px;
+}
+
+@media (max-width: 750px) {
+  .account-center {
+    grid-template-columns: 1fr;
+  }
+
+  .account-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(190, 35, 55, .25);
+    padding: 20px 14px;
+  }
+
+  .account-sidebar-title {
+    padding-bottom: 15px;
+  }
+
+  .account-sidebar-label {
+    margin-top: 12px;
+  }
+
+  .account-sidebar-bottom {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 15px;
+  }
+
+  .account-content {
+    padding: 35px 20px;
+  }
+
+  .account-profile-card {
+    padding: 20px;
+  }
+
+  .account-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
