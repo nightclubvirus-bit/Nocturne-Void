@@ -3997,7 +3997,43 @@ if (favoriteGames.length === 0) {
     }
   }
   }
+   const friendButton = document.createElement("button");
+friendButton.textContent = "Add Friend";
+friendButton.type = "button";
 
+friendButton.style.cssText = `
+  padding: 10px 16px;
+  margin: 12px 5px 0;
+  color: white;
+  background: #315b43;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+`;
+
+friendButton.addEventListener("click", async () => {
+  if (!currentUser || !supabaseClient) return;
+
+  friendButton.disabled = true;
+  friendButton.textContent = "Sending...";
+
+  const { error } = await supabaseClient
+    .from("friend_requests")
+    .insert({
+      sender_id: currentUser.id,
+      receiver_id: profile.id
+    });
+
+  if (error) {
+    console.error("Friend request error:", error);
+    friendButton.textContent = "Request Failed";
+    friendButton.disabled = false;
+    return;
+  }
+
+  friendButton.textContent = "Request Sent";
+});
+   
   const messageButton = document.createElement("button");
   messageButton.textContent = "Send Private Message";
   messageButton.type = "button";
@@ -4048,6 +4084,7 @@ if (favoriteGames.length === 0) {
     joined,
     lastSeen,
     statsSection,
+     friendButton,
     messageButton,
     closeButton
   );
