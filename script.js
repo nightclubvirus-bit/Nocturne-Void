@@ -856,6 +856,80 @@ document.addEventListener(
     description: "Work an isolated overnight radio station as strange signals and mysterious transmissions begin to emerge.",
     url: "https://lguidolin.itch.io/the-last-broadcast" 
   },
+  {
+    title: "VRChat",
+    category: "Avatar",
+    description: "Create your own avatar, explore immersive virtual worlds, and socialize with players around the world.",
+    platform: "PC / VR",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/438100/header.jpg",
+    url: "https://store.steampowered.com/app/438100/VRChat/"
+   },
+   {
+    title: "IMVU",
+    category: "Avatar",
+    description: "Design your own 3D avatar, customize outfits, decorate spaces, and meet people in virtual social worlds.",
+    platform: "PC / Mobile / Web",
+    image: "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=900&q=80",
+    playMode: "external",
+    url: "https://www.imvu.com/"
+   },
+   {
+    title: "Second Life",
+    category: "Avatar",
+    description: "Build a virtual identity, customize your avatar, own virtual spaces, and explore a massive user-created world.",
+    platform: "PC / Mac",
+    image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80",
+    url: "https://secondlife.com/"
+   },
+   {
+    title: "ZEPETO",
+    category: "Avatar",
+    description: "Create a 3D avatar, customize your style, visit virtual worlds, and connect with other players.",
+    platform: "Mobile / PC",
+    image: "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=900&q=80",
+    playMode: "external",
+   url: "https://zepeto.me/"
+   },
+   {
+    title: "The Sims 4",
+    category: "Simulation",
+    description: "Create unique characters, build homes, develop relationships, and guide your Sims through everyday life.",
+    platform: "PC / Mac / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1222670/header.jpg",
+    url: "https://store.steampowered.com/app/1222670/The_Sims_4/"
+   },
+   {
+    title: "House Flipper",
+    category: "Simulation",
+    description: "Buy rundown houses, renovate them, clean, decorate, and turn neglected properties into beautiful homes.",
+    platform: "PC / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/613100/header.jpg",
+    url: "https://store.steampowered.com/app/613100/House_Flipper/"
+   },
+   {
+    title: "Euro Truck Simulator 2",
+    category: "Simulation",
+    description: "Travel across Europe as a truck driver, deliver cargo, manage your business, and build your own trucking empire.",
+    platform: "PC / Mac",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/227300/header.jpg",
+    url: "https://store.steampowered.com/app/227300/Euro_Truck_Simulator_2/"
+   },
+   {
+    title: "Farming Simulator 25",
+    category: "Simulation",
+    description: "Build and manage your own farm, grow crops, raise livestock, operate heavy machinery, and expand your agricultural business.",
+    platform: "PC / Mac / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/2300320/header.jpg",
+    url: "https://store.steampowered.com/app/2300320/Farming_Simulator_25/"
+   },
+   {
+    title: "Planet Zoo",
+    category: "Simulation",
+    description: "Design and manage your own zoo, care for amazing animals, build habitats, and keep visitors happy.",
+    platform: "PC",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/703080/header.jpg",
+    url: "https://store.steampowered.com/app/703080/Planet_Zoo/"
+   },
      
    ];
 
