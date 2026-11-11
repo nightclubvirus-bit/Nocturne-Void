@@ -133,7 +133,14 @@
     return;
   }
 
-  alert("Stream details saved! Platform: " + platform);
+ if (platform === "twitch") {
+  window.open("https://dashboard.twitch.tv/", "_blank");
+} else if (platform === "youtube") {
+  window.open("https://studio.youtube.com/", "_blank");
+} else {
+  alert("NOCTURNE VOID native streaming setup is coming soon!");
+}
+    
 });
 
   vlModal.addEventListener("click", (event) => {
