@@ -112,6 +112,7 @@
   const vlGoLive = document.getElementById("vlGoLive");
   const vlModal = document.getElementById("vlStreamModal");
   const vlClose = document.getElementById("vlCloseModal");
+  const vlStartStream = document.getElementById("vlStartStream");
 
   vlGoLive.addEventListener("click", () => {
     vlModal.style.display = "flex";
@@ -120,6 +121,20 @@
   vlClose.addEventListener("click", () => {
     vlModal.style.display = "none";
   });
+  
+  vlStartStream.addEventListener("click", () => {
+  const title = document.getElementById("vlStreamTitle").value.trim();
+  const game = document.getElementById("vlStreamGame").value.trim();
+  const description = document.getElementById("vlStreamDescription").value.trim();
+  const platform = document.getElementById("vlStreamPlatform").value;
+
+  if (!title || !game) {
+    alert("Please enter a stream title and select a game.");
+    return;
+  }
+
+  alert("Stream details saved! Platform: " + platform);
+});
 
   vlModal.addEventListener("click", (event) => {
     if (event.target === vlModal) {
