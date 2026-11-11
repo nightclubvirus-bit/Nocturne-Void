@@ -970,6 +970,46 @@ document.addEventListener(
     image: "https://cdn.akamai.steamstatic.com/steam/apps/2225070/header.jpg",
     url: "https://store.steampowered.com/app/2225070/Trackmania/"
    },
+   {
+    title: "EA SPORTS FC 26",
+    category: "Sports",
+    description: "Build your dream squad, compete in football matches, manage your club, and take on players around the world.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/3405690/header.jpg",
+    url: "https://store.steampowered.com/app/3405690/EA_SPORTS_FC_26/"
+   },
+   {
+    title: "NBA 2K26",
+    category: "Sports",
+    description: "Build your basketball career, create your dream team, compete in realistic NBA games, and challenge other players.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/3472040/header.jpg",
+    url: "https://store.steampowered.com/app/3472040/NBA_2K26/"
+   },
+   {
+    title: "Golf With Your Friends",
+    category: "Sports",
+    description: "Play chaotic mini-golf courses with friends, tackle creative obstacles, and compete for the lowest score.",
+    platform: "PC / PlayStation / Xbox / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/431240/header.jpg",
+    url: "https://store.steampowered.com/app/431240/Golf_With_Your_Friends/"
+   },
+   {
+    title: "WWE 2K26",
+    category: "Sports",
+    description: "Step into the ring, create your own superstar, compete in wrestling matches, and build your legacy.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/2769200/header.jpg",
+    url: "https://store.steampowered.com/app/2769200/WWE_2K26/"
+   },
+   {
+    title: "Rocket League",
+    category: "Sports",
+    description: "Combine soccer and rocket-powered cars in fast-paced matches. Score goals, perform aerial tricks, and compete online.",
+    platform: "PC / PlayStation / Xbox / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/252950/header.jpg",
+    url: "https://www.rocketleague.com/"
+   },
      
    ];
 
