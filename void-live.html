@@ -117,6 +117,7 @@
   );
 
   const vlGoLive = document.getElementById("vlGoLive");
+  const vlLiveStreams = document.getElementById("vlLiveStreams");
   const vlModal = document.getElementById("vlStreamModal");
   const vlClose = document.getElementById("vlCloseModal");
   const vlStartStream = document.getElementById("vlStartStream");
@@ -179,6 +180,42 @@ if (saveError) {
       vlModal.style.display = "none";
     }
   });
+  
+  async function loadLiveStreams() {
+  const { data: streams, error } = await vlSupabase
+    .from("void_live_streams")
+    .select("*")
+    .eq("is_live", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Could not load live streams:", error);
+    vlLiveStreams.innerHTML = "<p class='vl-empty'>Could not load live channels.</p>";
+    return;
+  }
+
+  if (!streams || streams.length === 0) {
+    vlLiveStreams.innerHTML = "<p class='vl-empty'>No one is streaming right now.</p>";
+    return;
+  }
+
+  vlLiveStreams.innerHTML = "";
+
+  streams.forEach(stream => {
+    const card = document.createElement("div");
+    card.className = "vl-stream-card";
+
+    card.innerHTML = `
+      <h3>${stream.stream_title}</h3>
+      <p>${stream.game_name}</p>
+      <span>${stream.platform.toUpperCase()}</span>
+    `;
+
+    vlLiveStreams.appendChild(card);
+  });
+}
+  loadLiveStreams();
+  
 </script>
 </body>
 </html>
