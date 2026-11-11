@@ -2156,6 +2156,49 @@ function renderLeaderboard() {
     container.appendChild(item);
   });
 }
+async function loadAccountGames() {
+  const container = $("#accountGamesContent");
+  if (!container || !currentUser || !supabaseClient) return;
+
+  container.textContent = "Loading your games...";
+
+  const { data, error } = await supabaseClient
+    .from("community_game_stats")
+    .select("game_name, wins, losses, games_played, high_score")
+    .eq("user_id", currentUser.id)
+    .order("games_played", { ascending: false });
+
+  if (error) {
+    console.error("Account games error:", error);
+    container.textContent = "Could not load your games.";
+    return;
+  }
+
+  container.replaceChildren();
+
+  if (!data || data.length === 0) {
+    container.textContent = "You haven't played any games yet.";
+    return;
+  }
+
+  data.forEach(game => {
+    const card = document.createElement("div");
+    card.className = "account-game-card";
+
+    const name = document.createElement("h3");
+    name.textContent = game.game_name;
+
+    const stats = document.createElement("p");
+    stats.textContent =
+      `Wins: ${game.wins} | Losses: ${game.losses} | Games: ${game.games_played}`;
+
+    const highScore = document.createElement("p");
+    highScore.textContent = `High Score: ${game.high_score}`;
+
+    card.append(name, stats, highScore);
+    container.appendChild(card);
+  });
+} 
 
   /* ==========================================
      10. ACCOUNT DIALOG
@@ -2667,50 +2710,6 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
     loadAccountAchievements();
     loadAccountGames();
   }
-        
-        async function loadAccountGames() {
-  const container = $("#accountGamesContent");
-  if (!container || !currentUser || !supabaseClient) return;
-
-  container.textContent = "Loading your games...";
-
-  const { data, error } = await supabaseClient
-    .from("community_game_stats")
-    .select("game_name, wins, losses, games_played, high_score")
-    .eq("user_id", currentUser.id)
-    .order("games_played", { ascending: false });
-
-  if (error) {
-    console.error("Account games error:", error);
-    container.textContent = "Could not load your games.";
-    return;
-  }
-
-  container.replaceChildren();
-
-  if (!data || data.length === 0) {
-    container.textContent = "You haven't played any games yet.";
-    return;
-  }
-
-  data.forEach(game => {
-    const card = document.createElement("div");
-    card.className = "account-game-card";
-
-    const name = document.createElement("h3");
-    name.textContent = game.game_name;
-
-    const stats = document.createElement("p");
-    stats.textContent =
-      `Wins: ${game.wins} | Losses: ${game.losses} | Games: ${game.games_played}`;
-
-    const highScore = document.createElement("p");
-    highScore.textContent = `High Score: ${game.high_score}`;
-
-    card.append(name, stats, highScore);
-    container.appendChild(card);
-  });
-}
      }
          if (currentUser && currentProfile) {
       const username = $("#accountUsername");
