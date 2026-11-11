@@ -148,7 +148,7 @@ if (sessionError || !sessionData.session) {
   return;
 }
 
-const { error: saveError } = await vlSupabase
+const { data: savedStream, error: saveError } = await vlSupabase
   .from("void_live_streams")
   .insert({
     user_id: sessionData.session.user.id,
@@ -156,8 +156,10 @@ const { error: saveError } = await vlSupabase
     game_name: game,
     description: description,
     platform: platform,
-    is_live: false
-  });
+      is_live: false
+  })
+  .select()
+  .single();
 
 if (saveError) {
   console.error("Stream save error:", saveError);
