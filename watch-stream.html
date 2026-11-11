@@ -79,6 +79,79 @@
   );
       const streamParams = new URLSearchParams(window.location.search);
   const streamId = streamParams.get("id");
+    const vlChatMessages = document.getElementById("vlChatMessages");
+const vlChatForm = document.getElementById("vlChatForm");
+const vlChatInput = document.getElementById("vlChatInput");
+
+    async function loadLiveChat() {
+  if (!streamId) return;
+
+  const { data: messages, error } = await watchSupabase
+    .from("void_live_chat")
+    .select("id, user_id, message, created_at")
+    .eq("stream_id", streamId)
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  if (error) {
+    console.error("Could not load live chat:", error);
+    vlChatMessages.textContent = "Could not load chat messages.";
+    return;
+  }
+
+  vlChatMessages.innerHTML = "";
+
+  if (!messages || messages.length === 0) {
+    vlChatMessages.textContent = "No messages yet. Start the conversation!";
+    return;
+  }
+
+  messages.forEach(message => {
+    const messageElement = document.createElement("div");
+    messageElement.className = "vl-chat-message";
+
+    const sender = document.createElement("strong");
+    sender.textContent = "VOID MEMBER";
+
+    const content = document.createElement("p");
+    content.textContent = message.message;
+
+    messageElement.append(sender, content);
+    vlChatMessages.appendChild(messageElement);
+  });
+
+  vlChatMessages.scrollTop = vlChatMessages.scrollHeight;
+}
+    vlChatForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const message = vlChatInput.value.trim();
+  if (!message) return;
+
+  const { data: sessionData } = await watchSupabase.auth.getSession();
+
+  if (!sessionData.session) {
+    alert("Please sign in to send messages.");
+    return;
+  }
+
+  const { error } = await watchSupabase
+    .from("void_live_chat")
+    .insert({
+      stream_id: streamId,
+      user_id: sessionData.session.user.id,
+      message: message
+    });
+
+  if (error) {
+    console.error("Chat message error:", error);
+    alert("Could not send your message.");
+    return;
+  }
+
+  vlChatInput.value = "";
+  await loadLiveChat();
+});
 
   async function loadWatchedStream() {
     if (!streamId) {
