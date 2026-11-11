@@ -78,22 +78,31 @@ em {
   height: 450px;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: .10;
+  opacity: .16;
   pointer-events: none;
+  animation: nvAmbientDrift 12s ease-in-out infinite alternate;
 }
 
 .ambient-one {
   top: 5%;
   left: -200px;
-  background: var(--red);
+  background: #7928ff;
 }
 
 .ambient-two {
   right: -200px;
   bottom: 5%;
-  background: var(--purple);
+  background: #087cff;
 }
 
+@keyframes nvAmbientDrift {
+  from {
+    transform: translateY(-20px);
+  }
+  to {
+    transform: translateY(35px);
+  }
+}
 /* ==========================================
    NAVIGATION
    ========================================== */
