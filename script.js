@@ -2198,7 +2198,160 @@ async function loadAccountGames() {
     card.append(name, stats, highScore);
     container.appendChild(card);
   });
-} 
+}
+   async function loadAccountFriends() {
+  const container = $("#accountFriendsContent");
+  if (!container || !currentUser || !supabaseClient) return;
+
+  container.textContent = "Loading friends...";
+
+  const { data: requests, error } = await supabaseClient
+    .from("friend_requests")
+    .select("*")
+    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`);
+
+  if (error) {
+    console.error("Friends loading error:", error);
+    container.textContent = "Could not load friends.";
+    return;
+  }
+
+  container.replaceChildren();
+
+  const accepted = (requests || []).filter(
+    request => request.status === "accepted"
+  );
+
+  const incoming = (requests || []).filter(
+    request =>
+      request.status === "pending" &&
+      request.receiver_id === currentUser.id
+  );
+
+  const outgoing = (requests || []).filter(
+    request =>
+      request.status === "pending" &&
+      request.sender_id === currentUser.id
+  );
+
+  const friendIds = [
+    ...new Set([
+      ...accepted.map(request =>
+        request.sender_id === currentUser.id
+          ? request.receiver_id
+          : request.sender_id
+      ),
+      ...incoming.map(request => request.sender_id),
+      ...outgoing.map(request => request.receiver_id)
+    ])
+  ];
+
+  let profiles = [];
+
+  if (friendIds.length) {
+    const { data, error: profileError } = await supabaseClient
+      .from("community_profiles")
+      .select("id, username, avatar_url")
+      .in("id", friendIds);
+
+    if (profileError) {
+      console.error("Friend profiles error:", profileError);
+    } else {
+      profiles = data || [];
+    }
+  }
+
+  const heading = document.createElement("h3");
+  heading.textContent = "YOUR FRIENDS";
+  container.appendChild(heading);
+
+  if (!accepted.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "You haven't added any friends yet.";
+    container.appendChild(empty);
+  }
+
+  accepted.forEach(request => {
+    const friendId =
+      request.sender_id === currentUser.id
+        ? request.receiver_id
+        : request.sender_id;
+
+    const profile = profiles.find(person => person.id === friendId);
+    if (!profile) return;
+
+    const item = document.createElement("p");
+    item.textContent = `👤 ${profile.username}`;
+    container.appendChild(item);
+  });
+
+  const requestsHeading = document.createElement("h3");
+  requestsHeading.textContent = "FRIEND REQUESTS";
+  container.appendChild(requestsHeading);
+
+  if (!incoming.length && !outgoing.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "No pending friend requests.";
+    container.appendChild(empty);
+  }
+
+  incoming.forEach(request => {
+    const profile = profiles.find(
+      person => person.id === request.sender_id
+    );
+
+    const item = document.createElement("div");
+    const name = document.createElement("span");
+    name.textContent = `${profile?.username || "Unknown player"} `;
+
+    const accept = document.createElement("button");
+    accept.textContent = "Accept";
+
+    accept.addEventListener("click", async () => {
+      const { error } = await supabaseClient
+        .from("friend_requests")
+        .update({ status: "accepted", updated_at: new Date().toISOString() })
+        .eq("id", request.id);
+
+      if (error) {
+        console.error("Accept request error:", error);
+        return;
+      }
+
+      loadAccountFriends();
+    });
+
+    const decline = document.createElement("button");
+    decline.textContent = "Decline";
+
+    decline.addEventListener("click", async () => {
+      const { error } = await supabaseClient
+        .from("friend_requests")
+        .update({ status: "declined", updated_at: new Date().toISOString() })
+        .eq("id", request.id);
+
+      if (error) {
+        console.error("Decline request error:", error);
+        return;
+      }
+
+      loadAccountFriends();
+    });
+
+    item.append(name, accept, decline);
+    container.appendChild(item);
+  });
+
+  outgoing.forEach(request => {
+    const profile = profiles.find(
+      person => person.id === request.receiver_id
+    );
+
+    const item = document.createElement("p");
+    item.textContent = `Request sent to ${profile?.username || "player"} — Pending`;
+    container.appendChild(item);
+  });
+}
 
   /* ==========================================
      10. ACCOUNT DIALOG
@@ -2707,6 +2860,7 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
   if (currentUser) {
     loadAccountAchievements();
     loadAccountGames();
+     loadAccountFriends();
   }
 
   if (currentUser && currentProfile) {
