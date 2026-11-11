@@ -1,1 +1,280 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/x-icon" href="/Nocturne-Void/favicon.ico">
+<link rel="icon" type="image/png" href="/Nocturne-Void/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09070a">
+  <title>NOCTURNE VOID — Where Darkness Meets Gaming</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">✦</span>
+      <span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Open navigation">☰</button>
+
+    <nav id="mainNav">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="#library" class="nav-link">Games</a>
+      <a href="#leaderboard" class="nav-link">Leaderboard</a>
+      <a href="community.html" class="nav-link">Community</a>
+    </nav>
+
+    <div class="account-menu-wrapper">
+  <button
+    class="button button-outline"
+    id="accountButton"
+    type="button"
+    aria-expanded="false"
+  >
+    My Account ▾
+  </button>
+
+  <div class="account-dropdown" id="accountDropdown" hidden>
+    <div class="account-dropdown-heading">
+      MY ACCOUNT
+    </div>
+
+    <button type="button" data-account-page="profile">
+      👤 My Profile
+    </button>
+
+    <button type="button" data-account-page="messages">
+      ✉ Private Messages
+    </button>
+
+    <button type="button" data-account-page="achievements">
+      🏆 My Achievements
+    </button>
+
+    <button type="button" data-account-page="games">
+      🎮 My Games
+    </button>
+
+    <button type="button" data-account-page="friends">
+      ♟ My Friends
+    </button>
+
+    <button type="button" data-account-page="settings">
+      ⚙ Account Settings
+    </button>
+
+    <button type="button" data-account-page="privacy">
+      🛡 Privacy & Security
+    </button>
+
+    <div class="account-dropdown-divider"></div>
+
+    <button type="button" id="dropdownSignOut">
+      ↪ Sign Out
+    </button>
+  </div>
+</div>
+  </header>
+
+  <main>
+    <!-- CINEMATIC HOMEPAGE -->
+    <section class="hero" id="home">
+      <div class="hero-shade"></div>
+
+      <div class="hero-content">
+        <p class="eyebrow"><span></span> WELCOME TO NOCTURNE VOID <span></span></p>
+
+        <h1>
+          ENTER THE<br>
+          <em>UNKNOWN.</em>
+        </h1>
+
+        <p class="hero-copy">
+          Beyond the ordinary lies another world. Discover games,
+          challenge rivals, meet fellow players, and find your place
+          in the darkness.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="#library">Explore games ↗</a>
+          <a class="button button-ghost" href="community.html">Enter community</a>
+        </div>
+
+        <div class="hero-foot">
+          <span>BUILT FOR THE NIGHT</span>
+          <span>SCROLL TO EXPLORE ↓</span>
+        </div>
+      </div>
+
+      <div class="hero-seal" aria-hidden="true">
+        <span>NV</span>
+        <small>NOCTURNE<br>VOID</small>
+      </div>
+    </section>
+
+    <!-- INTRODUCTION -->
+    <section class="intro section-wrap">
+      <div>
+        <p class="eyebrow">A WORLD BEYOND THE ORDINARY</p>
+        <h2>THE VOID<br><em>AWAITS YOU.</em></h2>
+      </div>
+
+      <p class="intro-copy">
+        A home for gamers, explorers, and night owls.
+        Discover your next obsession, meet people who share
+        your interests, and become part of NOCTURNE VOID.
+      </p>
+    </section>
+
+    <!-- GAME LIBRARY -->
+    <section class="section-wrap" id="library">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DISCOVER YOUR NEXT OBSESSION</p>
+          <h2>THE <em>GAME LIBRARY</em></h2>
+        </div>
+        <span class="section-count">01 / DISCOVER</span>
+      </div>
+
+      <div class="library-tools">
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="gameSearch" type="search" placeholder="Search the library..." aria-label="Search games">
+        </label>
+
+        <div class="filter-row" id="filters">
+          <button class="filter active" data-filter="All">All games</button>
+          <button class="filter" data-filter="Action">Action</button>
+          <button class="filter" data-filter="Horror">Horror</button>
+          <button class="filter" data-filter="Adventure">Adventure</button>
+        </div>
+      </div>
+
+      <div class="game-grid" id="gameGrid"></div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="leader-section" id="leaderboard">
+      <div class="section-wrap">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">GLORY BELONGS TO THE FEARLESS</p>
+            <h2>HALL OF <em>SHADOWS</em></h2>
+          </div>
+          <span class="section-count">02 / COMPETE</span>
+        </div>
+
+        <div class="leader-card">
+          <div class="leader-top">
+            <span>TOP PLAYERS</span>
+            <span>GLOBAL RANKINGS</span>
+          </div>
+
+          <div id="leaderRows"></div>
+          <div class="game-leaderboard">
+  <h3>INDIVIDUAL GAME RANKINGS</h3>
+
+  <select id="gameLeaderboardSelect">
+    <option value="">Choose a game...</option>
+  </select>
+
+  <div id="gameLeaderRows"></div>
+</div>
+          <p class="demo-note">
+        Live rankings based on community-submitted game statistics.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMUNITY PREVIEW - LINKS TO SEPARATE PAGE -->
+    <section class="join-band">
+      <p class="eyebrow">NO ONE WALKS THE VOID ALONE</p>
+      <h2>FIND YOUR <em>PEOPLE.</em></h2>
+      <p>
+        Meet other players, join conversations, and become part
+        of the NOCTURNE VOID community.
+      </p>
+      <a class="button button-primary" href="community.html">
+        Visit the Community ↗
+      </a>
+    </section>
+
+    <!-- Hidden mount point used by the existing community script.
+         It keeps the chat from appearing on the homepage. -->
+    <div id="community" hidden></div>
+  </main>
+
+  <footer>
+    <a class="brand footer-brand" href="index.html">
+      <span class="brand-mark">✦</span>
+      <span>NOCTURNE <b>VOID</b><small>GAMING NETWORK</small></span>
+    </a>
+
+    <p>BUILT FOR THE ONES WHO WANDER AFTER DARK.</p>
+    <span>© <span id="year"></span> NOCTURNE VOID</span>
+  </footer>
+
+  <!-- ACCOUNT DIALOG -->
+  <dialog id="accountDialog" class="modal">
+    <form method="dialog" class="modal-close">
+      <button aria-label="Close">×</button>
+    </form>
+
+    <p class="eyebrow">CLAIM YOUR IDENTITY</p>
+    <h2 id="accountTitle">ENTER THE <em>VOID.</em></h2>
+
+    <p class="modal-sub" id="accountDescription">
+      Create an account or sign in to return to your place in the void.
+    </p>
+
+    <div class="auth-tabs" id="authTabs">
+      <button type="button" class="auth-tab active" data-mode="signup">Create account</button>
+      <button type="button" class="auth-tab" data-mode="login">Sign in</button>
+    </div>
+
+    <form id="accountForm" class="profile-form">
+      <label id="usernameLabel">
+        PLAYER NAME
+        <input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Choose an alias">
+      </label>
+
+      <label>
+        EMAIL ADDRESS
+        <input id="accountEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+      </label>
+
+      <label>
+        PASSWORD
+        <input id="accountPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters">
+      </label>
+
+      <button class="button button-primary" id="accountSubmit" type="submit">Create account</button>
+    </form>
+
+    <button type="button" class="button button-outline logout-button" id="logoutButton" hidden>
+      Sign out
+    </button>
+
+    <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p>
+
+    <p class="auth-footnote">
+      Use an email address you can access. If email confirmation
+      is enabled, check your inbox after registering.
+    </p>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
