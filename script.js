@@ -835,7 +835,11 @@ document.addEventListener(
 
       const tag = document.createElement("span");
       tag.className = "game-tag";
-      tag.textContent = game.original ? "NOCTURNE ORIGINAL" : game.category;
+     tag.textContent = game.original
+  ? "NOCTURNE ORIGINAL"
+  : game.playMode === "external"
+    ? "FREE BROWSER GAME"
+    : game.category;
       art.appendChild(tag);
 
       const info = document.createElement("div");
@@ -861,11 +865,18 @@ document.addEventListener(
       const discover = document.createElement("button");
       discover.type = "button";
       discover.className = "nv-discover-button";
-      discover.textContent = "Discover ↗";
+    discover.textContent = game.playMode === "external"
+  ? "PLAY ONLINE ↗"
+  : "Discover ↗";
 
       discover.addEventListener("click", () => {
-        openGameDetails(game);
-      });
+        if (game.playMode === "external" && game.url) {
+         window.open(game.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      openGameDetails(game);
+     });
 
         if (!game.original) {
         const statsButton = document.createElement("button");
