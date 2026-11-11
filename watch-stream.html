@@ -50,7 +50,48 @@
     </section>
 
   </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const watchSupabase = window.supabase.createClient(
+    "https://huzjjefknbicqxbhcryk.supabase.co",
+    "sb_publishable_CxmbXvQwPwOSC0WDx5HJng_qytHjcqc"
+  );
+      const streamParams = new URLSearchParams(window.location.search);
+  const streamId = streamParams.get("id");
 
+  async function loadWatchedStream() {
+    if (!streamId) {
+      document.getElementById("vlWatchTitle").textContent =
+        "No stream selected";
+      return;
+    }
+
+    const { data: stream, error } = await watchSupabase
+      .from("void_live_streams")
+      .select("*")
+      .eq("id", streamId)
+      .eq("is_live", true)
+      .single();
+
+    if (error || !stream) {
+      document.getElementById("vlWatchTitle").textContent =
+        "Stream not found or offline.";
+      return;
+    }
+
+    document.getElementById("vlWatchTitle").textContent =
+      stream.stream_title;
+
+    document.getElementById("vlWatchGame").textContent =
+      "Playing: " + stream.game_name;
+
+    document.getElementById("vlWatchDescription").textContent =
+      stream.description || "";
+  }
+
+  loadWatchedStream();
+    
+</script>
 </body>
 </html>
 
