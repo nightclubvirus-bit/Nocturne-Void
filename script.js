@@ -1010,6 +1010,94 @@ document.addEventListener(
     image: "https://cdn.akamai.steamstatic.com/steam/apps/252950/header.jpg",
     url: "https://www.rocketleague.com/"
    },
+   {
+    title: "Among Us",
+    category: "Multiplayer",
+    description: "Work together to complete tasks aboard a spaceship while impostors secretly sabotage the crew.",
+    platform: "PC / Mobile / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/945360/header.jpg",
+    url: "https://store.steampowered.com/app/945360/Among_Us/"
+   },
+   {
+    title: "Fall Guys",
+    category: "Multiplayer",
+    description: "Compete against dozens of players in chaotic obstacle courses, survival rounds, and colorful elimination challenges.",
+    platform: "PC / PlayStation / Xbox / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg",
+    url: "https://www.fallguys.com/"
+   },
+   {
+    title: "Pummel Party",
+    category: "Multiplayer",
+    description: "Battle your friends in a chaotic multiplayer party game filled with wild minigames, traps, and competitive board-game challenges.",
+    platform: "PC / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/880940/header.jpg",
+    url: "https://store.steampowered.com/app/880940/Pummel_Party/"
+   },
+   {
+    title: "Content Warning",
+    category: "Multiplayer",
+    description: "Team up with friends, film terrifying creatures in abandoned places, and try to become famous on SpookTube.",
+    platform: "PC",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/2881650/header.jpg",
+    url: "https://store.steampowered.com/app/2881650/Content_Warning/"
+   },
+   {
+    title: "DEVOUR",
+    category: "Multiplayer",
+    description: "Team up with up to four players to stop possessed cultists in terrifying locations before they catch you.",
+    platform: "PC",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1274570/header.jpg",
+    url: "https://store.steampowered.com/app/1274570/DEVOUR/"
+   },
+   {
+    title: "Party Animals",
+    category: "Multiplayer",
+    description: "Brawl with friends as adorable animals in chaotic physics-based matches, team battles, and competitive minigames.",
+    platform: "PC / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1260320/header.jpg",
+    url: "https://store.steampowered.com/app/1260320/Party_Animals/"
+   },
+   {
+    title: "PICO PARK",
+    category: "Multiplayer",
+    description: "Work together with friends to solve clever puzzles, overcome obstacles, and reach the goal through teamwork.",
+    platform: "PC / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1509960/header.jpg",
+    url: "https://store.steampowered.com/app/1509960/PICO_PARK/"
+   },
+   {
+    title: "Overcooked! 2",
+    category: "Multiplayer",
+    description: "Team up in chaotic kitchens, prepare meals under pressure, and coordinate with friends to serve hungry customers.",
+    platform: "PC / PlayStation / Xbox / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/728880/header.jpg",
+    url: "https://store.steampowered.com/app/728880/Overcooked_2/"
+   },
+   {
+    title: "Don't Starve Together",
+    category: "Multiplayer",
+    description: "Survive a strange and dangerous wilderness with friends by gathering resources, crafting equipment, building shelter, and fighting monsters.",
+    platform: "PC / Mac / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/322330/header.jpg",
+    url: "https://store.steampowered.com/app/322330/Dont_Starve_Together/"
+   },
+   {
+    title: "Goose Goose Duck",
+    category: "Multiplayer",
+    description: "Play a social deduction game with friends, complete tasks, uncover impostors, and survive hilarious rounds of deception.",
+    platform: "PC / Mobile",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1568590/header.jpg",
+    url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/"
+   },
+   {
+    title: "Human: Fall Flat",
+    category: "Multiplayer",
+    description: "Solve physics-based puzzles, climb obstacles, and explore creative levels with friends using hilarious wobbly characters.",
+    platform: "PC / PlayStation / Xbox / Nintendo Switch",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/477160/header.jpg",
+     url: "https://store.steampowered.com/app/477160/Human_Fall_Flat/"
+   },
      
    ];
 
