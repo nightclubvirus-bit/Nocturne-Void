@@ -83,7 +83,8 @@
 const vlChatForm = document.getElementById("vlChatForm");
 const vlChatInput = document.getElementById("vlChatInput");
 
-    async function loadLiveChat() {
+   
+async function loadLiveChat() {
   if (!streamId) return;
 
   const { data: messages, error } = await watchSupabase
@@ -106,12 +107,37 @@ const vlChatInput = document.getElementById("vlChatInput");
     return;
   }
 
+  const userIds = [...new Set(messages.map(message => message.user_id))];
+
+  const { data: profiles, error: profileError } = await watchSupabase
+    .from("community_profiles")
+    .select("id, username")
+    .in("id", userIds);
+
+  if (profileError) {
+    console.error("Could not load chat usernames:", profileError);
+  }
+
   messages.forEach(message => {
+    const profile = (profiles || []).find(
+      profile => profile.id === message.user_id
+    );
+
+    const username = profile?.username || "UNKNOWN MEMBER";
+    const isStreamer = message.user_id === streamOwnerId;
+
     const messageElement = document.createElement("div");
     messageElement.className = "vl-chat-message";
 
     const sender = document.createElement("strong");
-    sender.textContent = "VOID MEMBER";
+
+    sender.textContent = isStreamer
+      ? `${username} - STREAMER`
+      : `${username} - VOID MEMBER`;
+
+    if (isStreamer) {
+      sender.style.color = "#c084fc";
+    }
 
     const content = document.createElement("p");
     content.textContent = message.message;
@@ -122,36 +148,6 @@ const vlChatInput = document.getElementById("vlChatInput");
 
   vlChatMessages.scrollTop = vlChatMessages.scrollHeight;
 }
-    vlChatForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const message = vlChatInput.value.trim();
-  if (!message) return;
-
-  const { data: sessionData } = await watchSupabase.auth.getSession();
-
-  if (!sessionData.session) {
-    alert("Please sign in to send messages.");
-    return;
-  }
-
-  const { error } = await watchSupabase
-    .from("void_live_chat")
-    .insert({
-      stream_id: streamId,
-      user_id: sessionData.session.user.id,
-      message: message
-    });
-
-  if (error) {
-    console.error("Chat message error:", error);
-    alert("Could not send your message.");
-    return;
-  }
-
-  vlChatInput.value = "";
-  await loadLiveChat();
-});
 
   async function loadWatchedStream() {
     if (!streamId) {
@@ -172,7 +168,8 @@ const vlChatInput = document.getElementById("vlChatInput");
         "Stream not found or offline.";
       return;
     }
-
+    
+    streamOwnerId = stream.user_id;
     document.getElementById("vlWatchTitle").textContent =
       stream.stream_title;
 
