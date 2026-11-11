@@ -702,6 +702,96 @@ document.addEventListener(
       platform: "PC / Console / Mobile",
       image: "https://cdn.akamai.steamstatic.com/steam/apps/105600/header.jpg",
       url: "https://store.steampowered.com/app/105600/Terraria/"
+    },
+    {
+      title: "Shell Shockers",
+      category: "Multiplayer",
+      description: "Battle other players in a fast-paced multiplayer egg shooter.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=900&q=80",
+      url: "https://shellshock.io/"
+    },
+    {
+      title: "Agar.io",
+      category: "Multiplayer",
+      description: "Grow your cell and compete against players around the world.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1614294149010-950b698f72c0?auto=format&fit=crop&w=900&q=80",
+      url: "https://agar.io/"
+    },
+    {
+      title: "Slither.io",
+      category: "Arcade",
+      description: "Grow your snake, collect glowing orbs, and outlast your rivals.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+      url: "https://slither.io/"
+    },
+    {
+      title: "Smash Karts",
+      category: "Racing",
+      description: "Race, collect weapons, and battle other players in kart arenas.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1511882150382-421056c89033?auto=format&fit=crop&w=900&q=80",
+      url: "https://smashkarts.io/"
+    },
+    {
+      title: "Skribbl.io",
+      category: "Party",
+      description: "Draw mystery words while your friends race to guess them.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80",
+      url: "https://skribbl.io/"
+    },
+    {
+      title: "Gartic Phone",
+      category: "Party",
+      description: "Play a hilarious drawing and guessing game with friends.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80",
+      url: "https://garticphone.com/"
+    },
+    {
+      title: "TETR.IO",
+      category: "Puzzle",
+      description: "Play competitive multiplayer block-stacking battles.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?auto=format&fit=crop&w=900&q=80",
+      url: "https://tetr.io/"
+    },
+    {
+      title: "2048",
+      category: "Puzzle",
+      description: "Combine matching numbers and work your way to 2048.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=900&q=80",
+      url: "https://play2048.co/"
+    },
+    {
+      title: "Lichess",
+      category: "Strategy",
+      description: "Play chess online, solve puzzles, and challenge other players.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1586165368502-1bad197a6461?auto=format&fit=crop&w=900&q=80",
+      url: "https://lichess.org/"
+    },
+    {
+      title: "Bloxd.io",
+      category: "Sandbox",
+      description: "Explore block-based worlds, parkour challenges, and multiplayer modes.",
+      platform: "Free Browser Game",
+      playMode: "external",
+      image: "https://images.unsplash.com/photo-1627856013091-fed6e4e30025?auto=format&fit=crop&w=900&q=80",
+      url: "https://bloxd.io/"
     }
   ];
 
