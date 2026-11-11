@@ -3591,13 +3591,41 @@ async function openMemberProfile(profile) {
   statsHeading.textContent = "GAMING STATISTICS";
 
   statsSection.appendChild(statsHeading);
+   const levelHeading = document.createElement("h3");
+levelHeading.textContent = "PLAYER LEVEL";
+
+const playerLevel = document.createElement("p");
+playerLevel.style.cssText = `
+  font-size: 20px;
+  font-weight: bold;
+  color: #c23b50;
+`;
+
+statsSection.append(levelHeading, playerLevel);
 
   if (supabaseClient) {
     const { data: gameStats, error: statsError } =
       await supabaseClient
         .from("community_game_stats")
-        .select("wins, losses, games_played, high_score")
+        .select("game_name, wins, losses, games_played, high_score")
         .eq("user_id", profile.id);
+     const gameRankings = [];
+
+for (const game of gameStats || []) {
+  const { data: ranking, error: rankingError } =
+    await supabaseClient
+      .from("community_game_stats")
+      .select("user_id, wins")
+      .eq("game_name", game.game_name)
+      .gt("wins", game.wins);
+
+  if (!rankingError) {
+    gameRankings.push({
+      gameName: game.game_name,
+      rank: (ranking?.length || 0) + 1
+    });
+  }
+}
 
     if (statsError) {
       console.error("Profile statistics error:", statsError);
@@ -3611,6 +3639,9 @@ async function openMemberProfile(profile) {
         }),
         { wins: 0, losses: 0, games: 0, highScore: 0 }
       );
+       const level = Math.floor(totals.wins / 10) + 1;
+
+playerLevel.textContent = `LEVEL ${level}`;
 
       const statsText = document.createElement("p");
 
@@ -3618,6 +3649,76 @@ async function openMemberProfile(profile) {
         `Wins: ${totals.wins} | Losses: ${totals.losses} | Games: ${totals.games} | Highest Score: ${totals.highScore}`;
 
       statsSection.appendChild(statsText);
+       const achievementsHeading = document.createElement("h3");
+achievementsHeading.textContent = "ACHIEVEMENTS";
+
+statsSection.appendChild(achievementsHeading);
+
+const achievements = [];
+
+if (totals.wins >= 1) {
+  achievements.push("🏆 First Victory");
+}
+
+if (totals.wins >= 25) {
+  achievements.push("⚔️ Veteran");
+}
+
+if (totals.wins >= 100) {
+  achievements.push("🔥 Elite Player");
+}
+
+if (totals.wins >= 500) {
+  achievements.push("👑 Legend");
+}
+
+if (totals.games >= 1000) {
+  achievements.push("🎮 Dedicated Gamer");
+}
+
+if (achievements.length === 0) {
+  achievements.push("No achievements unlocked yet.");
+}
+
+achievements.forEach(achievement => {
+  const item = document.createElement("p");
+  item.textContent = achievement;
+  statsSection.appendChild(item);
+});
+       const favoriteHeading = document.createElement("h3");
+favoriteHeading.textContent = "FAVORITE GAMES";
+
+statsSection.appendChild(favoriteHeading);
+       const rankingsHeading = document.createElement("h3");
+rankingsHeading.textContent = "GAME RANKINGS";
+
+statsSection.appendChild(rankingsHeading);
+
+gameRankings.forEach(game => {
+  const rankingText = document.createElement("p");
+
+  rankingText.textContent =
+    `${game.gameName} — #${game.rank}`;
+
+  statsSection.appendChild(rankingText);
+});
+
+const favoriteGames = [...(gameStats || [])]
+  .sort((a, b) => b.games_played - a.games_played)
+  .slice(0, 3);
+
+if (favoriteGames.length === 0) {
+  const noGames = document.createElement("p");
+  noGames.textContent = "No favorite games yet.";
+  statsSection.appendChild(noGames);
+} else {
+  favoriteGames.forEach(game => {
+    const gameName = document.createElement("p");
+    gameName.textContent =
+      `${game.game_name} — ${game.games_played} games played`;
+
+    statsSection.appendChild(gameName);
+  });
     }
   }
 
