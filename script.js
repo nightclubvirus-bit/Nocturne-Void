@@ -1960,6 +1960,31 @@ document.addEventListener(
       alert("Please enter valid non-negative whole numbers.");
       return;
     }
+     
+     const { data: previousStats, error: previousStatsError } =
+  await supabaseClient
+    .from("community_game_stats")
+    .select("game_name, xp")
+    .eq("user_id", currentUser.id);
+
+if (previousStatsError) {
+  console.error("Could not check previous XP:", previousStatsError);
+  alert("Could not check your current XP. Please try again.");
+  return;
+}
+
+const previousTotalXP = (previousStats || []).reduce(
+  (sum, stat) => sum + (stat.xp || 0),
+  0
+);
+
+const oldGameXP = (previousStats || [])
+  .find(stat => stat.game_name === game.title)?.xp || 0;
+
+const newTotalXP = previousTotalXP - oldGameXP + Number(wins) * 100;
+
+const previousLevel = Math.floor(previousTotalXP / 1000) + 1;
+const newLevel = Math.floor(newTotalXP / 1000) + 1;
 
     const { error } = await supabaseClient
       .from("community_game_stats")
@@ -1983,7 +2008,11 @@ document.addEventListener(
       return;
     }
 
-    alert("Your game statistics have been saved!");
+if (newLevel > previousLevel) {
+  showLevelUpNotification(newLevel);
+} else {
+  alert("Your game statistics have been saved!");
+}
   }
   function initializeGameLibrary() {
   $("#gameSearch")?.addEventListener("input", renderGames);
