@@ -1900,6 +1900,7 @@ document.addEventListener(
         username: currentProfile?.username || "Player",
         game_name: game.title,
         wins: Number(wins),
+        xp: Number(wins) * 100,
         losses: Number(losses),
         games_played: Number(gamesPlayed),
         high_score: Number(highScore),
@@ -3179,7 +3180,7 @@ function renderLeaderboard() {
 
   const { data, error } = await supabaseClient
     .from("community_game_stats")
-    .select("wins, losses, games_played")
+   .select("wins, losses, games_played, xp")
     .eq("user_id", currentUser.id);
 
   if (error) {
@@ -3197,7 +3198,10 @@ function renderLeaderboard() {
     { wins: 0, losses: 0, games: 0 }
   );
 
-  const totalXP = totals.wins * 100;
+  const totalXP = (data || []).reduce(
+  (sum, stat) => sum + (stat.xp || 0),
+  0
+);
 
   const achievements = [];
 
@@ -5051,7 +5055,11 @@ for (const game of gameStats || []) {
         { wins: 0, losses: 0, games: 0, highScore: 0 }
       );
        
-const totalXP = totals.wins * 100;
+const totalXP = (gameStats || []).reduce(
+  (sum, stat) => sum + (stat.xp || 0),
+  0
+); 
+       
 const level = Math.floor(totalXP / 1000) + 1;
 
 const xpIntoLevel = totalXP % 1000;
