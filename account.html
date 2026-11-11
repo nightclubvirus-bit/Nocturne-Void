@@ -297,6 +297,14 @@
       targetView?.classList.add("active");
     });
   });
+  
+    const requestedView = window.location.hash.substring(1);
+
+  const initialNavButton = [...accountNavButtons].find(
+    button => button.dataset.view === requestedView
+  );
+
+  initialNavButton?.click();
 </script>
 
 </body>
