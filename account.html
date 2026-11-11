@@ -168,7 +168,59 @@
       <p class="eyebrow">YOUR CONVERSATIONS</p>
       <h1>PRIVATE <em>MESSAGES</em></h1>
       <p>Your personal inbox, separate from the Community.</p>
-      <div id="accountMessagesContent"></div>
+      
+<div class="account-dm-layout">
+
+  <aside class="account-dm-inbox">
+    <h3>CONVERSATIONS</h3>
+    <div class="hub-conversation-list"></div>
+  </aside>
+
+  <section class="account-dm-chat">
+
+    <div class="account-dm-chat-header">
+      <div>
+        <h3 class="hub-channel-title">Private Messages</h3>
+        <p class="hub-channel-description">
+          Your personal conversations.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="hub-inbox-button"
+      >
+        Inbox
+      </button>
+    </div>
+
+    <button
+      type="button"
+      class="hub-back-button"
+      hidden
+    >
+      ← Back to Inbox
+    </button>
+
+    <div class="hub-messages">
+      <p>Sign in to view your private messages.</p>
+    </div>
+
+    <form class="hub-composer" hidden>
+      <input
+        class="hub-message-input"
+        type="text"
+        maxlength="1000"
+        placeholder="Write a private message..."
+        aria-label="Write a private message"
+      >
+
+      <button type="submit">Send</button>
+    </form>
+
+  </section>
+
+</div>
     </div>
 
     <div class="account-view" id="view-achievements">
