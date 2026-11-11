@@ -108,7 +108,14 @@
     </section>
 
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
 <script>
+  const vlSupabase = window.supabase.createClient(
+    "https://huzjjefknbicqxbhcryk.supabase.co",
+    "sb_publishable_CxmbXvQwPwOSC0WDx5HJng_qytHjcqc"
+  );
+
   const vlGoLive = document.getElementById("vlGoLive");
   const vlModal = document.getElementById("vlStreamModal");
   const vlClose = document.getElementById("vlCloseModal");
@@ -122,7 +129,7 @@
     vlModal.style.display = "none";
   });
   
-  vlStartStream.addEventListener("click", () => {
+  vlStartStream.addEventListener("click", async () => {
   const title = document.getElementById("vlStreamTitle").value.trim();
   const game = document.getElementById("vlStreamGame").value.trim();
   const description = document.getElementById("vlStreamDescription").value.trim();
@@ -149,7 +156,6 @@
     }
   });
 </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
 
