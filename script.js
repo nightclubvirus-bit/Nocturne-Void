@@ -847,22 +847,37 @@ document.addEventListener(
     alert("Your game statistics have been saved!");
   }
   function initializeGameLibrary() {
-    $("#gameSearch")?.addEventListener("input", renderGames);
+  $("#gameSearch")?.addEventListener("input", renderGames);
 
-    $$("#filters button").forEach(button => {
-      button.addEventListener("click", () => {
-        activeFilter = button.dataset.filter || "All";
+  $$("#filters button").forEach(button => {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter || "All";
 
-        $$("#filters button").forEach(item => {
-          item.classList.toggle("active", item === button);
-        });
-
-        renderGames();
+      $$("#filters button").forEach(item => {
+        item.classList.toggle("active", item === button);
       });
+
+      renderGames();
+    });
+  });
+
+  const gameSelect = $("#gameLeaderboardSelect");
+
+  if (gameSelect) {
+    games.filter(game => !game.original).forEach(game => {
+      const option = document.createElement("option");
+      option.value = game.title;
+      option.textContent = game.title;
+      gameSelect.appendChild(option);
     });
 
-    renderGames();
-  } 
+    gameSelect.addEventListener("change", () => {
+      loadGameLeaderboard(gameSelect.value);
+    });
+  }
+
+  renderGames();
+}
      /* ==========================================
      8.5. NOCTURNE VOID 3D GAME SYSTEM
      THE HOLLOW — FIRST PERSON HORROR
@@ -1994,6 +2009,63 @@ document.addEventListener(
        
     renderLeaderboard();
   }
+   async function loadGameLeaderboard(gameName) {
+  const container = $("#gameLeaderRows");
+  if (!container) return;
+
+  container.replaceChildren();
+
+  if (!gameName) {
+    container.textContent = "Choose a game to view its rankings.";
+    return;
+  }
+
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from("community_game_stats")
+    .select("username, wins, losses, games_played, high_score")
+    .eq("game_name", gameName)
+    .order("wins", { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error("Game leaderboard error:", error);
+    container.textContent = "Could not load rankings.";
+    return;
+  }
+
+  if (!data.length) {
+    container.textContent = "No statistics submitted for this game yet.";
+    return;
+  }
+
+  data.forEach((player, index) => {
+    const row = document.createElement("div");
+    row.className = "leader-row";
+
+    const rank = document.createElement("div");
+    rank.className = "rank";
+    rank.textContent = `#${index + 1}`;
+
+    const name = document.createElement("div");
+    name.className = "player";
+    name.textContent = player.username;
+
+    const stats = document.createElement("small");
+    stats.textContent =
+      `Losses: ${player.losses} | Games: ${player.games_played} | High Score: ${player.high_score}`;
+
+    name.appendChild(stats);
+
+    const score = document.createElement("div");
+    score.className = "score";
+    score.textContent = `${player.wins} WINS`;
+
+    row.append(rank, name, score);
+    container.appendChild(row);
+  });
+}
    
 function renderLeaderboard() {
     const container = $("#leaderRows");
