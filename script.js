@@ -2007,6 +2007,7 @@ const newLevel = Math.floor(newTotalXP / 1000) + 1;
       alert("Could not save your statistics.");
       return;
     }
+     await loadAccountAchievements();
 
 if (newLevel > previousLevel) {
   showLevelUpNotification(newLevel);
