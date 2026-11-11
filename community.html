@@ -13,11 +13,16 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    .community-page-hero {
-      padding: 65px 7vw 35px;
-      background: linear-gradient(110deg, #180b12, #09070a 75%);
-      border-bottom: 1px solid rgba(220,190,200,.14);
-    }
+    
+   .community-page-hero {
+  padding: 65px 7vw 35px;
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(130, 0, 255, 0.2), transparent 55%),
+    radial-gradient(ellipse at 85% 50%, rgba(0, 140, 255, 0.14), transparent 55%),
+    linear-gradient(110deg, #100817, #09070f 75%);
+  border-bottom: 1px solid rgba(145, 60, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(100, 0, 180, 0.12);
+}
 
     .community-page-hero h1 {
       font-family: Cinzel, Georgia, serif;
@@ -25,10 +30,13 @@
       font-weight: 500;
       margin: 12px 0;
     }
-
-    .community-page-hero h1 em {
-      color: #e13b53;
+    
+   .community-page-hero h1 em {
+      color: #b45cff;
       font-style: normal;
+      text-shadow:
+       0 0 8px rgba(168, 85, 255, 0.7),
+       0 0 20px rgba(0, 140, 255, 0.35);
     }
 
     .community-page-hero p:last-child {
@@ -60,8 +68,14 @@
       flex-wrap: wrap;
       gap: 25px;
       padding: 30px;
-      background: linear-gradient(110deg, #1b0d15, #100b10);
-      border: 1px solid rgba(220,190,200,.18);
+     background:
+      radial-gradient(ellipse at 15% 50%, rgba(130, 0, 255, 0.2), transparent 55%),
+      radial-gradient(ellipse at 85% 50%, rgba(180, 0, 40, 0.16), transparent 55%),
+      rgba(10, 5, 20, 0.9);
+     border: 1px solid rgba(145, 60, 255, 0.35);
+     box-shadow:
+      0 0 20px rgba(120, 0, 255, 0.12),
+      0 0 30px rgba(180, 0, 40, 0.08);
     }
 
     .socials-card h2 {
@@ -92,9 +106,13 @@
     }
 
     .discord-button:hover {
-      background: #4752c4;
+      background: #8b35d6;
       transform: translateY(-2px);
+      box-shadow:
+       0 0 10px rgba(145, 0, 255, 0.6),
+       0 0 22px rgba(0, 140, 255, 0.3); 
     }
+    
 
     .utility-elements {
       display: none !important;
