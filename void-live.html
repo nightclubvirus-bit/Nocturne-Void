@@ -28,6 +28,55 @@
       GO LIVE
     </button>
   </header>
+  <!-- VOID LIVE STREAM SETUP -->
+<div id="vlStreamModal" class="vl-modal">
+
+  <div class="vl-modal-content">
+
+    <button class="vl-modal-close" id="vlCloseModal">×</button>
+
+    <p class="vl-eyebrow">CREATOR CONTROL CENTER</p>
+
+    <h2>GO <span>LIVE</span></h2>
+
+    <p>Prepare your broadcast and enter the VOID.</p>
+
+    <label for="vlStreamTitle">STREAM TITLE</label>
+    <input
+      type="text"
+      id="vlStreamTitle"
+      placeholder="Give your stream a title..."
+    >
+
+    <label for="vlStreamGame">SELECT GAME</label>
+    <input
+      type="text"
+      id="vlStreamGame"
+      placeholder="What are you playing?"
+    >
+
+    <label for="vlStreamDescription">STREAM DESCRIPTION</label>
+    <textarea
+      id="vlStreamDescription"
+      placeholder="Tell viewers what to expect..."
+      rows="3"
+    ></textarea>
+
+    <label for="vlStreamPlatform">STREAMING PLATFORM</label>
+
+    <select id="vlStreamPlatform">
+      <option value="native">NOCTURNE VOID Streaming</option>
+      <option value="twitch">Twitch</option>
+      <option value="youtube">YouTube</option>
+    </select>
+
+    <button id="vlStartStream" class="vl-start-button">
+      CONTINUE TO STREAM SETUP
+    </button>
+
+  </div>
+</div>
+<!-- END VOID LIVE STREAM SETUP -->
 
   <main class="vl-main">
 
