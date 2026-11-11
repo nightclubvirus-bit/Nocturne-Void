@@ -1943,53 +1943,55 @@ document.addEventListener(
      ========================================== */
 
   let leaderboardPlayers = [];
-     async function loadCommunityLeaderboard() {
-    if (!supabaseClient) return;
+    async function loadCommunityLeaderboard() {
+  if (!supabaseClient) return;
 
-    const { data, error } = await supabaseClient
-      .from("community_game_stats")
-      .select("user_id, username, wins, losses, games_played, high_score");
+  const { data, error } = await supabaseClient
+    .from("community_game_stats")
+    .select("user_id, username, wins, losses, games_played, high_score");
 
-    if (error) {
-      console.error("Leaderboard loading error:", error);
-      return;
-    }
+  if (error) {
+    console.error("Leaderboard loading error:", error);
+    return;
+  }
 
-    const playerTotals = {};
+  const playerTotals = {};
 
-    data.forEach(stat => {
+  data.forEach(stat => {
+    if (!playerTotals[stat.user_id]) {
       playerTotals[stat.user_id] = {
         name: stat.username,
         wins: 0,
         losses: 0,
-       gamesPlayed: 0,
-       highScore: 0
-    };
-      }
+        gamesPlayed: 0,
+        highScore: 0
+      };
+    }
 
-      playerTotals[stat.user_id].wins += stat.wins;
-        playerTotals[stat.user_id].losses += stat.losses;
-       playerTotals[stat.user_id].gamesPlayed += stat.games_played;
-      playerTotals[stat.user_id].highScore = Math.max(
-     playerTotals[stat.user_id].highScore,
-     stat.high_score
-      );
-    });
+    playerTotals[stat.user_id].wins += stat.wins;
+    playerTotals[stat.user_id].losses += stat.losses;
+    playerTotals[stat.user_id].gamesPlayed += stat.games_played;
 
-    leaderboardPlayers = Object.values(playerTotals)
-      .sort((a, b) => b.wins - a.wins)
-      .slice(0, 10)
-      .map(player => ({
-  name: player.name,
-  level: player.wins >= 100 ? "Elite Player" :
-         player.wins >= 25 ? "Veteran" : "Rising Player",
-  score: player.wins,
-  wins: player.wins,
-  losses: player.losses,
-  gamesPlayed: player.gamesPlayed,
-  highScore: player.highScore
-}));
+    playerTotals[stat.user_id].highScore = Math.max(
+      playerTotals[stat.user_id].highScore,
+      stat.high_score
+    );
+  });
 
+  leaderboardPlayers = Object.values(playerTotals)
+    .sort((a, b) => b.wins - a.wins)
+    .slice(0, 10)
+    .map(player => ({
+      name: player.name,
+      level: player.wins >= 100 ? "Elite Player" :
+             player.wins >= 25 ? "Veteran" : "Rising Player",
+      score: player.wins,
+      wins: player.wins,
+      losses: player.losses,
+      gamesPlayed: player.gamesPlayed,
+      highScore: player.highScore
+    }));
+       
     renderLeaderboard();
   }
    
