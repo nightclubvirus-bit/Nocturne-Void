@@ -3639,9 +3639,82 @@ for (const game of gameStats || []) {
         }),
         { wins: 0, losses: 0, games: 0, highScore: 0 }
       );
-       const level = Math.floor(totals.wins / 10) + 1;
+       
+const totalXP = totals.wins * 100;
+const level = Math.floor(totalXP / 1000) + 1;
+
+const xpIntoLevel = totalXP % 1000;
+const xpProgress = (xpIntoLevel / 1000) * 100;
 
 playerLevel.textContent = `LEVEL ${level}`;
+
+const xpText = document.createElement("p");
+xpText.textContent = `${totalXP.toLocaleString()} TOTAL XP`;
+       xpText.style.cssText = `
+  color: #c23b50;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+`;
+
+xpProgressText.style.cssText = `
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 8px;
+`;
+
+const xpProgressText = document.createElement("p");
+xpProgressText.textContent =
+  `${xpIntoLevel} / 1,000 XP to next level`;
+
+const xpBar = document.createElement("div");
+xpBar.style.cssText = `
+  width: 100%;
+  height: 12px;
+  background: #383038;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 10px 0;
+`;
+
+const xpFill = document.createElement("div");
+xpFill.style.cssText = `
+  width: ${xpProgress}%;
+  height: 100%;
+  background: #c23b50;
+  border-radius: 20px;
+  transition: width .4s ease;
+`;
+
+xpBar.appendChild(xpFill);
+
+statsSection.append(
+  xpText,
+  xpProgressText,
+  xpBar
+);
+       const rankTitle = document.createElement("p");
+
+if (level >= 50) {
+  rankTitle.textContent = "👑 VOID LEGEND";
+} else if (level >= 30) {
+  rankTitle.textContent = "🔥 ELITE WARRIOR";
+} else if (level >= 20) {
+  rankTitle.textContent = "⚔️ MASTER PLAYER";
+} else if (level >= 10) {
+  rankTitle.textContent = "🛡️ VETERAN";
+} else {
+  rankTitle.textContent = "🎮 ROOKIE";
+}
+
+rankTitle.style.cssText = `
+  color: #c23b50;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-top: 12px;
+`;
+
+statsSection.appendChild(rankTitle);
 
       const statsText = document.createElement("p");
 
@@ -3655,6 +3728,21 @@ achievementsHeading.textContent = "ACHIEVEMENTS";
 statsSection.appendChild(achievementsHeading);
 
 const achievements = [];
+       if (totalXP >= 1000) {
+  achievements.push("💎 1,000 XP — Rising Star");
+}
+
+if (totalXP >= 5000) {
+  achievements.push("🌟 5,000 XP — Powerhouse");
+}
+
+if (totalXP >= 10000) {
+  achievements.push("👑 10,000 XP — Immortal");
+}
+
+if (totalXP >= 50000) {
+  achievements.push("🌌 50,000 XP — Void Master");
+}
 
 if (totals.wins >= 1) {
   achievements.push("🏆 First Victory");
