@@ -3173,3 +3173,21 @@ footer {
     padding: 13px;
   }
 }
+#vlEndStream {
+  margin-top: 18px;
+  padding: 12px 24px;
+  color: white;
+  background: linear-gradient(135deg, #9b174c, #e11d48);
+  border: 1px solid #fb7185;
+  border-radius: 8px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+#vlEndStream:hover {
+  background: #be123c;
+  box-shadow: 0 0 18px rgba(225, 29, 72, 0.6);
+  transform: translateY(-2px);
+}
