@@ -6660,8 +6660,12 @@ initializeMobileNavigation();
       progressBar.style.width = `${progress}%`;
     }
   }, 250);
-
+   
+   let hasFinishedLoading = false;
   function finishLoading() {
+     
+     if (hasFinishedLoading) return;
+hasFinishedLoading = true;
     clearInterval(progressInterval);
 
     progressBar.style.width = "100%";
@@ -6685,4 +6689,6 @@ initializeMobileNavigation();
   } else {
     window.addEventListener("load", finishLoading, { once: true });
   }
+   // Backup: never leave visitors stuck loading
+setTimeout(finishLoading, 12000);
 })();
