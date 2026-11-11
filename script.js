@@ -2684,53 +2684,51 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
   }
 
   function updateAccountUI(user) {
-    currentUser = user || null;
+  currentUser = user || null;
 
-    const button = $("#accountButton");
-    const logout = $("#logoutButton");
+  const button = $("#accountButton");
+  const logout = $("#logoutButton");
 
-    if (button) {
-      button.textContent = currentUser
-        ? "My Account"
-        : "Sign In";
-    }
+  if (button) {
+    button.textContent = currentUser ? "My Account" : "Sign In";
+  }
 
-    if (logout) {
-      logout.hidden = !currentUser;
-    }
+  if (logout) {
+    logout.hidden = !currentUser;
+  }
 
-    if (!currentUser) {
-      currentProfile = null;
-    }
+  if (!currentUser) {
+    currentProfile = null;
+  }
 
-    renderAvatarProfile();
-    renderCommunityMembers();
-     
-     if (currentUser) {
+  renderAvatarProfile();
+  renderCommunityMembers();
+
+  if (currentUser) {
     loadAccountAchievements();
     loadAccountGames();
   }
-     }
-         if (currentUser && currentProfile) {
-      const username = $("#accountUsername");
-      const email = $("#accountEmail");
-      const avatar = $("#accountAvatar");
 
-      if (username) {
-        username.textContent =
-          currentProfile.username || currentUser.email || "Player";
-      }
+  if (currentUser && currentProfile) {
+    const username = $("#accountUsername");
+    const email = $("#accountEmail");
+    const avatar = $("#accountAvatar");
 
-      if (email) {
-        email.textContent = currentUser.email || "";
-      }
+    if (username) {
+      username.textContent =
+        currentProfile.username || currentUser.email || "Player";
+    }
 
-      if (avatar && !currentProfile.avatar_url) {
-        avatar.textContent =
-          (currentProfile.username || "P").charAt(0).toUpperCase();
-      }
+    if (email) {
+      email.textContent = currentUser.email || "";
+    }
+
+    if (avatar && !currentProfile.avatar_url) {
+      avatar.textContent =
+        (currentProfile.username || "P").charAt(0).toUpperCase();
     }
   }
+}
 
   /* ==========================================
      15. COMMUNITY CHANNELS
