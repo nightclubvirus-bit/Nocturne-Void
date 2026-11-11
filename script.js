@@ -6616,3 +6616,73 @@ initializeMobileNavigation();
   }
 
 })();
+
+/* ==============================
+   NOCTURNE VOID LOADING SYSTEM
+============================== */
+
+(() => {
+  const loadingScreen = document.getElementById("nv-loading-screen");
+  const progressBar = document.getElementById("nv-loading-progress");
+  const message = document.getElementById("nv-loading-quote");
+  const status = document.getElementById("nv-loading-status");
+
+  if (!loadingScreen || !progressBar || !message || !status) return;
+
+  const loadingMessages = [
+    "The VOID remembers everything.",
+    "Legends aren't born. They're forged.",
+    "Beyond the darkness lies another world.",
+    "Not all who enter find their way back.",
+    "Your next adventure awaits.",
+    "Power is earned, never given.",
+    "TIP: Add friends to expand your network.",
+    "TIP: Climb the leaderboards and earn your place.",
+    "TIP: Participate in the community to build your reputation.",
+    "TIP: Explore the game library and discover something new."
+  ];
+
+  function randomMessage() {
+    const index = Math.floor(Math.random() * loadingMessages.length);
+    message.textContent = loadingMessages[index];
+  }
+
+  randomMessage();
+
+  const messageInterval = setInterval(randomMessage, 3500);
+
+  let progress = 0;
+
+  const progressInterval = setInterval(() => {
+    if (progress < 90) {
+      progress += Math.random() * 5;
+      progress = Math.min(progress, 90);
+      progressBar.style.width = `${progress}%`;
+    }
+  }, 250);
+
+  function finishLoading() {
+    clearInterval(progressInterval);
+
+    progressBar.style.width = "100%";
+    status.textContent = "WELCOME TO THE VOID";
+
+    setTimeout(() => {
+      loadingScreen.style.transition = "opacity .8s ease";
+      loadingScreen.style.opacity = "0";
+      loadingScreen.style.pointerEvents = "none";
+
+      setTimeout(() => {
+        loadingScreen.remove();
+        clearInterval(messageInterval);
+      }, 850);
+
+    }, 500);
+  }
+
+  if (document.readyState === "complete") {
+    finishLoading();
+  } else {
+    window.addEventListener("load", finishLoading, { once: true });
+  }
+})();
