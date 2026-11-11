@@ -792,8 +792,72 @@ document.addEventListener(
       playMode: "external",
       image: "https://images.unsplash.com/photo-1627856013091-fed6e4e30025?auto=format&fit=crop&w=900&q=80",
       url: "https://bloxd.io/"
-    }
-  ];
+    },
+    {
+      title: "Last Seen Online",
+       category: "Horror",
+      platform: "Free Browser Game",
+     playMode: "external",
+     image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455",
+   description: "Investigate an abandoned desktop, uncover hidden files, and solve a disturbing psychological horror mystery.",
+    url: "https://lastseenonline.com/"
+  },
+  {
+    title: "Flesh, Blood, & Concrete",
+    category: "Horror",
+    platform: "Free Browser Game",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23",
+    description: "Explore a decaying apartment complex in this gritty, claustrophobic psychological horror RPG.",
+    url: "https://waxwing0.itch.io/fbc"
+  },
+  {
+    title: "Fear Assessment",
+    category: "Horror",
+    platform: "Free Browser Game",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b",
+    description: "Take a surreal interactive fear test that turns psychological scenarios into unsettling horror. Contains flashing lights and loud sounds.",
+    url: "https://www.newgrounds.com/portal/view/945518"
+  },
+  {
+    title: "DeadRise.io",
+    category: "Horror",
+    platform: "Free Browser Game",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c",
+    description: "Survive a zombie outbreak in this multiplayer browser-based action horror shooter.",
+    url: "https://poki.com/en/g/deadrise-io"
+  },
+  {
+    title: "Scary Maze",
+    category: "Horror",
+    platform: "Free Browser Game",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1505635552518-3448ff116af3",
+    description: "Navigate a deceptively simple maze where concentration and steady hands are put to the test.",
+    url: "https://www.crazygames.com/game/scary-maze"
+  },
+  {
+    title: "Exhibit of Sorrows",
+    category: "Horror",
+    platform: "Free Browser Game",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23",
+    description: "Explore a creepy circus-themed exhibition filled with disturbing dolls, strange puzzles, and unsettling secrets.",
+    url: "https://adayofjoy.itch.io/exhibit-of-sorrows"
+  },
+  {
+    title: "The Last Broadcast",
+    category: "Horror",
+    platform: "Free Browser Demo",
+    playMode: "external",
+    image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc",
+    description: "Work an isolated overnight radio station as strange signals and mysterious transmissions begin to emerge.",
+    url: "https://lguidolin.itch.io/the-last-broadcast" 
+  },
+     
+   ];
 
   function renderGames() {
     const grid = $("#gameGrid");
