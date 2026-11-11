@@ -5085,7 +5085,28 @@ row.append(avatar, content);
     loadCommunityLeaderboard();
 
     initializeCommunity();
-    initializeMobileNavigation();
+
+// Connect the Account Center messaging buttons
+const accountMessages = $(".account-dm-layout");
+
+if (accountMessages) {
+  $(".hub-composer", accountMessages)?.addEventListener(
+    "submit",
+    handleComposerSubmit
+  );
+
+  $(".hub-back-button", accountMessages)?.addEventListener(
+    "click",
+    showInboxView
+  );
+
+  $(".hub-inbox-button", accountMessages)?.addEventListener(
+    "click",
+    showInboxView
+  );
+}
+
+initializeMobileNavigation();
     initializeFooter();
 
     console.log(
