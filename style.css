@@ -2269,3 +2269,75 @@ em {
     opacity: 0.35;
   }
 }
+/* NOCTURNE VOID — CRIMSON FOG */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background:
+    radial-gradient(ellipse at 10% 80%, rgba(180, 0, 35, 0.22), transparent 45%),
+    radial-gradient(ellipse at 90% 20%, rgba(100, 0, 40, 0.2), transparent 40%);
+  animation: nvCrimsonFog 16s ease-in-out infinite alternate;
+}
+
+@keyframes nvCrimsonFog {
+  0% {
+    transform: translateX(-3%) scale(1);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(3%) scale(1.12);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
+}
+/* NEON NAVIGATION GLOW */
+
+nav a,
+.nav-link,
+.nav-links a {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+nav a:hover,
+.nav-link:hover,
+.nav-links a:hover {
+  color: #b66bff;
+  text-shadow:
+    0 0 6px rgba(160, 60, 255, 0.9),
+    0 0 14px rgba(0, 140, 255, 0.7);
+}
+/* CINEMATIC GAME ART GLOW */
+
+.game-art {
+  position: relative;
+  overflow: hidden;
+}
+
+.game-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(120, 0, 255, 0.12),
+    transparent 45%,
+    rgba(180, 0, 35, 0.18)
+  );
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+}
+
+.game-card:hover .game-art::after {
+  opacity: 1;
+}
