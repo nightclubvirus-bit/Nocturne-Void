@@ -34,7 +34,56 @@
       <a href="community.html" class="nav-link">Community</a>
     </nav>
 
-    <button class="button button-outline" id="accountButton">Sign in</button>
+    <div class="account-menu-wrapper">
+  <button
+    class="button button-outline"
+    id="accountButton"
+    type="button"
+    aria-expanded="false"
+  >
+    My Account ▾
+  </button>
+
+  <div class="account-dropdown" id="accountDropdown" hidden>
+    <div class="account-dropdown-heading">
+      MY ACCOUNT
+    </div>
+
+    <button type="button" data-account-page="profile">
+      👤 My Profile
+    </button>
+
+    <button type="button" data-account-page="messages">
+      ✉ Private Messages
+    </button>
+
+    <button type="button" data-account-page="achievements">
+      🏆 My Achievements
+    </button>
+
+    <button type="button" data-account-page="games">
+      🎮 My Games
+    </button>
+
+    <button type="button" data-account-page="friends">
+      ♟ My Friends
+    </button>
+
+    <button type="button" data-account-page="settings">
+      ⚙ Account Settings
+    </button>
+
+    <button type="button" data-account-page="privacy">
+      🛡 Privacy & Security
+    </button>
+
+    <div class="account-dropdown-divider"></div>
+
+    <button type="button" id="dropdownSignOut">
+      ↪ Sign Out
+    </button>
+  </div>
+</div>
   </header>
 
   <main>
