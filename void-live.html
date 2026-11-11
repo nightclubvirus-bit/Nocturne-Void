@@ -139,8 +139,32 @@
     alert("Please enter a stream title and select a game.");
     return;
   }
+    const { data: sessionData, error: sessionError } =
+  await vlSupabase.auth.getSession();
 
- if (platform === "twitch") {
+if (sessionError || !sessionData.session) {
+  alert("Please sign in to your NOCTURNE VOID account before creating a stream.");
+  return;
+}
+
+const { error: saveError } = await vlSupabase
+  .from("void_live_streams")
+  .insert({
+    user_id: sessionData.session.user.id,
+    stream_title: title,
+    game_name: game,
+    description: description,
+    platform: platform,
+    is_live: false
+  });
+
+if (saveError) {
+  console.error("Stream save error:", saveError);
+  alert("Could not save your stream. Please try again.");
+  return;
+}
+    
+    if (platform === "twitch") {
   window.open("https://dashboard.twitch.tv/", "_blank");
 } else if (platform === "youtube") {
   window.open("https://studio.youtube.com/", "_blank");
