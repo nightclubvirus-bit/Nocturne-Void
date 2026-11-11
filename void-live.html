@@ -223,6 +223,12 @@ if (saveError) {
   streams.forEach(stream => {
     const card = document.createElement("div");
     card.className = "vl-stream-card";
+    card.style.cursor = "pointer";
+
+card.addEventListener("click", () => {
+  window.location.href =
+    "watch-stream.html?id=" + encodeURIComponent(stream.id);
+});
 
     card.innerHTML = `
       <h3>${stream.stream_title}</h3>
