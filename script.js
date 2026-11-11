@@ -2218,6 +2218,13 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
   accountDropdown.hidden = true;
   accountButton?.setAttribute("aria-expanded", "false");
 });
+     document.querySelectorAll("[data-account-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    const selectedPage = button.dataset.accountPage;
+
+    window.location.href = `account.html#${selectedPage}`;
+  });
+});
 
     $("#authTabs")?.addEventListener("click", event => {
       const button = event.target.closest("button");
@@ -2600,6 +2607,25 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
 
     renderAvatarProfile();
     renderCommunityMembers();
+         if (currentUser && currentProfile) {
+      const username = $("#accountUsername");
+      const email = $("#accountEmail");
+      const avatar = $("#accountAvatar");
+
+      if (username) {
+        username.textContent =
+          currentProfile.username || currentUser.email || "Player";
+      }
+
+      if (email) {
+        email.textContent = currentUser.email || "";
+      }
+
+      if (avatar && !currentProfile.avatar_url) {
+        avatar.textContent =
+          (currentProfile.username || "P").charAt(0).toUpperCase();
+      }
+    }
   }
 
   /* ==========================================
@@ -3465,6 +3491,33 @@ function renderCommunityChannels() {
       if (!currentUser || currentUser.id !== userId) return;
 
       currentProfile = data;
+       
+      // Update the Account Center profile
+      const accountUsername = $("#accountUsername");
+      const accountEmail = $("#accountEmail");
+      const accountAvatar = $("#accountAvatar");
+
+      if (accountUsername) {
+        accountUsername.textContent =
+          data?.username || currentUser?.email || "Player";
+      }
+
+      if (accountEmail) {
+        accountEmail.textContent =
+          currentUser?.email || "No email available";
+      }
+
+      if (accountAvatar) {
+        if (data?.avatar_url) {
+          const avatarImage = document.createElement("img");
+          avatarImage.src = data.avatar_url;
+          avatarImage.alt = "Profile avatar";
+          accountAvatar.replaceChildren(avatarImage);
+        } else {
+          accountAvatar.textContent =
+            (data?.username || "P").charAt(0).toUpperCase();
+        }
+      }
 
       if (data) {
         communityProfiles = [
