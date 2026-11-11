@@ -2101,6 +2101,61 @@ function renderLeaderboard() {
       container.appendChild(row);
     });
   }
+   async function loadAccountAchievements() {
+  const container = $("#accountAchievementsContent");
+  if (!container || !currentUser || !supabaseClient) return;
+
+  container.textContent = "Loading achievements...";
+
+  const { data, error } = await supabaseClient
+    .from("community_game_stats")
+    .select("wins, losses, games_played")
+    .eq("user_id", currentUser.id);
+
+  if (error) {
+    console.error("Account achievements error:", error);
+    container.textContent = "Could not load achievements.";
+    return;
+  }
+
+  const totals = (data || []).reduce(
+    (result, stat) => ({
+      wins: result.wins + (stat.wins || 0),
+      losses: result.losses + (stat.losses || 0),
+      games: result.games + (stat.games_played || 0)
+    }),
+    { wins: 0, losses: 0, games: 0 }
+  );
+
+  const totalXP = totals.wins * 100;
+
+  const achievements = [];
+
+  if (totalXP >= 1000) achievements.push("💎 1,000 XP — Rising Star");
+  if (totalXP >= 5000) achievements.push("🌟 5,000 XP — Powerhouse");
+  if (totalXP >= 10000) achievements.push("👑 10,000 XP — Immortal");
+  if (totalXP >= 50000) achievements.push("🌌 50,000 XP — Void Master");
+
+  if (totals.wins >= 1) achievements.push("🏆 First Victory");
+  if (totals.wins >= 25) achievements.push("⚔️ Veteran");
+  if (totals.wins >= 100) achievements.push("🔥 Elite Player");
+  if (totals.wins >= 500) achievements.push("👑 Legend");
+
+  if (totals.games >= 1000) achievements.push("🎮 Dedicated Gamer");
+
+  container.replaceChildren();
+
+  if (achievements.length === 0) {
+    container.textContent = "No achievements unlocked yet. Keep playing!";
+    return;
+  }
+
+  achievements.forEach(achievement => {
+    const item = document.createElement("p");
+    item.textContent = achievement;
+    container.appendChild(item);
+  });
+}
 
   /* ==========================================
      10. ACCOUNT DIALOG
@@ -2607,6 +2662,10 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
 
     renderAvatarProfile();
     renderCommunityMembers();
+     
+     if (currentUser) {
+       loadAccountAchievements();
+     }
          if (currentUser && currentProfile) {
       const username = $("#accountUsername");
       const email = $("#accountEmail");
@@ -5080,6 +5139,7 @@ row.append(avatar, content);
     initializeAccountButtons();
 
     connectSupabase();
+    loadAccountAchievements();
 
     initializeGameLibrary();
     loadCommunityLeaderboard();
