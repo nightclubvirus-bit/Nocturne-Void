@@ -3650,19 +3650,7 @@ playerLevel.textContent = `LEVEL ${level}`;
 
 const xpText = document.createElement("p");
 xpText.textContent = `${totalXP.toLocaleString()} TOTAL XP`;
-       xpText.style.cssText = `
-  color: #c23b50;
-  font-size: 18px;
-  font-weight: bold;
-  letter-spacing: 1px;
-`;
-
-xpProgressText.style.cssText = `
-  color: #aaa;
-  font-size: 12px;
-  margin-top: 8px;
-`;
-
+    
 const xpProgressText = document.createElement("p");
 xpProgressText.textContent =
   `${xpIntoLevel} / 1,000 XP to next level`;
@@ -3687,6 +3675,18 @@ xpFill.style.cssText = `
 `;
 
 xpBar.appendChild(xpFill);
+       xpText.style.cssText = `
+  color: #c23b50;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+`;
+
+xpProgressText.style.cssText = `
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 8px;
+`;
 
 statsSection.append(
   xpText,
