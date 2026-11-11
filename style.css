@@ -2555,3 +2555,13 @@ footer {
     0 0 12px rgba(145, 0, 255, 0.4),
     0 0 25px rgba(0, 140, 255, 0.2);
 }
+@keyframes nvLevelPop {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
