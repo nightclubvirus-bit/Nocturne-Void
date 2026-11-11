@@ -2784,3 +2784,153 @@ footer {
     scale: 1.2;
   }
 }
+/* ==============================
+   VOID LIVE PAGE
+============================== */
+
+.void-live-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at top, #1b1030, #080611 65%);
+  color: #fff;
+}
+
+.vl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 5%;
+  background: rgba(5, 4, 12, .95);
+  border-bottom: 1px solid rgba(168, 85, 255, .35);
+}
+
+.vl-logo {
+  color: #fff;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+.vl-logo span {
+  color: #a855ff;
+}
+
+.vl-nav {
+  display: flex;
+  gap: 25px;
+}
+
+.vl-nav a {
+  color: #aaa;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.vl-nav a:hover {
+  color: #c084fc;
+}
+
+.vl-go-live {
+  padding: 11px 22px;
+  color: white;
+  font-weight: bold;
+  background: linear-gradient(90deg, #7928ca, #245bdb);
+  border: 1px solid #a855ff;
+  border-radius: 7px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(168, 85, 255, .3);
+}
+
+.vl-main {
+  width: 90%;
+  max-width: 1250px;
+  margin: auto;
+}
+
+.vl-hero {
+  padding: 100px 20px 85px;
+  text-align: center;
+  background:
+    radial-gradient(circle, rgba(104, 45, 170, .2), transparent 65%);
+}
+
+.vl-eyebrow {
+  color: #a855ff;
+  font-size: 12px;
+  letter-spacing: 5px;
+}
+
+.vl-hero h1 {
+  margin: 15px 0;
+  font-size: clamp(55px, 10vw, 100px);
+  font-weight: 900;
+  letter-spacing: 8px;
+  text-shadow: 0 0 30px rgba(168, 85, 255, .5);
+}
+
+.vl-hero h1 span {
+  color: #a855ff;
+}
+
+.vl-hero > p:last-child {
+  color: #aaa;
+  font-size: 13px;
+  letter-spacing: 3px;
+}
+
+.vl-featured,
+.vl-browse {
+  padding: 35px 0;
+}
+
+.vl-featured h2,
+.vl-browse h2 {
+  color: #c084fc;
+  font-size: 23px;
+  letter-spacing: 3px;
+}
+
+.vl-featured > p {
+  color: #888;
+  font-size: 14px;
+}
+
+.vl-stream-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 22px;
+  margin-top: 25px;
+}
+
+.vl-empty {
+  grid-column: 1 / -1;
+  padding: 45px 20px;
+  color: #888;
+  text-align: center;
+  background: rgba(255, 255, 255, .025);
+  border: 1px solid rgba(168, 85, 255, .2);
+  border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+  .vl-header {
+    flex-wrap: wrap;
+  }
+
+  .vl-nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .vl-hero {
+    padding: 65px 10px;
+  }
+}
