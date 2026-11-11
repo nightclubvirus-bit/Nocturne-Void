@@ -1865,6 +1865,74 @@ document.addEventListener(
       grid.appendChild(card);
     });
   }
+   function showLevelUpNotification(newLevel) {
+  const overlay = document.createElement("div");
+
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+  `;
+
+  const popup = document.createElement("div");
+
+  popup.style.cssText = `
+    width: 90%;
+    max-width: 420px;
+    padding: 40px 25px;
+    text-align: center;
+    color: white;
+    background: linear-gradient(145deg, #170d25, #080b1c);
+    border: 2px solid #a855ff;
+    border-radius: 18px;
+    box-shadow: 0 0 25px #7928ca, 0 0 60px rgba(0,140,255,.4);
+    animation: nvLevelPop .5s ease;
+  `;
+
+  const heading = document.createElement("h1");
+  heading.textContent = "LEVEL UP!";
+  heading.style.cssText = `
+    color: #c084fc;
+    font-size: 38px;
+    text-shadow: 0 0 15px #a855ff;
+  `;
+
+  const levelText = document.createElement("h2");
+  levelText.textContent = `LEVEL ${newLevel}`;
+  levelText.style.cssText = `
+    color: #00c8ff;
+    font-size: 32px;
+    text-shadow: 0 0 15px #00c8ff;
+  `;
+
+  const message = document.createElement("p");
+  message.textContent = "Your power in the VOID grows stronger.";
+
+  const closeButton = document.createElement("button");
+  closeButton.textContent = "CONTINUE";
+  closeButton.style.cssText = `
+    margin-top: 20px;
+    padding: 12px 30px;
+    color: white;
+    background: linear-gradient(90deg, #7928ca, #245bdb);
+    border: 1px solid #a855ff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  `;
+
+  closeButton.addEventListener("click", () => overlay.remove());
+
+  popup.append(heading, levelText, message, closeButton);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+}
+   
   async function submitGameStats(game) {
     if (!currentUser) {
       alert("Please sign in to submit game statistics.");
