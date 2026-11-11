@@ -269,6 +269,35 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js"></script>
+
+<script src="script.js"></script>
+
+<script>
+  const accountNavButtons = document.querySelectorAll(".account-nav");
+  const accountViews = document.querySelectorAll(".account-view");
+
+  accountNavButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const selectedView = button.dataset.view;
+
+      accountNavButtons.forEach(nav => {
+        nav.classList.remove("active");
+      });
+
+      accountViews.forEach(view => {
+        view.classList.remove("active");
+      });
+
+      button.classList.add("active");
+
+      const targetView = document.getElementById(
+        `view-${selectedView}`
+      );
+
+      targetView?.classList.add("active");
+    });
+  });
+</script>
+
 </body>
 </html>
