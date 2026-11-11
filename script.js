@@ -5558,6 +5558,7 @@ function initializeNeonParticles() {
    
  function initializeWebsite() {
     initializeAccountButtons();
+    initializeNeonParticles();
 
     connectSupabase();
     loadAccountAchievements();
