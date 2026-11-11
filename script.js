@@ -2177,11 +2177,16 @@ function renderLeaderboard() {
   function initializeAccountButtons() {
    const accountButton = $("#accountButton");
 const accountDropdown = $("#accountDropdown");
-
+     
 accountButton?.addEventListener("click", () => {
   if (!currentUser) {
     openAccountDialog();
     setAuthMode("login");
+    return;
+  }
+
+  if (!accountDropdown) {
+    console.error("Account dropdown element not found.");
     return;
   }
 
