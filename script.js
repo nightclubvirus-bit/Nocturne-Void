@@ -3336,7 +3336,7 @@ async function loadAccountGames() {
 
   const { data, error } = await supabaseClient
     .from("community_game_stats")
-    .select("game_name, wins, losses, games_played, high_score")
+    .select("game_name, wins, losses, games_played, high_score, xp")
     .eq("user_id", currentUser.id)
     .order("games_played", { ascending: false });
 
