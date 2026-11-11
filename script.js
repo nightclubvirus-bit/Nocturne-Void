@@ -3521,7 +3521,7 @@ if (adminArea) {
      19. MEMBER LIST
      ========================================== */
    
-function openMemberProfile(profile) {
+async function openMemberProfile(profile) {
   const overlay = document.createElement("div");
 
   overlay.style.cssText = `
@@ -3578,6 +3578,48 @@ function openMemberProfile(profile) {
     : profile.last_seen
       ? `Last seen: ${formatDate(profile.last_seen)}`
       : "Last activity unavailable";
+     const statsSection = document.createElement("div");
+
+  statsSection.style.cssText = `
+    margin: 20px 0;
+    padding: 15px;
+    background: #241d25;
+    border-radius: 8px;
+  `;
+
+  const statsHeading = document.createElement("h3");
+  statsHeading.textContent = "GAMING STATISTICS";
+
+  statsSection.appendChild(statsHeading);
+
+  if (supabaseClient) {
+    const { data: gameStats, error: statsError } =
+      await supabaseClient
+        .from("community_game_stats")
+        .select("wins, losses, games_played, high_score")
+        .eq("user_id", profile.id);
+
+    if (statsError) {
+      console.error("Profile statistics error:", statsError);
+    } else {
+      const totals = (gameStats || []).reduce(
+        (result, stat) => ({
+          wins: result.wins + stat.wins,
+          losses: result.losses + stat.losses,
+          games: result.games + stat.games_played,
+          highScore: Math.max(result.highScore, stat.high_score)
+        }),
+        { wins: 0, losses: 0, games: 0, highScore: 0 }
+      );
+
+      const statsText = document.createElement("p");
+
+      statsText.textContent =
+        `Wins: ${totals.wins} | Losses: ${totals.losses} | Games: ${totals.games} | Highest Score: ${totals.highScore}`;
+
+      statsSection.appendChild(statsText);
+    }
+  }
 
   const messageButton = document.createElement("button");
   messageButton.textContent = "Send Private Message";
@@ -3628,6 +3670,7 @@ function openMemberProfile(profile) {
     status,
     joined,
     lastSeen,
+    statsSection,
     messageButton,
     closeButton
   );
