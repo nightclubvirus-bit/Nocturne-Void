@@ -930,6 +930,46 @@ document.addEventListener(
     image: "https://cdn.akamai.steamstatic.com/steam/apps/703080/header.jpg",
     url: "https://store.steampowered.com/app/703080/Planet_Zoo/"
    },
+   {
+    title: "Forza Horizon 5",
+    category: "Racing",
+    description: "Explore a massive open-world Mexico, race hundreds of cars, compete in events, and customize your driving experience.",
+    platform: "PC / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1551360/header.jpg",
+    url: "https://store.steampowered.com/app/1551360/Forza_Horizon_5/"
+   },
+   {
+    title: "Need for Speed Heat",
+    category: "Racing",
+    description: "Race through the streets by day and risk everything at night in illegal street races while building your reputation.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/1222680/header.jpg",
+    url: "https://store.steampowered.com/app/1222680/Need_for_Speed_Heat/"
+   },
+   {
+    title: "Assetto Corsa",
+    category: "Racing",
+    description: "Experience realistic driving physics, detailed cars, and challenging circuits in this acclaimed racing simulator.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/244210/header.jpg",
+    url: "https://store.steampowered.com/app/244210/Assetto_Corsa/"
+   },
+   {
+    title: "The Crew Motorfest",
+    category: "Racing",
+    description: "Race across a beautiful open-world Hawaiian island, collect exotic vehicles, and compete in exciting driving events.",
+    platform: "PC / PlayStation / Xbox",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/2698940/header.jpg",
+    url: "https://store.steampowered.com/app/2698940/The_Crew_Motorfest/"
+   },
+   {
+    title: "Trackmania",
+    category: "Racing",
+    description: "Race through creative tracks filled with loops, jumps, obstacles, and wild challenges. Compete for the fastest times.",
+    platform: "PC",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/2225070/header.jpg",
+    url: "https://store.steampowered.com/app/2225070/Trackmania/"
+   },
      
    ];
 
