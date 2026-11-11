@@ -86,134 +86,128 @@
 </div>
   </header>
 
-  <main>
-    <!-- CINEMATIC HOMEPAGE -->
-    <section class="hero" id="home">
-      <div class="hero-shade"></div>
+<main class="account-center">
 
-      <div class="hero-content">
-        <p class="eyebrow"><span></span> WELCOME TO NOCTURNE VOID <span></span></p>
+  <aside class="account-sidebar">
+    <div class="account-sidebar-title">
+      <span>NOCTURNE VOID</span>
+      <small>ACCOUNT CENTER</small>
+    </div>
 
-        <h1>
-          ENTER THE<br>
-          <em>UNKNOWN.</em>
-        </h1>
+    <p class="account-sidebar-label">YOUR ACCOUNT</p>
 
-        <p class="hero-copy">
-          Beyond the ordinary lies another world. Discover games,
-          challenge rivals, meet fellow players, and find your place
-          in the darkness.
-        </p>
+    <button class="account-nav active" data-view="profile">
+      👤 My Profile
+    </button>
 
-        <div class="hero-actions">
-          <a class="button button-primary" href="#library">Explore games ↗</a>
-          <a class="button button-ghost" href="community.html">Enter community</a>
-        </div>
+    <button class="account-nav" data-view="messages">
+      ✉ Private Messages
+    </button>
 
-        <div class="hero-foot">
-          <span>BUILT FOR THE NIGHT</span>
-          <span>SCROLL TO EXPLORE ↓</span>
-        </div>
-      </div>
+    <button class="account-nav" data-view="achievements">
+      🏆 My Achievements
+    </button>
 
-      <div class="hero-seal" aria-hidden="true">
-        <span>NV</span>
-        <small>NOCTURNE<br>VOID</small>
-      </div>
-    </section>
+    <button class="account-nav" data-view="games">
+      🎮 My Games
+    </button>
 
-    <!-- INTRODUCTION -->
-    <section class="intro section-wrap">
-      <div>
-        <p class="eyebrow">A WORLD BEYOND THE ORDINARY</p>
-        <h2>THE VOID<br><em>AWAITS YOU.</em></h2>
-      </div>
+    <button class="account-nav" data-view="friends">
+      ♟ My Friends
+    </button>
 
-      <p class="intro-copy">
-        A home for gamers, explorers, and night owls.
-        Discover your next obsession, meet people who share
-        your interests, and become part of NOCTURNE VOID.
-      </p>
-    </section>
+    <p class="account-sidebar-label">PREFERENCES</p>
 
-    <!-- GAME LIBRARY -->
-    <section class="section-wrap" id="library">
-      <div class="section-heading">
+    <button class="account-nav" data-view="settings">
+      ⚙ Account Settings
+    </button>
+
+    <button class="account-nav" data-view="privacy">
+      🛡 Privacy & Security
+    </button>
+
+    <div class="account-sidebar-bottom">
+      <a href="index.html">← Back to Home</a>
+      <a href="community.html">Community ↗</a>
+    </div>
+  </aside>
+
+  <section class="account-content">
+
+    <div class="account-view active" id="view-profile">
+      <p class="eyebrow">YOUR IDENTITY</p>
+      <h1>MY <em>PROFILE</em></h1>
+      <p>Welcome to your personal corner of the Void.</p>
+
+      <div class="account-profile-card">
+        <div class="account-avatar" id="accountAvatar">?</div>
         <div>
-          <p class="eyebrow">DISCOVER YOUR NEXT OBSESSION</p>
-          <h2>THE <em>GAME LIBRARY</em></h2>
-        </div>
-        <span class="section-count">01 / DISCOVER</span>
-      </div>
-
-      <div class="library-tools">
-        <label class="search-box">
-          <span>⌕</span>
-          <input id="gameSearch" type="search" placeholder="Search the library..." aria-label="Search games">
-        </label>
-
-        <div class="filter-row" id="filters">
-          <button class="filter active" data-filter="All">All games</button>
-          <button class="filter" data-filter="Action">Action</button>
-          <button class="filter" data-filter="Horror">Horror</button>
-          <button class="filter" data-filter="Adventure">Adventure</button>
+          <h2 id="accountUsername">Loading profile...</h2>
+          <p id="accountEmail">Your gaming identity</p>
+          <span id="accountLevel">LEVEL 1</span>
         </div>
       </div>
 
-      <div class="game-grid" id="gameGrid"></div>
-    </section>
-
-    <!-- LEADERBOARD -->
-    <section class="leader-section" id="leaderboard">
-      <div class="section-wrap">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">GLORY BELONGS TO THE FEARLESS</p>
-            <h2>HALL OF <em>SHADOWS</em></h2>
-          </div>
-          <span class="section-count">02 / COMPETE</span>
+      <div class="account-stat-grid">
+        <div class="account-stat">
+          <span>EXPERIENCE</span>
+          <strong id="accountXP">0 XP</strong>
         </div>
-
-        <div class="leader-card">
-          <div class="leader-top">
-            <span>TOP PLAYERS</span>
-            <span>GLOBAL RANKINGS</span>
-          </div>
-
-          <div id="leaderRows"></div>
-          <div class="game-leaderboard">
-  <h3>INDIVIDUAL GAME RANKINGS</h3>
-
-  <select id="gameLeaderboardSelect">
-    <option value="">Choose a game...</option>
-  </select>
-
-  <div id="gameLeaderRows"></div>
-</div>
-          <p class="demo-note">
-        Live rankings based on community-submitted game statistics.
-          </p>
+        <div class="account-stat">
+          <span>ACHIEVEMENTS</span>
+          <strong id="accountAchievementCount">0</strong>
+        </div>
+        <div class="account-stat">
+          <span>GAMES</span>
+          <strong id="accountGameCount">0</strong>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- COMMUNITY PREVIEW - LINKS TO SEPARATE PAGE -->
-    <section class="join-band">
-      <p class="eyebrow">NO ONE WALKS THE VOID ALONE</p>
-      <h2>FIND YOUR <em>PEOPLE.</em></h2>
-      <p>
-        Meet other players, join conversations, and become part
-        of the NOCTURNE VOID community.
-      </p>
-      <a class="button button-primary" href="community.html">
-        Visit the Community ↗
-      </a>
-    </section>
+    <div class="account-view" id="view-messages">
+      <p class="eyebrow">YOUR CONVERSATIONS</p>
+      <h1>PRIVATE <em>MESSAGES</em></h1>
+      <p>Your personal inbox, separate from the Community.</p>
+      <div id="accountMessagesContent"></div>
+    </div>
 
-    <!-- Hidden mount point used by the existing community script.
-         It keeps the chat from appearing on the homepage. -->
-    <div id="community" hidden></div>
-  </main>
+    <div class="account-view" id="view-achievements">
+      <p class="eyebrow">YOUR ACCOMPLISHMENTS</p>
+      <h1>MY <em>ACHIEVEMENTS</em></h1>
+      <p>Every milestone you've earned in the Void.</p>
+      <div id="accountAchievementsContent"></div>
+    </div>
+
+    <div class="account-view" id="view-games">
+      <p class="eyebrow">YOUR COLLECTION</p>
+      <h1>MY <em>GAMES</em></h1>
+      <p>Your gaming collection and statistics.</p>
+      <div id="accountGamesContent"></div>
+    </div>
+
+    <div class="account-view" id="view-friends">
+      <p class="eyebrow">YOUR PEOPLE</p>
+      <h1>MY <em>FRIENDS</em></h1>
+      <p>Find your fellow travelers in the Void.</p>
+      <div id="accountFriendsContent"></div>
+    </div>
+
+    <div class="account-view" id="view-settings">
+      <p class="eyebrow">MAKE IT YOURS</p>
+      <h1>ACCOUNT <em>SETTINGS</em></h1>
+      <p>Manage your account preferences.</p>
+      <div id="accountSettingsContent"></div>
+    </div>
+
+    <div class="account-view" id="view-privacy">
+      <p class="eyebrow">YOUR PROTECTION</p>
+      <h1>PRIVACY &amp; <em>SECURITY</em></h1>
+      <p>Manage your privacy and account security.</p>
+      <div id="accountPrivacyContent"></div>
+    </div>
+
+  </section>
+</main>
 
   <footer>
     <a class="brand footer-brand" href="index.html">
