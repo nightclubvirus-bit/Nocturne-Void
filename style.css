@@ -2341,3 +2341,150 @@ nav a:hover,
 .game-card:hover .game-art::after {
   opacity: 1;
 }
+/* NOCTURNE VOID — GLITCH HEADING */
+
+.hero h1 {
+  position: relative;
+  animation: nvGlitchPulse 4s infinite;
+}
+
+@keyframes nvGlitchPulse {
+  0%, 94%, 100% {
+    transform: translateX(0);
+    text-shadow:
+      0 0 8px rgba(150, 50, 255, 0.5),
+      0 0 18px rgba(0, 140, 255, 0.3);
+  }
+
+  95% {
+    transform: translateX(-2px);
+    text-shadow:
+      3px 0 #ff174f,
+      -3px 0 #00c8ff;
+  }
+
+  97% {
+    transform: translateX(2px);
+    text-shadow:
+      -3px 0 #ff174f,
+      3px 0 #00c8ff;
+  }
+}
+/* NOCTURNE VOID — GLOWING EMBLEM */
+
+.hero-seal {
+  border-color: rgba(165, 70, 255, 0.7);
+  box-shadow:
+    0 0 12px rgba(145, 0, 255, 0.35),
+    0 0 30px rgba(0, 140, 255, 0.2),
+    inset 0 0 18px rgba(145, 0, 255, 0.15);
+  animation: nvSealPulse 5s ease-in-out infinite;
+}
+
+.hero-seal span {
+  text-shadow:
+    0 0 8px #a855ff,
+    0 0 20px #6420ff;
+}
+
+@keyframes nvSealPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(145, 0, 255, 0.35),
+      0 0 30px rgba(0, 140, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(145, 0, 255, 0.65),
+      0 0 45px rgba(0, 140, 255, 0.35),
+      0 0 60px rgba(180, 0, 40, 0.15);
+  }
+}
+/* NOCTURNE VOID — SECTION ATMOSPHERE */
+
+.section-wrap,
+.leader-section,
+.join-band {
+  position: relative;
+}
+
+.section-heading {
+  border-bottom: 1px solid rgba(145, 60, 255, 0.22);
+  padding-bottom: 18px;
+  box-shadow: 0 8px 18px -18px rgba(160, 40, 255, 0.8);
+}
+
+.leader-card {
+  border-color: rgba(150, 50, 255, 0.3);
+  box-shadow:
+    0 0 20px rgba(120, 0, 255, 0.12),
+    0 0 35px rgba(180, 0, 40, 0.08);
+}
+/* NEON SEARCH BAR */
+
+.search-box {
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: #a855ff;
+  box-shadow:
+    0 0 8px rgba(145, 0, 255, 0.45),
+    0 0 20px rgba(0, 140, 255, 0.2);
+}
+
+.search-box input:focus {
+  outline: none;
+}
+/* NEON GAME FILTERS */
+
+.filter {
+  transition: all 0.3s ease;
+}
+
+.filter:hover,
+.filter.active {
+  color: #ffffff;
+  border-color: #a855ff;
+  background: rgba(130, 0, 255, 0.18);
+  box-shadow:
+    0 0 8px rgba(145, 0, 255, 0.4),
+    0 0 16px rgba(0, 140, 255, 0.2);
+}
+/* NOCTURNE VOID — COMMUNITY GLOW */
+
+.join-band {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(130, 0, 255, 0.2),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 85% 50%,
+      rgba(180, 0, 40, 0.2),
+      transparent 55%
+    ),
+    rgba(10, 5, 20, 0.85);
+  border-top: 1px solid rgba(150, 50, 255, 0.35);
+  border-bottom: 1px solid rgba(180, 0, 40, 0.3);
+  box-shadow:
+    0 0 25px rgba(120, 0, 255, 0.12),
+    0 0 35px rgba(180, 0, 40, 0.08);
+}
+/* NOCTURNE VOID — NEON FOOTER */
+
+footer {
+  border-top: 1px solid rgba(145, 60, 255, 0.3);
+  box-shadow:
+    0 -8px 25px rgba(120, 0, 255, 0.08),
+    0 -2px 18px rgba(180, 0, 40, 0.06);
+}
+
+.footer-brand .brand-mark {
+  text-shadow:
+    0 0 8px #a855ff,
+    0 0 18px #6420ff;
+}
