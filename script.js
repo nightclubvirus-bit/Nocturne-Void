@@ -1098,6 +1098,566 @@ document.addEventListener(
     image: "https://cdn.akamai.steamstatic.com/steam/apps/477160/header.jpg",
      url: "https://store.steampowered.com/app/477160/Human_Fall_Flat/"
    },
+   {
+    title: "Portal 2",
+    category: "Puzzle",
+    description: "Solve mind-bending puzzles using a portal gun, manipulate physics, and escape a mysterious testing facility.",
+    platform: "PC / Mac / Console",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/620/header.jpg",
+    url: "https://store.steampowered.com/app/620/Portal_2/"
+   },
+   {
+    title: "The Witness",
+    category: "Puzzle",
+    description: "Explore a mysterious island filled with intricate environmental puzzles that challenge your observation, logic, and problem-solving skills.",
+    platform: "PC / PlayStation / Xbox / Mobile",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/210970/header.jpg",
+    url: "https://store.steampowered.com/app/210970/The_Witness/"
+   },
+   {
+    title: "Baba Is You",
+    category: "Puzzle",
+    description: "Rewrite the rules of each level by moving words around to solve clever puzzles where the laws of the game are yours to change.",
+    platform: "PC / Mac / Nintendo Switch / Mobile",
+    image: "https://cdn.akamai.steamstatic.com/steam/apps/736260/header.jpg",
+    url: "https://store.steampowered.com/app/736260/Baba_Is_You/"
+   },
+   {
+  title: "Unpacking",
+  category: "Puzzle",
+  description: "Unpack boxes and organize belongings into new homes while uncovering the story of someone's life through their possessions.",
+  platform: "PC / Mac / Console / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1135690/header.jpg",
+  url: "https://store.steampowered.com/app/1135690/Unpacking/"
+   },
+   {
+  title: "Human Resource Machine",
+  category: "Puzzle",
+  description: "Solve programming-inspired puzzles by giving office workers instructions to automate tasks and overcome increasingly challenging problems.",
+  platform: "PC / Mac / Nintendo Switch / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/375820/header.jpg",
+  url: "https://store.steampowered.com/app/375820/Human_Resource_Machine/"
+   },
+   {
+  title: "The Talos Principle",
+  category: "Puzzle",
+  description: "Explore ancient ruins and solve challenging logic puzzles involving lasers, jammers, and time manipulation while uncovering a mysterious story.",
+  platform: "PC / Mac / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/257510/header.jpg",
+  url: "https://store.steampowered.com/app/257510/The_Talos_Principle/"
+   },
+   {
+  title: "Superliminal",
+  category: "Puzzle",
+  description: "Escape a surreal dream world by solving perspective-based puzzles where objects change size depending on how you see them.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1049410/header.jpg",
+  url: "https://store.steampowered.com/app/1049410/Superliminal/"
+   },
+   {
+  title: "Viewfinder",
+  category: "Puzzle",
+  description: "Use photographs and images to reshape reality, create new paths, and solve imaginative optical puzzles.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1382070/header.jpg",
+  url: "https://store.steampowered.com/app/1382070/Viewfinder/"
+   },
+   {
+  title: "Escape Simulator",
+  category: "Puzzle",
+  description: "Explore interactive escape rooms, search for hidden clues, solve puzzles, and work with friends to find your way out.",
+  platform: "PC / VR",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1435790/header.jpg",
+  url: "https://store.steampowered.com/app/1435790/Escape_Simulator/"
+   },
+   {
+  title: "We Were Here",
+  category: "Puzzle",
+  description: "Team up with a partner trapped in a mysterious Antarctic castle. Communicate through walkie-talkies to solve puzzles and escape together.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/582500/header.jpg",
+  url: "https://store.steampowered.com/app/582500/We_Were_Here/"
+    },
+    {
+  title: "Keep Talking and Nobody Explodes",
+  category: "Puzzle",
+  description: "Defuse complicated bombs under pressure while one player handles the device and teammates communicate instructions from a bomb manual.",
+  platform: "PC / VR / PlayStation / Xbox / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/341800/header.jpg",
+  url: "https://store.steampowered.com/app/341800/Keep_Talking_and_Nobody_Explodes/"
+    },
+    {
+  title: "Geometry Dash",
+  category: "Arcade",
+  description: "Jump, fly, and dodge obstacles through rhythm-based levels filled with challenging traps, music, and fast-paced action.",
+  platform: "PC / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/322170/header.jpg",
+  url: "https://store.steampowered.com/app/322170/Geometry_Dash/"
+    },
+    {
+  title: "Vampire Survivors",
+  category: "Arcade",
+  description: "Survive endless waves of monsters, collect powerful weapons, upgrade abilities, and see how long you can last.",
+  platform: "PC / Mac / Console / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1794680/header.jpg",
+  url: "https://store.steampowered.com/app/1794680/Vampire_Survivors/"
+},
+     {
+  title: "Brotato",
+  category: "Arcade",
+  description: "Control a potato warrior armed with multiple weapons, fight off alien hordes, collect materials, and survive increasingly difficult waves.",
+  platform: "PC / Mac / Console / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1942280/header.jpg",
+  url: "https://store.steampowered.com/app/1942280/Brotato/"
+},
+     {
+  title: "Balatro",
+  category: "Arcade",
+  description: "Build powerful poker-inspired combinations, discover wild card synergies, and chase increasingly difficult high scores.",
+  platform: "PC / Mac / Console / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/2379780/header.jpg",
+  url: "https://store.steampowered.com/app/2379780/Balatro/"
+},
+     {
+  title: "Peglin",
+  category: "Arcade",
+  description: "Play a roguelike pachinko adventure, launch orbs at enemies, trigger powerful effects, and collect upgrades as you progress.",
+  platform: "PC / Mac / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1296610/header.jpg",
+  url: "https://store.steampowered.com/app/1296610/Peglin/"
+},
+     {
+  title: "Downwell",
+  category: "Arcade",
+  description: "Descend into a dangerous well filled with monsters and treasures while using gunboots to fight enemies and control your fall.",
+  platform: "PC / Mac / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/360740/header.jpg",
+  url: "https://store.steampowered.com/app/360740/Downwell/"
+},
+     {
+  title: "Enter the Gungeon",
+  category: "Arcade",
+  description: "Fight through dangerous dungeon floors filled with bizarre enemies, powerful weapons, secret rooms, and challenging bosses.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/311690/header.jpg",
+  url: "https://store.steampowered.com/app/311690/Enter_the_Gungeon/"
+},
+     {
+  title: "Hades",
+  category: "Arcade",
+  description: "Battle your way out of the Greek underworld, defeat mythological enemies, unlock powerful abilities, and discover an evolving story.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1145360/header.jpg",
+  url: "https://store.steampowered.com/app/1145360/Hades/"
+},
+     {
+  title: "Cuphead",
+  category: "Arcade",
+  description: "Take on challenging boss battles and run-and-gun levels in a beautifully hand-drawn cartoon world inspired by 1930s animation.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/268910/header.jpg",
+  url: "https://store.steampowered.com/app/268910/Cuphead/"
+},
+     {
+  title: "Sid Meier's Civilization VI",
+  category: "Strategy",
+  description: "Build an empire, develop cities, research technologies, form alliances, and compete against rival civilizations throughout history.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch / Mobile",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/289070/header.jpg",
+  url: "https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/"
+},
+     {
+  title: "Age of Empires IV",
+  category: "Strategy",
+  description: "Build powerful civilizations, gather resources, command armies, and wage epic historical battles across different eras.",
+  platform: "PC / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1466860/header.jpg",
+  url: "https://store.steampowered.com/app/1466860/Age_of_Empires_IV_Anniversary_Edition/"
+},
+     {
+  title: "Stellaris",
+  category: "Strategy",
+  description: "Explore a vast galaxy, discover alien civilizations, build interstellar empires, conduct diplomacy, and wage massive space wars.",
+  platform: "PC / Mac / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/281990/header.jpg",
+  url: "https://store.steampowered.com/app/281990/Stellaris/"
+},
+     {
+  title: "XCOM 2",
+  category: "Strategy",
+  description: "Lead a resistance force against an alien occupation, command tactical squads, research advanced technology, and fight turn-based battles.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/268500/header.jpg",
+  url: "https://store.steampowered.com/app/268500/XCOM_2/"
+},
+     {
+  title: "Total War: WARHAMMER III",
+  category: "Strategy",
+  description: "Command legendary fantasy armies, conquer massive territories, forge alliances, and fight enormous real-time battles.",
+  platform: "PC / Mac",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1142710/header.jpg",
+  url: "https://store.steampowered.com/app/1142710/Total_War_WARHAMMER_III/"
+},
+     {
+  title: "RimWorld",
+  category: "Strategy",
+  description: "Manage a colony of crash-landed survivors, build settlements, manage relationships, survive disasters, and defend against hostile threats.",
+  platform: "PC / Mac / Linux",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/294100/header.jpg",
+  url: "https://store.steampowered.com/app/294100/RimWorld/"
+},
+     {
+  title: "Crusader Kings III",
+  category: "Strategy",
+  description: "Build a medieval dynasty, manage kingdoms, forge political alliances, wage wars, and shape generations of rulers.",
+  platform: "PC / Mac / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1158310/header.jpg",
+  url: "https://store.steampowered.com/app/1158310/Crusader_Kings_III/"
+},
+     {
+  title: "Hearts of Iron IV",
+  category: "Strategy",
+  description: "Take command of a nation during World War II, manage industry, research technology, form alliances, and lead massive military campaigns.",
+  platform: "PC / Mac / Linux",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/394360/header.jpg",
+  url: "https://store.steampowered.com/app/394360/Hearts_of_Iron_IV/"
+},
+     {
+  title: "Garry's Mod",
+  category: "Sandbox",
+  description: "Create anything you imagine using physics tools, custom objects, community addons, and endless user-created game modes.",
+  platform: "PC / Mac / Linux",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/4000/header.jpg",
+  url: "https://store.steampowered.com/app/4000/Garrys_Mod/"
+},
+     {
+  title: "Teardown",
+  category: "Sandbox",
+  description: "Explore fully destructible voxel environments, smash through buildings, create elaborate heists, and experiment with physics.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1167630/header.jpg",
+  url: "https://store.steampowered.com/app/1167630/Teardown/"
+},
+     {
+  title: "People Playground",
+  category: "Sandbox",
+  description: "Experiment in a physics-based sandbox filled with interactive objects, machines, tools, and creative contraptions.",
+  platform: "PC",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1118200/header.jpg",
+  url: "https://store.steampowered.com/app/1118200/People_Playground/"
+},
+     {
+  title: "Besiege",
+  category: "Sandbox",
+  description: "Build bizarre medieval machines, design creative weapons, and use physics to destroy castles, armies, and obstacles.",
+  platform: "PC / Mac / Linux / Console",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/346010/header.jpg",
+  url: "https://store.steampowered.com/app/346010/Besiege/"
+},
+     {
+  title: "Universe Sandbox",
+  category: "Sandbox",
+  description: "Create and manipulate galaxies, planets, stars, and black holes while experimenting with gravity, collisions, and cosmic events.",
+  platform: "PC / Mac / VR",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/230290/header.jpg",
+  url: "https://store.steampowered.com/app/230290/Universe_Sandbox/"
+},
+     {
+  title: "Scrap Mechanic",
+  category: "Sandbox",
+  description: "Build incredible machines, vehicles, and automated creations using an enormous collection of mechanical parts and tools.",
+  platform: "PC",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/387990/header.jpg",
+  url: "https://store.steampowered.com/app/387990/Scrap_Mechanic/"
+},
+     {
+  title: "Trailmakers",
+  category: "Sandbox",
+  description: "Build custom cars, planes, boats, and wild machines from modular parts, then test your creations in an open world.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/585420/header.jpg",
+  url: "https://store.steampowered.com/app/585420/Trailmakers/"
+},
+     {
+  title: "Red Dead Redemption 2",
+  category: "Adventure",
+  description: "Explore a vast Wild West open world, hunt, complete missions, meet unforgettable characters, and experience an epic outlaw story.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg",
+  url: "https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/"
+},
+     {
+  title: "God of War",
+  category: "Adventure",
+  description: "Journey through Norse mythology as Kratos and his son Atreus face dangerous creatures, powerful gods, and personal challenges.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1593500/header.jpg",
+  url: "https://store.steampowered.com/app/1593500/God_of_War/"
+},
+     {
+  title: "Uncharted: Legacy of Thieves Collection",
+  category: "Adventure",
+  description: "Join Nathan Drake and Chloe Frazer on cinematic treasure-hunting adventures filled with exploration, puzzles, and dangerous encounters.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1659420/header.jpg",
+  url: "https://store.steampowered.com/app/1659420/UNCHARTED_Legacy_of_Thieves_Collection/"
+},
+     {
+  title: "Horizon Zero Dawn Remastered",
+  category: "Adventure",
+  description: "Explore a beautiful post-apocalyptic world filled with robotic creatures, ancient mysteries, dangerous machines, and unforgettable adventures.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/2561580/header.jpg",
+  url: "https://store.steampowered.com/app/2561580/Horizon_Zero_Dawn_Remastered/"
+},
+     {
+  title: "Stray",
+  category: "Adventure",
+  description: "Explore a mysterious cyberpunk city as a stray cat, solve environmental puzzles, meet robots, and uncover hidden secrets.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1332010/header.jpg",
+  url: "https://store.steampowered.com/app/1332010/Stray/"
+},
+     {
+  title: "Subnautica",
+  category: "Adventure",
+  description: "Explore a mysterious alien ocean, discover underwater ecosystems, gather resources, build submarines, and uncover the secrets of an unknown planet.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/264710/header.jpg",
+  url: "https://store.steampowered.com/app/264710/Subnautica/"
+},
+     {
+  title: "Firewatch",
+  category: "Adventure",
+  description: "Explore the Wyoming wilderness as a fire lookout, uncover strange events, and build a mysterious connection through radio conversations.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/383870/header.jpg",
+  url: "https://store.steampowered.com/app/383870/Firewatch/"
+},
+     {
+  title: "A Plague Tale: Innocence",
+  category: "Adventure",
+  description: "Follow two siblings through a dark medieval world filled with danger, mysterious forces, and terrifying swarms of rats.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/752590/header.jpg",
+  url: "https://store.steampowered.com/app/752590/A_Plague_Tale_Innocence/"
+},
+     {
+  title: "Ghost of Tsushima DIRECTOR'S CUT",
+  category: "Adventure",
+  description: "Explore feudal Japan as a samurai fighting to protect Tsushima Island, master sword combat, and uncover a breathtaking open world.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/2215430/header.jpg",
+  url: "https://store.steampowered.com/app/2215430/Ghost_of_Tsushima_DIRECTORS_CUT/"
+},
+     {
+  title: "Hogwarts Legacy",
+  category: "Adventure",
+  description: "Explore the wizarding world, attend Hogwarts, learn powerful spells, discover hidden secrets, and shape your own magical adventure.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/990080/header.jpg",
+  url: "https://store.steampowered.com/app/990080/Hogwarts_Legacy/"
+},
+     {
+  title: "DOOM Eternal",
+  category: "Action",
+  description: "Become the Slayer, battle terrifying demon armies, wield devastating weapons, and fight to save humanity from an invasion of Hell.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/782330/header.jpg",
+  url: "https://store.steampowered.com/app/782330/DOOM_Eternal/"
+},
+     {
+  title: "Devil May Cry 5",
+  category: "Action",
+  description: "Fight demonic enemies with stylish combat, powerful weapons, supernatural abilities, and three unique playable characters.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/601150/header.jpg",
+  url: "https://store.steampowered.com/app/601150/Devil_May_Cry_5/"
+},
+     {
+  title: "Sekiro: Shadows Die Twice",
+  category: "Action",
+  description: "Master precise sword combat, stealth, and deadly prosthetic weapons in a challenging adventure through supernatural feudal Japan.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/814380/header.jpg",
+  url: "https://store.steampowered.com/app/814380/Sekiro_Shadows_Die_Twice/"
+},
+     {
+  title: "Nioh 2 – The Complete Edition",
+  category: "Action",
+  description: "Battle terrifying yokai, master intense samurai combat, collect powerful gear, and unleash supernatural abilities in a brutal Japanese fantasy world.",
+  platform: "PC / PlayStation",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1325200/header.jpg",
+  url: "https://store.steampowered.com/app/1325200/Nioh_2_The_Complete_Edition/"
+},
+     {
+  title: "Dying Light 2 Stay Human",
+  category: "Action",
+  description: "Survive a massive zombie outbreak, explore a dangerous open world, master parkour, and fight for humanity's future.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/534380/header.jpg",
+  url: "https://store.steampowered.com/app/534380/Dying_Light_2_Stay_Human/"
+},
+     {
+  title: "Metal Gear Rising: Revengeance",
+  category: "Action",
+  description: "Play as Raiden in a fast-paced cybernetic action adventure featuring intense sword combat, brutal finishing moves, and high-speed battles.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/235460/header.jpg",
+  url: "https://store.steampowered.com/app/235460/METAL_GEAR_RISING_REVENGEANCE/"
+},
+     {
+  title: "Warhammer 40,000: Space Marine 2",
+  category: "Action",
+  description: "Become a Space Marine, unleash devastating weapons, and battle endless Tyranid swarms in brutal third-person combat.",
+  platform: "PC / PlayStation 5 / Xbox Series X|S",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/2183900/header.jpg",
+  url: "https://store.steampowered.com/app/2183900/Warhammer_40000_Space_Marine_2/"
+},
+     {
+  title: "Control Ultimate Edition",
+  category: "Action",
+  description: "Explore a mysterious government facility, wield supernatural powers, manipulate reality, and uncover disturbing paranormal secrets.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/870780/header.jpg",
+  url: "https://store.steampowered.com/app/870780/Control_Ultimate_Edition/"
+},
+     {
+  title: "Batman: Arkham Knight",
+  category: "Action",
+  description: "Become the Dark Knight, protect Gotham City, master brutal combat, investigate crimes, and face the mysterious Arkham Knight.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/208650/header.jpg",
+  url: "https://store.steampowered.com/app/208650/Batman_Arkham_Knight/"
+},
+     {
+  title: "Middle-earth: Shadow of War",
+  category: "Action",
+  description: "Fight through Mordor, build an army, conquer enemy fortresses, and use the Nemesis System to create your own epic battles.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/356190/header.jpg",
+  url: "https://store.steampowered.com/app/356190/Middleearth_Shadow_of_War/"
+},
+     {
+  title: "Mad Max",
+  category: "Action",
+  description: "Survive a brutal wasteland, customize your war vehicle, battle savage gangs, and fight your way through a post-apocalyptic world.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/234140/header.jpg",
+  url: "https://store.steampowered.com/app/234140/Mad_Max/"
+},
+     {
+  title: "Amnesia: The Dark Descent",
+  category: "Horror",
+  description: "Explore a terrifying castle, solve puzzles, avoid monstrous creatures, and uncover the disturbing truth behind your lost memories.",
+  platform: "PC / Mac / Linux",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/57300/header.jpg",
+  url: "https://store.steampowered.com/app/57300/Amnesia_The_Dark_Descent/"
+},
+     {
+  title: "SOMA",
+  category: "Horror",
+  description: "Uncover the horrifying secrets of an underwater research facility where machines blur the line between human consciousness and artificial life.",
+  platform: "PC / Mac / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/282140/header.jpg",
+  url: "https://store.steampowered.com/app/282140/SOMA/"
+},
+     {
+  title: "Alien: Isolation",
+  category: "Horror",
+  description: "Survive aboard a deserted space station while being hunted by an intelligent Xenomorph that learns from your actions.",
+  platform: "PC / Mac / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/214490/header.jpg",
+  url: "https://store.steampowered.com/app/214490/Alien_Isolation/"
+},
+     {
+  title: "The Mortuary Assistant",
+  category: "Horror",
+  description: "Work overnight in a funeral home, embalm bodies, investigate disturbing supernatural occurrences, and survive demonic encounters.",
+  platform: "PC / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1295920/header.jpg",
+  url: "https://store.steampowered.com/app/1295920/The_Mortuary_Assistant/"
+},
+     {
+  title: "MADiSON",
+  category: "Horror",
+  description: "Experience psychological terror through a haunted camera, solve disturbing puzzles, and uncover a sinister story spanning generations.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1670870/header.jpg",
+  url: "https://store.steampowered.com/app/1670870/MADiSON/"
+},
+     {
+  title: "Visage",
+  category: "Horror",
+  description: "Explore a disturbing haunted house, uncover the tragic stories of its former residents, and survive terrifying supernatural encounters.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/594330/header.jpg",
+  url: "https://store.steampowered.com/app/594330/Visage/"
+},
+     {
+  title: "Outlast 2",
+  category: "Horror",
+  description: "Investigate a brutal murder in an isolated desert community, uncover a disturbing religious conspiracy, and escape terrifying pursuers.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/414700/header.jpg",
+  url: "https://store.steampowered.com/app/414700/Outlast_2/"
+},
+     {
+  title: "Little Nightmares II",
+  category: "Horror",
+  description: "Guide a young boy through a twisted world filled with monstrous creatures, disturbing environments, and deadly puzzles.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/860510/header.jpg",
+  url: "https://store.steampowered.com/app/860510/Little_Nightmares_II/"
+},
+     {
+  title: "The Callisto Protocol",
+  category: "Horror",
+  description: "Fight for survival inside a terrifying prison on Jupiter's moon, facing grotesque creatures and horrifying experiments.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1544020/header.jpg",
+  url: "https://store.steampowered.com/app/1544020/The_Callisto_Protocol/"
+},
+     {
+  title: "Dead Space",
+  category: "Horror",
+  description: "Survive aboard the abandoned USG Ishimura, dismember terrifying Necromorphs, and uncover the horrifying truth behind a deadly outbreak.",
+  platform: "PC / PlayStation 5 / Xbox Series X|S",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1693980/header.jpg",
+  url: "https://store.steampowered.com/app/1693980/Dead_Space/"
+},
+     {
+  title: "Burnout Paradise Remastered",
+  category: "Racing",
+  description: "Race through an open-world city, perform spectacular stunts, cause massive crashes, and compete in high-speed events.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/1238080/header.jpg",
+  url: "https://store.steampowered.com/app/1238080/Burnout_Paradise_Remastered/"
+},
+     {
+  title: "DiRT Rally 2.0",
+  category: "Racing",
+  description: "Race across demanding rally stages around the world, master realistic vehicle handling, and push your driving skills to the limit.",
+  platform: "PC / PlayStation / Xbox",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/690790/header.jpg",
+  url: "https://store.steampowered.com/app/690790/DiRT_Rally_20/"
+},
+     {
+  title: "Wreckfest",
+  category: "Racing",
+  description: "Compete in chaotic demolition races, smash through opponents, customize your vehicles, and survive spectacular crashes.",
+  platform: "PC / PlayStation / Xbox / Nintendo Switch",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/228380/header.jpg",
+  url: "https://store.steampowered.com/app/228380/Wreckfest/"
+},
+     {
+  title: "F1 25",
+  category: "Racing",
+  description: "Experience the official Formula 1 championship, compete against the world's best drivers, and build your racing career.",
+  platform: "PC / PlayStation 5 / Xbox Series X|S",
+  image: "https://cdn.akamai.steamstatic.com/steam/apps/3059520/header.jpg",
+  url: "https://store.steampowered.com/app/3059520/F1_25/"
+},
      
    ];
 
