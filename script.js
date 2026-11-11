@@ -5533,7 +5533,29 @@ row.append(avatar, content);
   /* ==========================================
      32. START WEBSITE
      ========================================== */
+   
+function initializeNeonParticles() {
+  if (document.querySelector(".nv-particles")) return;
 
+  const particleLayer = document.createElement("div");
+  particleLayer.className = "nv-particles";
+  particleLayer.setAttribute("aria-hidden", "true");
+
+  for (let i = 0; i < 35; i++) {
+    const particle = document.createElement("span");
+    particle.className = "nv-particle";
+
+    particle.style.left = `${(i * 37) % 100}%`;
+    particle.style.top = `${(i * 61) % 100}%`;
+    particle.style.animationDelay = `${(i % 10) * -1.5}s`;
+    particle.style.animationDuration = `${8 + (i % 8)}s`;
+
+    particleLayer.appendChild(particle);
+  }
+
+  document.body.appendChild(particleLayer);
+}
+   
  function initializeWebsite() {
     initializeAccountButtons();
 
