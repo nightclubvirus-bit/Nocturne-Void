@@ -3721,6 +3721,7 @@ if (favoriteGames.length === 0) {
   });
     }
   }
+  }
 
   const messageButton = document.createElement("button");
   messageButton.textContent = "Send Private Message";
