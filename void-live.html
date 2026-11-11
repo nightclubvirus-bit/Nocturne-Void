@@ -166,6 +166,23 @@ if (saveError) {
   alert("Could not save your stream. Please try again.");
   return;
 }
+    if (!savedStream) {
+  alert("Stream was saved, but its details could not be retrieved.");
+  return;
+}
+    if (platform === "native") {
+  const { error: liveError } = await vlSupabase
+    .from("void_live_streams")
+    .update({ is_live: true })
+    .eq("id", savedStream.id);
+
+  if (liveError) {
+    console.error("Could not publish stream:", liveError);
+    alert("Your stream was saved, but could not be published.");
+    return;
+  }
+       await loadLiveStreams();
+}
     
     if (platform === "twitch") {
   window.open("https://dashboard.twitch.tv/", "_blank");
