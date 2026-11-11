@@ -1722,3 +1722,57 @@ dialog p {
   opacity: 0.55;
   cursor: not-allowed;
 }
+/* MY ACCOUNT DROPDOWN */
+
+.account-menu-wrapper {
+  position: relative;
+  margin-left: 12px;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 10000;
+  width: 250px;
+  padding: 10px;
+  background: #120d14;
+  border: 1px solid rgba(190, 35, 55, .45);
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .65);
+}
+
+.account-dropdown[hidden] {
+  display: none;
+}
+
+.account-dropdown-heading {
+  padding: 10px 12px;
+  color: #b98b9a;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.account-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #eee;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.account-dropdown button:hover {
+  background: rgba(165, 43, 64, .22);
+  color: #fff;
+}
+
+.account-dropdown-divider {
+  height: 1px;
+  margin: 8px 4px;
+  background: rgba(255, 255, 255, .1);
+}
