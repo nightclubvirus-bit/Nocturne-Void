@@ -2175,17 +2175,44 @@ function renderLeaderboard() {
   }
 
   function initializeAccountButtons() {
-    $("#accountButton")?.addEventListener("click", () => {
-      openAccountDialog();
+   const accountButton = $("#accountButton");
+const accountDropdown = $("#accountDropdown");
 
-      if (currentUser) {
-        showStatus(
-          `Signed in as ${getUsername(currentProfile || currentUser)}`
-        );
-      } else {
-        setAuthMode("login");
-      }
-    });
+accountButton?.addEventListener("click", () => {
+  if (!currentUser) {
+    openAccountDialog();
+    setAuthMode("login");
+    return;
+  }
+
+  const isOpen = !accountDropdown.hidden;
+
+  accountDropdown.hidden = isOpen;
+  accountButton.setAttribute("aria-expanded", String(!isOpen));
+});
+
+document.addEventListener("click", event => {
+  if (
+    !event.target.closest(".account-menu-wrapper") &&
+    accountDropdown
+  ) {
+    accountDropdown.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && accountDropdown) {
+    accountDropdown.hidden = true;
+    accountButton?.setAttribute("aria-expanded", "false");
+  }
+});
+
+$("#dropdownSignOut")?.addEventListener("click", () => {
+  $("#logoutButton")?.click();
+  accountDropdown.hidden = true;
+  accountButton?.setAttribute("aria-expanded", "false");
+});
 
     $("#authTabs")?.addEventListener("click", event => {
       const button = event.target.closest("button");
