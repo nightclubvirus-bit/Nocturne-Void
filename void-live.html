@@ -108,7 +108,25 @@
     </section>
 
   </main>
+<script>
+  const vlGoLive = document.getElementById("vlGoLive");
+  const vlModal = document.getElementById("vlStreamModal");
+  const vlClose = document.getElementById("vlCloseModal");
 
+  vlGoLive.addEventListener("click", () => {
+    vlModal.style.display = "flex";
+  });
+
+  vlClose.addEventListener("click", () => {
+    vlModal.style.display = "none";
+  });
+
+  vlModal.addEventListener("click", (event) => {
+    if (event.target === vlModal) {
+      vlModal.style.display = "none";
+    }
+  });
+</script>
 </body>
 </html>
 
