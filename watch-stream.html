@@ -43,6 +43,9 @@
 
      <div class="vl-watch-info">
   <h2 id="vlWatchTitle">Loading stream...</h2>
+       <button id="vlFollowButton" style="display: none;">
+  FOLLOW STREAMER
+</button>
   <p id="vlWatchGame"></p>
   <p id="vlWatchDescription"></p>
   <p id="vlViewerCount">👁 0 VIEWERS</p>
@@ -97,6 +100,7 @@ const vlChatInput = document.getElementById("vlChatInput");
     const vlEndStream = document.getElementById("vlEndStream");
     const vlViewerCount = document.getElementById("vlViewerCount");
     const vlViewerList = document.getElementById("vlViewerList");
+    const vlFollowButton = document.getElementById("vlFollowButton");
 let viewerCount = 0;
 
    
@@ -208,6 +212,23 @@ vlEndStream.addEventListener("click", async () => {
     }
     
    streamOwnerId = stream.user_id;
+    const { data: followSession } = await watchSupabase.auth.getSession();
+const currentFollower = followSession.session?.user;
+
+if (currentFollower && currentFollower.id !== streamOwnerId) {
+  vlFollowButton.style.display = "inline-block";
+
+  const { data: existingFollow } = await watchSupabase
+    .from("void_live_follows")
+    .select("id")
+    .eq("follower_id", currentFollower.id)
+    .eq("streamer_id", streamOwnerId)
+    .maybeSingle();
+
+  vlFollowButton.textContent = existingFollow
+    ? "UNFOLLOW STREAMER"
+    : "FOLLOW STREAMER";
+}
 
 const { data: sessionData } = await watchSupabase.auth.getSession();
 
@@ -393,6 +414,44 @@ if (stream.platform === "youtube" && stream.stream_url) {
 
   vlChatInput.value = "";
   await loadLiveChat();
+});
+    
+   vlFollowButton.addEventListener("click", async () => {
+  const { data: sessionData } = await watchSupabase.auth.getSession();
+  const currentFollower = sessionData.session?.user;
+
+  if (!currentFollower) return;
+
+  const isFollowing = vlFollowButton.textContent === "UNFOLLOW STREAMER";
+
+  if (isFollowing) {
+    const { error } = await watchSupabase
+      .from("void_live_follows")
+      .delete()
+      .eq("follower_id", currentFollower.id)
+      .eq("streamer_id", streamOwnerId);
+
+    if (error) {
+      console.error("Could not unfollow streamer:", error);
+      return;
+    }
+
+    vlFollowButton.textContent = "FOLLOW STREAMER";
+  } else {
+    const { error } = await watchSupabase
+      .from("void_live_follows")
+      .insert({
+        follower_id: currentFollower.id,
+        streamer_id: streamOwnerId
+      });
+
+    if (error) {
+      console.error("Could not follow streamer:", error);
+      return;
+    }
+
+    vlFollowButton.textContent = "UNFOLLOW STREAMER";
+  }
 });
     
   loadWatchedStream();
