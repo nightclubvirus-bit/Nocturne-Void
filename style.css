@@ -3354,3 +3354,13 @@ footer {
   background: rgba(220, 38, 38, 0.35);
   color: white;
 }
+.hub-member-custom-status {
+  display: block;
+  color: #a98bdc;
+  font-size: 11px;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
