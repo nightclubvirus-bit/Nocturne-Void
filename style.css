@@ -3288,3 +3288,25 @@ footer {
   padding-left: 10px;
   background: rgba(168, 85, 247, 0.1);
 }
+.notification-item {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  text-align: left;
+  color: #ddd;
+  background: rgba(30, 20, 45, 0.8);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+.notification-item.unread {
+  color: white;
+  font-weight: bold;
+  border-left: 3px solid #a855f7;
+}
