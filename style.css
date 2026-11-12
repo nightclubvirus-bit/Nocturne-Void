@@ -3405,6 +3405,13 @@ footer {
   box-shadow: 0 0 20px rgba(113, 60, 255, 0.2);
   color: #fff;
 }
+#persistentPlayerProfile {
+  z-index: 10001;
+}
+
+#voidLiveButton {
+  z-index: 10001;
+}
 
 #persistentPlayerAvatar .hub-avatar {
   width: 42px;
