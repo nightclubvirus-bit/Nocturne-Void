@@ -266,7 +266,7 @@ if (canModerate) {
 
   messageElement.appendChild(deleteButton);
 }
-  if (canModerate && !isStreamer && message.user_id !== sessionData.session?.user.id) {
+ if (canModerate && !isStreamer && !isModerator && message.user_id !== sessionData.session?.user.id) {
   const timeoutButton = document.createElement("button");
   timeoutButton.textContent = "TIMEOUT";
   timeoutButton.className = "vl-chat-delete";
