@@ -5123,7 +5123,8 @@ usernameButton?.addEventListener("click", async () => {
     $(".hub-back-button", hub)?.addEventListener("click", () => {
       showChannelView();
     });
-  }
+   }
+  } 
 
   /* ==========================================
      17. CHANNEL NAVIGATION
