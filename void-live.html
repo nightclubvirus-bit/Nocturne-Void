@@ -69,6 +69,13 @@
       <option value="twitch">Twitch</option>
       <option value="youtube">YouTube</option>
     </select>
+    <label for="vlStreamURL">STREAM CHANNEL URL</label>
+
+<input
+  type="url"
+  id="vlStreamURL"
+  placeholder="https://www.twitch.tv/yourchannel"
+>
 
     <button id="vlStartStream" class="vl-start-button">
       CONTINUE TO STREAM SETUP
@@ -135,11 +142,45 @@
   const game = document.getElementById("vlStreamGame").value.trim();
   const description = document.getElementById("vlStreamDescription").value.trim();
   const platform = document.getElementById("vlStreamPlatform").value;
+    const streamURL = document.getElementById("vlStreamURL").value.trim();
 
   if (!title || !game) {
     alert("Please enter a stream title and select a game.");
     return;
   }
+    if (platform !== "native") {
+  if (!streamURL) {
+    alert("Please enter your Twitch or YouTube channel URL.");
+    return;
+  }
+
+  let parsedURL;
+
+  try {
+    parsedURL = new URL(streamURL);
+  } catch {
+    alert("Please enter a valid channel URL.");
+    return;
+  }
+
+  const hostname = parsedURL.hostname.toLowerCase();
+
+  const validTwitch =
+    hostname === "twitch.tv" || hostname.endsWith(".twitch.tv");
+
+  const validYouTube =
+    hostname === "youtube.com" ||
+    hostname.endsWith(".youtube.com") ||
+    hostname === "youtu.be";
+
+  if (
+    (platform === "twitch" && !validTwitch) ||
+    (platform === "youtube" && !validYouTube)
+  ) {
+    alert("Please enter a URL for your selected streaming platform.");
+    return;
+  }
+}
     const { data: sessionData, error: sessionError } =
   await vlSupabase.auth.getSession();
 
@@ -156,6 +197,7 @@ const { data: savedStream, error: saveError } = await vlSupabase
     game_name: game,
     description: description,
     platform: platform,
+    stream_url: streamURL || null,
       is_live: false
   })
   .select()
