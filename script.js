@@ -31,6 +31,11 @@
   let currentUser = null;
   let currentProfile = null;
 
+   let mainNotificationBell = null;
+let mainNotificationCount = null;
+let mainNotificationPanel = null;
+let mainNotificationList = null;
+
   let activeChannel = "general";
   let activeFilter = "All";
 
@@ -6566,13 +6571,75 @@ function initializeNeonParticles() {
 
   document.body.appendChild(particleLayer);
 }
-   
+ function initializeMainNotifications() {
+  mainNotificationBell = document.getElementById("mainNotificationBell");
+  mainNotificationCount = document.getElementById("mainNotificationCount");
+  mainNotificationPanel = document.getElementById("mainNotificationPanel");
+  mainNotificationList = document.getElementById("mainNotificationList");
+
+  if (!mainNotificationBell) return;
+
+  mainNotificationBell.addEventListener("click", async () => {
+    mainNotificationPanel.hidden = !mainNotificationPanel.hidden;
+
+    if (!mainNotificationPanel.hidden) {
+      await loadMainNotifications();
+    }
+  });
+}
+
+async function loadMainNotifications() {
+  if (!supabaseClient || !mainNotificationList) return;
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    mainNotificationList.textContent = "Sign in to view notifications.";
+    mainNotificationCount.textContent = "0";
+    return;
+  }
+
+  const { data: notifications, error } = await supabaseClient
+    .from("void_live_notifications")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error("Could not load notifications:", error);
+    mainNotificationList.textContent = "Could not load notifications.";
+    return;
+  }
+
+  const unreadCount = notifications.filter(item => !item.is_read).length;
+  mainNotificationCount.textContent = unreadCount;
+
+  mainNotificationList.innerHTML = "";
+
+  if (notifications.length === 0) {
+    mainNotificationList.textContent = "No notifications yet.";
+    return;
+  }
+
+  notifications.forEach(notification => {
+    const item = document.createElement("p");
+    item.textContent = notification.message;
+    item.classList.toggle("unread", !notification.is_read);
+    mainNotificationList.appendChild(item);
+  });
+} 
+
  function initializeWebsite() {
     initializeAccountButtons();
+    initializeMainNotifications();
     initializeNeonParticles();
 
     connectSupabase();
     loadAccountAchievements();
+    loadMainNotifications();
+setInterval(loadMainNotifications, 30000);
 
     initializeGameLibrary();
     loadCommunityLeaderboard();
