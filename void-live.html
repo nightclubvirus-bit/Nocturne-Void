@@ -223,15 +223,38 @@ if (saveError) {
     alert("Your stream was saved, but could not be published.");
     return;
   }
-       await loadLiveStreams();
-}
-    
-    if (platform === "twitch") {
-  window.open("https://dashboard.twitch.tv/", "_blank");
-} else if (platform === "youtube") {
-  window.open("https://studio.youtube.com/", "_blank");
-} else {
-  alert("NOCTURNE VOID native streaming setup is coming soon!");
+
+  await loadLiveStreams();
+
+} else if (platform === "twitch" || platform === "youtube") {
+  const dashboardURL =
+    platform === "twitch"
+      ? "https://dashboard.twitch.tv/"
+      : "https://studio.youtube.com/";
+
+  window.open(dashboardURL, "_blank");
+
+  const confirmLive = confirm(
+    "Once your broadcast is LIVE on " +
+    platform.toUpperCase() +
+    ", click OK to publish your channel on NOCTURNE VOID."
+  );
+
+  if (confirmLive) {
+    const { error: liveError } = await vlSupabase
+      .from("void_live_streams")
+      .update({ is_live: true })
+      .eq("id", savedStream.id);
+
+    if (liveError) {
+      console.error("Could not publish stream:", liveError);
+      alert("Your stream was saved, but could not be published.");
+      return;
+    }
+
+    await loadLiveStreams();
+    vlModal.style.display = "none";
+  }
 }
     
 });
