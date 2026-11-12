@@ -210,8 +210,68 @@ if (sessionData.session?.user.id === streamOwnerId) {
 
     document.getElementById("vlWatchDescription").textContent =
       stream.description || "";
+  
+    const player = document.getElementById("vlVideoPlayer");
+
+if (stream.platform === "twitch" && stream.stream_url) {
+  const twitchChannel = new URL(stream.stream_url).pathname
+    .split("/")
+    .filter(Boolean)[0];
+
+  const iframe = document.createElement("iframe");
+
+  iframe.src =
+    "https://player.twitch.tv/?channel=" +
+    encodeURIComponent(twitchChannel) +
+    "&parent=" + encodeURIComponent(window.location.hostname) +
+    "&autoplay=false&muted=true";
+
+  iframe.allowFullscreen = true;
+  iframe.allow = "autoplay; fullscreen";
+  iframe.style.cssText = "width:100%;height:100%;border:0;";
+
+  player.innerHTML = "";
+  player.appendChild(iframe);
+}
+
+if (stream.platform === "youtube" && stream.stream_url) {
+  const youtubeURL = new URL(stream.stream_url);
+
+  let videoId = youtubeURL.searchParams.get("v");
+
+  if (!videoId && youtubeURL.hostname === "youtu.be") {
+    videoId = youtubeURL.pathname.split("/").filter(Boolean)[0];
   }
 
+  if (!videoId) {
+    const pathParts = youtubeURL.pathname.split("/").filter(Boolean);
+    const videoIndex = pathParts.findIndex(part =>
+      ["live", "embed", "shorts"].includes(part)
+    );
+
+    if (videoIndex !== -1) {
+      videoId = pathParts[videoIndex + 1];
+    }
+  }
+
+  if (videoId) {
+    const iframe = document.createElement("iframe");
+
+    iframe.src =
+      "https://www.youtube-nocookie.com/embed/" +
+      encodeURIComponent(videoId);
+
+    iframe.allowFullscreen = true;
+    iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+    iframe.style.cssText = "width:100%;height:100%;border:0;";
+
+    player.innerHTML = "";
+    player.appendChild(iframe);
+  } else {
+    player.textContent = "Please provide a direct YouTube live video URL.";
+  }
+ } 
+}
   loadWatchedStream();
     loadLiveChat();
 
