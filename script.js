@@ -3870,6 +3870,20 @@ if (button.dataset.playerAction === "settings") {
   menu.remove();
   window.location.href = "account.html#privacy";
 }
+      if (button.dataset.playerAction === "delete") {
+  menu.remove();
+
+  const confirmed = confirm(
+    "WARNING: Deleting your NOCTURNE VOID account is permanent.\n\nYour profile, messages, gaming statistics, XP, and account data may be deleted.\n\nAre you sure you want to continue?"
+  );
+
+  if (!confirmed) return;
+
+  showStatus(
+    "Account deletion will be available once secure account deletion is configured.",
+    true
+  );
+}
       
 });
 
