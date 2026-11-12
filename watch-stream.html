@@ -47,6 +47,13 @@
   <p id="vlWatchDescription"></p>
   <p id="vlViewerCount">👁 0 VIEWERS</p>
 
+       <div class="vl-viewer-list">
+  <h3>CURRENTLY WATCHING</h3>
+  <div id="vlViewerList">
+    <p>Loading viewers...</p>
+  </div>
+</div>
+
   <button id="vlEndStream" style="display: none;">
     END STREAM
   </button>
@@ -89,6 +96,7 @@ const vlChatForm = document.getElementById("vlChatForm");
 const vlChatInput = document.getElementById("vlChatInput");
     const vlEndStream = document.getElementById("vlEndStream");
     const vlViewerCount = document.getElementById("vlViewerCount");
+    const vlViewerList = document.getElementById("vlViewerList");
 let viewerCount = 0;
 
    
@@ -227,24 +235,61 @@ if (currentUser) {
     const updateViewerCount = async () => {
   const activeSince = new Date(Date.now() - 60000).toISOString();
 
-  await watchSupabase
-    .from("void_live_viewers")
-    .update({ last_seen: new Date().toISOString() })
-    .eq("stream_id", streamId)
-    .eq("user_id", currentUser.id);
+  if (currentUser) {
+    await watchSupabase
+      .from("void_live_viewers")
+      .update({ last_seen: new Date().toISOString() })
+      .eq("stream_id", streamId)
+      .eq("user_id", currentUser.id);
+  }
 
-  const { count, error } = await watchSupabase
+  const { data: viewers, error } = await watchSupabase
     .from("void_live_viewers")
-    .select("id", { count: "exact", head: true })
+    .select("user_id")
     .eq("stream_id", streamId)
     .neq("user_id", streamOwnerId)
     .gte("last_seen", activeSince);
 
-  if (!error) {
-    vlViewerCount.textContent = "👁 " + count + " VIEWERS";
+  if (error) {
+    console.error("Could not load viewers:", error);
+    return;
   }
-};
 
+  vlViewerCount.textContent =
+    "👁 " + viewers.length + " VIEWERS";
+
+  vlViewerList.innerHTML = "";
+
+  if (viewers.length === 0) {
+    vlViewerList.textContent = "No viewers watching yet.";
+    return;
+  }
+
+  const userIds = viewers.map(viewer => viewer.user_id);
+
+  const { data: profiles, error: profileError } = await watchSupabase
+    .from("community_profiles")
+    .select("id, username")
+    .in("id", userIds);
+
+  if (profileError) {
+    console.error("Could not load viewer profiles:", profileError);
+  }
+
+  viewers.forEach(viewer => {
+    const profile = (profiles || []).find(
+      profile => profile.id === viewer.user_id
+    );
+
+    const viewerElement = document.createElement("p");
+
+    viewerElement.textContent =
+      "🟢 " + (profile?.username || "VOID MEMBER");
+
+    vlViewerList.appendChild(viewerElement);
+  });
+};
+    
 updateViewerCount();
 setInterval(updateViewerCount, 20000);
     
