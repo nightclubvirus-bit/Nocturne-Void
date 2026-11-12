@@ -111,6 +111,7 @@ let viewerCount = 0;
    
 async function loadLiveChat() {
   if (!streamId) return;
+  const { data: sessionData } = await watchSupabase.auth.getSession();
 
   const { data: messages, error } = await watchSupabase
     .from("void_live_chat")
@@ -152,70 +153,7 @@ async function loadLiveChat() {
   console.error("Could not load moderators:", moderatorError);
 }
 
-const { data: restrictions, error: restrictionError } = await watchSupabase
-  .from("void_live_chat_restrictions")
-  .select("user_id, restriction_type, expires_at")
-  .eq("stream_id", streamId);
-
-if (restrictionError) {
-  console.error("Could not load chat restrictions:", restrictionError);
-}
-
-messages.forEach(message => { 
-  
-    const profile = (profiles || []).find(
-      profile => profile.id === message.user_id
-    );
-
-    const username = profile?.username || "UNKNOWN MEMBER";
-    const isStreamer = message.user_id === streamOwnerId;
-    const isModerator = (moderators || []).some(
-  moderator => moderator.moderator_id === message.user_id
-);
-
-    const messageElement = document.createElement("div");
-    messageElement.className = "vl-chat-message";
-
-    const sender = document.createElement("strong");
-
-    sender.textContent = isStreamer
-  ? `${username} - STREAMER`
-  : isModerator
-    ? `${username} - MODERATOR`
-    : `${username} - VOID MEMBER`;
-    if (isModerator) {
-  sender.style.color = "#60a5fa";
-}
-
-    if (isStreamer) {
-      sender.style.color = "#c084fc";
-    }
-    const { data: restrictions, error: restrictionError } = await watchSupabase
-  .from("void_live_chat_restrictions")
-  .select("user_id, restriction_type, expires_at")
-  .eq("stream_id", streamId);
-
-if (restrictionError) {
-  console.error("Could not load chat restrictions:", restrictionError);
-}
-
 const restriction = (restrictions || []).find(
-  item => item.user_id === message.user_id
-);
-
-if (restriction) {
-  if (
-    restriction.restriction_type === "ban" ||
-    (
-      restriction.restriction_type === "timeout" &&
-      restriction.expires_at &&
-      new Date(restriction.expires_at) > new Date()
-    )
-  ) {
-    return;
-  }
-}
-    const restriction = (restrictions || []).find(
   item => item.user_id === message.user_id
 );
 
@@ -333,7 +271,7 @@ if (canModerate) {
 }
 
 vlChatMessages.appendChild(messageElement);
-    vlChatMessages.appendChild(messageElement);
+    
   });
 
   vlChatMessages.scrollTop = vlChatMessages.scrollHeight;
