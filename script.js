@@ -3332,6 +3332,35 @@ function renderLeaderboard() {
     item.textContent = achievement;
     container.appendChild(item);
   });
+      const badgeNames = [];
+
+if (totalXP >= 1000) badgeNames.push("💎 Rising Star");
+if (totalXP >= 5000) badgeNames.push("🌟 Powerhouse");
+if (totalXP >= 10000) badgeNames.push("👑 Immortal");
+if (totals.wins >= 100) badgeNames.push("🔥 Elite Player");
+if (totals.wins >= 500) badgeNames.push("🏆 Legend");
+
+if (badgeNames.length === 0) {
+  badgeNames.push("🎮 New Member");
+}
+
+badgeNames.forEach(badgeName => {
+  const badge = document.createElement("span");
+
+  badge.textContent = badgeName;
+
+  badge.style.cssText = `
+    padding: 8px 12px;
+    background: #302044;
+    border: 1px solid #713cff;
+    border-radius: 20px;
+    color: #d8c5ff;
+    font-size: 12px;
+  `;
+
+  badgesList.appendChild(badge);
+});
+      
 }
 async function loadAccountGames() {
   const container = $("#accountGamesContent");
@@ -4914,7 +4943,7 @@ function renderCommunityChannels() {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url")
+        .select("id, username, avatar_url, custom_status")
         .eq("id", userId)
         .maybeSingle();
 
@@ -5054,30 +5083,76 @@ async function openMemberProfile(profile) {
   `;
 
   const card = document.createElement("div");
-
+   
   card.style.cssText = `
     width: 100%;
-    max-width: 360px;
-    padding: 25px;
-    background: #171318;
-    border: 1px solid #771d2b;
-    border-radius: 12px;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 30px;
+    background: #12101a;
+    border: 1px solid #713cff;
+    border-radius: 16px;
     color: #fff;
     text-align: center;
+    box-shadow: 0 0 35px rgba(113, 60, 255, .25);
   `;
 
   const avatar = makeAvatar(profile);
+   
+     const profileBanner = document.createElement("div");
 
-  avatar.style.cssText += `
-    width: 90px;
-    height: 90px;
-    margin: 0 auto 15px;
+  profileBanner.style.cssText = `
+    height: 110px;
+    margin: -30px -30px 20px;
+    background: linear-gradient(
+      135deg,
+      #241044,
+      #5425a8,
+      #17102b
+    );
+    border-radius: 15px 15px 0 0;
+  `;
+
+    avatar.style.cssText += `
+    width: 110px;
+    height: 110px;
+    margin: -75px auto 15px;
+    position: relative;
+    border: 5px solid #12101a;
     overflow: hidden;
     border-radius: 50%;
+    background: #241044;
   `;
 
   const name = document.createElement("h2");
   name.textContent = getUsername(profile);
+
+     const aboutSection = document.createElement("div");
+
+  aboutSection.style.cssText = `
+    margin: 20px 0;
+    padding: 16px;
+    background: #1c1728;
+    border: 1px solid #35264f;
+    border-radius: 10px;
+    text-align: left;
+  `;
+
+  const aboutHeading = document.createElement("h3");
+  aboutHeading.textContent = "ABOUT ME";
+
+  const aboutText = document.createElement("p");
+  aboutText.textContent =
+    profile.about_me || "This member hasn't written an introduction yet.";
+
+  aboutText.style.cssText = `
+    color: #bbb;
+    line-height: 1.6;
+    margin-top: 8px;
+  `;
+
+  aboutSection.append(aboutHeading, aboutText);
 
   const status = document.createElement("p");
   const isOnline = onlineMembers.has(profile.id);
@@ -5104,7 +5179,31 @@ async function openMemberProfile(profile) {
     background: #241d25;
     border-radius: 8px;
   `;
+     const badgesSection = document.createElement("div");
 
+  badgesSection.style.cssText = `
+    margin: 20px 0;
+    padding: 15px;
+    background: #1c1728;
+    border: 1px solid #35264f;
+    border-radius: 10px;
+  `;
+
+  const badgesHeading = document.createElement("h3");
+  badgesHeading.textContent = "PROFILE BADGES";
+
+  const badgesList = document.createElement("div");
+
+  badgesList.style.cssText = `
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  `;
+
+  badgesSection.append(badgesHeading, badgesList);
+   
   const statsHeading = document.createElement("h3");
   statsHeading.textContent = "GAMING STATISTICS";
 
@@ -5127,6 +5226,112 @@ statsSection.append(levelHeading, playerLevel);
         .from("community_game_stats")
         .select("game_name, wins, losses, games_played, high_score")
         .eq("user_id", profile.id);
+     
+         const { data: myGameStats } = await supabaseClient
+      .from("community_game_stats")
+      .select("game_name")
+      .eq("user_id", currentUser.id);
+
+    const myGameNames = new Set(
+      (myGameStats || []).map(game => game.game_name)
+    );
+
+    const mutualGames = (gameStats || []).filter(game =>
+      myGameNames.has(game.game_name)
+    );
+
+    const mutualGamesSection = document.createElement("div");
+
+    mutualGamesSection.style.cssText = `
+      margin: 20px 0;
+      padding: 15px;
+      background: #1c1728;
+      border: 1px solid #35264f;
+      border-radius: 10px;
+      text-align: left;
+    `;
+
+    const mutualGamesHeading = document.createElement("h3");
+    mutualGamesHeading.textContent = "GAMES YOU SHARE";
+
+    mutualGamesSection.appendChild(mutualGamesHeading);
+
+    if (mutualGames.length) {
+      mutualGames.forEach(game => {
+        const item = document.createElement("p");
+        item.textContent = `🎮 ${game.game_name}`;
+        mutualGamesSection.appendChild(item);
+      });
+    } else {
+      const empty = document.createElement("p");
+      empty.textContent = "You don't share any games yet.";
+      mutualGamesSection.appendChild(empty);
+    }
+         statsSection.appendChild(mutualGamesSection);
+     
+         const mutualFriendsSection = document.createElement("div");
+
+    mutualFriendsSection.style.cssText = `
+      margin: 20px 0;
+      padding: 15px;
+      background: #1c1728;
+      border: 1px solid #35264f;
+      border-radius: 10px;
+      text-align: left;
+    `;
+
+    const mutualFriendsHeading = document.createElement("h3");
+    mutualFriendsHeading.textContent = "MUTUAL FRIENDS";
+
+    mutualFriendsSection.appendChild(mutualFriendsHeading);
+
+    const { data: myFriendRequests } = await supabaseClient
+      .from("friend_requests")
+      .select("sender_id, receiver_id")
+      .eq("status", "accepted")
+      .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`);
+
+    const { data: theirFriendRequests } = await supabaseClient
+      .from("friend_requests")
+      .select("sender_id, receiver_id")
+      .eq("status", "accepted")
+      .or(`sender_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
+
+    const getFriendIds = (requests, userId) =>
+      (requests || []).map(request =>
+        request.sender_id === userId
+          ? request.receiver_id
+          : request.sender_id
+      );
+
+    const myFriendIds = getFriendIds(myFriendRequests, currentUser.id);
+    const theirFriendIds = getFriendIds(theirFriendRequests, profile.id);
+
+    const mutualFriendIds = myFriendIds.filter(id =>
+      theirFriendIds.includes(id) &&
+      id !== currentUser.id &&
+      id !== profile.id
+    );
+
+    if (mutualFriendIds.length) {
+      const { data: mutualProfiles } = await supabaseClient
+        .from("community_profiles")
+        .select("id, username")
+        .in("id", mutualFriendIds);
+
+      (mutualProfiles || []).forEach(friend => {
+        const item = document.createElement("p");
+        item.textContent = `👤 ${friend.username}`;
+        mutualFriendsSection.appendChild(item);
+      });
+    } else {
+      const empty = document.createElement("p");
+      empty.textContent = "No mutual friends yet.";
+      mutualFriendsSection.appendChild(empty);
+    }
+
+    statsSection.appendChild(mutualFriendsSection);
+     
      const gameRankings = [];
 
 for (const game of gameStats || []) {
@@ -5413,8 +5618,11 @@ friendButton.addEventListener("click", async () => {
   });
 
   card.append(
+    profileBanner,
     avatar,
     name,
+    aboutSection,
+   badgesSection,
     status,
     joined,
     lastSeen,
