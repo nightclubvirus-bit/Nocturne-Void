@@ -196,6 +196,29 @@ if (presenceSelect) {
         ? getUsername(currentProfile || currentUser)
         : "Guest";
     }
+     if (username && currentUser) {
+  let presenceLabel =
+    $(".hub-presence-indicator", hub);
+
+  if (!presenceLabel) {
+    presenceLabel = document.createElement("span");
+    presenceLabel.className = "hub-presence-indicator";
+    username.insertAdjacentElement("afterend", presenceLabel);
+  }
+
+  const presence = currentProfile?.presence_status || "online";
+
+  const presenceLabels = {
+    online: "🟢 Online",
+    idle: "🌙 Idle",
+    dnd: "⛔ Do Not Disturb",
+    invisible: "⚫ Invisible"
+  };
+
+  presenceLabel.textContent =
+    presenceLabels[presence] || "🟢 Online";
+}
+     
 
     if (button) {
       button.disabled = !currentUser;
@@ -3478,7 +3501,7 @@ async function loadAccountGames() {
   if (friendIds.length) {
     const { data, error: profileError } = await supabaseClient
       .from("community_profiles")
-      .select("id, username, avatar_url")
+      .select("id, username, avatar_url, custom_status, presence_status, created_at, last_seen")
       .in("id", friendIds);
 
     if (profileError) {
@@ -4785,7 +4808,7 @@ adminButton?.addEventListener("click", () => {
           .from("community_profiles")
           .update({ custom_status: cleanedStatus })
           .eq("id", currentUser.id)
-          .select("id, username, avatar_url, custom_status")
+          .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
           .maybeSingle();
 
         if (error) throw error;
@@ -5082,7 +5105,7 @@ function renderCommunityChannels() {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url, custom_status")
+       .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
         .eq("id", userId)
         .maybeSingle();
 
@@ -5294,7 +5317,37 @@ async function openMemberProfile(profile) {
   aboutSection.append(aboutHeading, aboutText);
 
   const status = document.createElement("p");
-  const isOnline = onlineMembers.has(profile.id);
+
+const selectedPresence =
+  profile.presence_status || "online";
+
+const isOnline =
+  onlineMembers.has(profile.id) &&
+  selectedPresence !== "invisible";
+
+const visiblePresence =
+  isOnline ? selectedPresence : "offline";
+
+const presenceLabels = {
+  online: "🟢 Online",
+  idle: "🌙 Idle",
+  dnd: "⛔ Do Not Disturb",
+  offline: "⚫ Offline"
+};
+
+const presenceColors = {
+  online: "#55cc88",
+  idle: "#f0b84b",
+  dnd: "#ed4245",
+  offline: "#999"
+};
+
+status.textContent =
+  presenceLabels[visiblePresence];
+
+status.style.color =
+  presenceColors[visiblePresence];
+   
 
      const customStatus = document.createElement("p");
 
