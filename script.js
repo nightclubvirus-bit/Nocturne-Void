@@ -157,8 +157,21 @@ let mainNotificationList = null;
    const usernameButton = 
       $(".hub-username-edit-button", hub);
 
+     const aboutPreview = $(".hub-about-preview", hub);
+
+if (aboutPreview) {
+  aboutPreview.textContent =
+    currentProfile?.about_me || "Add something about yourself...";
+}
+
 if (usernameButton) {
   usernameButton.disabled = !currentUser;
+}
+     const aboutEditButton =
+  $(".hub-about-edit-button", hub);
+
+if (aboutEditButton) {
+  aboutEditButton.disabled = !currentUser;
 }
          const customStatusButton =
       $(".hub-custom-status-button", hub);
@@ -4574,7 +4587,10 @@ banButton.addEventListener("click", async () => {
           <div class="hub-profile-preview"></div>
 
           <div class="hub-profile-details">
-            <strong class="hub-profile-username">Guest</strong>
+          <p class="hub-about-preview">
+  Add something about yourself...
+</p>
+        <strong class="hub-profile-username">Guest</strong>
             <button
   class="hub-about-edit-button"
   type="button"
@@ -4784,6 +4800,64 @@ adminButton?.addEventListener("click", () => {
       "change",
       handleAvatarUpload
     );
+
+     const aboutEditButton =
+  $(".hub-about-edit-button", hub);
+
+aboutEditButton?.addEventListener("click", async () => {
+  if (!currentUser) return;
+
+  const newAbout = prompt(
+    "Tell the community about yourself (maximum 300 characters):",
+    currentProfile?.about_me || ""
+  );
+
+  if (newAbout === null) return;
+
+  const cleanedAbout = newAbout.trim();
+
+  if (cleanedAbout.length > 300) {
+    showStatus("About Me cannot exceed 300 characters.", true);
+    return;
+  }
+
+  aboutEditButton.disabled = true;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_profiles")
+      .update({ about_me: cleanedAbout })
+      .eq("id", currentUser.id)
+      .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) throw new Error("Profile could not be updated.");
+
+    currentProfile = data;
+
+    communityProfiles = communityProfiles.map(profile =>
+      profile.id === data.id ? data : profile
+    );
+
+    conversationProfiles = conversationProfiles.map(profile =>
+      profile.id === data.id ? data : profile
+    );
+
+    renderAvatarProfile();
+    renderCommunityMembers();
+
+    showStatus("About Me updated!");
+
+  } catch (error) {
+    console.error("About Me update error:", error);
+    showStatus(error.message || "Unable to update About Me.", true);
+
+  } finally {
+    aboutEditButton.disabled = !currentUser;
+  }
+});
+     
          const customStatusButton =
       $(".hub-custom-status-button", hub);
 
@@ -4811,7 +4885,7 @@ adminButton?.addEventListener("click", () => {
           .from("community_profiles")
           .update({ custom_status: cleanedStatus })
           .eq("id", currentUser.id)
-          .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
+          .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
           .maybeSingle();
 
         if (error) throw error;
@@ -4859,7 +4933,7 @@ adminButton?.addEventListener("click", () => {
               presence_status: presenceSelect.value
             })
             .eq("id", currentUser.id)
-            .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
+            .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
             .maybeSingle();
 
           if (error) throw error;
@@ -5108,7 +5182,7 @@ function renderCommunityChannels() {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-       .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
+       .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
         .eq("id", userId)
         .maybeSingle();
 
@@ -5200,7 +5274,7 @@ if (adminArea) {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
+        .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
         .order("username", { ascending: true });
 
       if (error) throw error;
