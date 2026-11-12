@@ -160,6 +160,17 @@ let mainNotificationList = null;
 if (usernameButton) {
   usernameButton.disabled = !currentUser;
 }
+         const customStatusButton =
+      $(".hub-custom-status-button", hub);
+
+    if (customStatusButton) {
+      customStatusButton.disabled = !currentUser;
+
+      customStatusButton.textContent =
+        currentProfile?.custom_status
+          ? "Edit Custom Status"
+          : "Set Custom Status";
+    }
 
     if (preview) {
       preview.replaceChildren(
@@ -4535,6 +4546,13 @@ banButton.addEventListener("click", async () => {
 
           <div class="hub-profile-details">
             <strong class="hub-profile-username">Guest</strong>
+            <button
+  class="hub-custom-status-button"
+  type="button"
+  disabled
+>
+  Set Custom Status
+</button>
              <button
                  class="hub-username-edit-button"
                 type="button"
@@ -4724,6 +4742,60 @@ adminButton?.addEventListener("click", () => {
       "change",
       handleAvatarUpload
     );
+         const customStatusButton =
+      $(".hub-custom-status-button", hub);
+
+    customStatusButton?.addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      const newStatus = prompt(
+        "Enter your custom status (maximum 80 characters):",
+        currentProfile?.custom_status || ""
+      );
+
+      if (newStatus === null) return;
+
+      const cleanedStatus = newStatus.trim();
+
+      if (cleanedStatus.length > 80) {
+        showStatus("Custom status cannot exceed 80 characters.", true);
+        return;
+      }
+
+      customStatusButton.disabled = true;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("community_profiles")
+          .update({ custom_status: cleanedStatus })
+          .eq("id", currentUser.id)
+          .select("id, username, avatar_url, custom_status")
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data) throw new Error("Profile could not be updated.");
+
+        currentProfile = data;
+
+        communityProfiles = communityProfiles.map(profile =>
+          profile.id === data.id ? data : profile
+        );
+
+        renderAvatarProfile();
+        renderCommunityMembers();
+        renderCommunityMessages();
+
+        showStatus("Custom status updated!");
+
+      } catch (error) {
+        console.error("Custom status update error:", error);
+        showStatus(error.message || "Unable to update status.", true);
+
+      } finally {
+        customStatusButton.disabled = !currentUser;
+      }
+    });
+     
      const usernameButton =
   $(".hub-username-edit-button", hub);
 
@@ -5035,7 +5107,7 @@ if (adminArea) {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url, created_at, last_seen")
+        .select("id, username, avatar_url, created_at, last_seen, custom_status")
         .order("username", { ascending: true });
 
       if (error) throw error;
@@ -5156,6 +5228,16 @@ async function openMemberProfile(profile) {
 
   const status = document.createElement("p");
   const isOnline = onlineMembers.has(profile.id);
+
+     const customStatus = document.createElement("p");
+
+  customStatus.textContent = profile.custom_status || "No custom status set.";
+
+  customStatus.style.cssText = `
+    color: #b9a3e8;
+    font-size: 13px;
+    margin: 8px 0 15px;
+  `;
 
   status.textContent = isOnline ? "● Online" : "● Offline";
   status.style.color = isOnline ? "#55cc88" : "#999";
@@ -5624,6 +5706,7 @@ friendButton.addEventListener("click", async () => {
     aboutSection,
    badgesSection,
     status,
+   customStatus,
     joined,
     lastSeen,
     statsSection,
@@ -5693,6 +5776,10 @@ friendButton.addEventListener("click", async () => {
       name.className = "hub-member-name";
       name.textContent = getUsername(profile);
 
+             const memberStatus = document.createElement("small");
+      memberStatus.className = "hub-member-custom-status";
+      memberStatus.textContent = profile.custom_status || "";
+
       const dot = document.createElement("span");
       dot.className = "hub-online-dot";
 
@@ -5701,8 +5788,8 @@ friendButton.addEventListener("click", async () => {
       dot.classList.toggle("is-online", isOnline);
       dot.title = isOnline ? "Online" : "Offline";
 
-      member.append(avatar, name, dot);
-
+     member.append(avatar, name, memberStatus, dot);
+       
   member.addEventListener("click", () => {
     openMemberProfile(profile);
  });
