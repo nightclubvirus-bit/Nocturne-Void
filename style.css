@@ -3339,3 +3339,18 @@ footer {
   background: #100b1c;
   color: white;
 }
+.vl-chat-delete {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  border-radius: 5px;
+  color: #f87171;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.vl-chat-delete:hover {
+  background: rgba(220, 38, 38, 0.35);
+  color: white;
+}
