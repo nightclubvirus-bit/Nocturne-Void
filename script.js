@@ -3815,6 +3815,32 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
 
     $("#logoutButton")?.addEventListener("click", handleLogout);
 
+     const persistentPlayerMenu =
+  $("#persistentPlayerMenu");
+
+persistentPlayerMenu?.addEventListener("click", () => {
+  if (!currentUser) {
+    showStatus("Please sign in to access your player menu.", true);
+    return;
+  }
+
+  showStatus("Player menu coming soon!");
+});
+
+const persistentPlayerProfile =
+  $("#persistentPlayerProfile");
+
+persistentPlayerProfile?.addEventListener("click", (event) => {
+  if (event.target.closest("#persistentPlayerMenu")) return;
+
+  if (!currentUser) {
+    showStatus("Please sign in to access your player profile.", true);
+    return;
+  }
+
+  showStatus("Player profile menu coming soon!");
+});
+
     setAuthMode("login");
   }
 
@@ -4763,33 +4789,6 @@ const communityMain = $(".hub-main", hub);
 if (communityMain) {
   communityMain.prepend(announcementFeed);
 
-   const persistentPlayerMenu =
-  $("#persistentPlayerMenu");
-
-persistentPlayerMenu?.addEventListener("click", () => {
-  if (!currentUser) {
-    showStatus("Please sign in to access your player menu.", true);
-    return;
-  }
-
-  showStatus("Player menu coming soon!");
-});
-
-   const persistentPlayerProfile =
-  $("#persistentPlayerProfile");
-
-persistentPlayerProfile?.addEventListener("click", (event) => {
-  if (event.target.closest("#persistentPlayerMenu")) return;
-
-  if (!currentUser) {
-    showStatus("Please sign in to access your player profile.", true);
-    return;
-  }
-
-  showStatus("Player profile menu coming soon!");
-});
-   
-}
      async function loadPublicAnnouncements() {
   announcementFeedList.textContent = "Loading announcements...";
 
