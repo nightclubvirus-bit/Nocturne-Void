@@ -142,6 +142,44 @@ let mainNotificationList = null;
 
     return avatar;
   }
+   function updatePersistentPlayerProfile() {
+  const avatarContainer =
+    $("#persistentPlayerAvatar");
+
+  const name =
+    $("#persistentPlayerName");
+
+  const status =
+    $("#persistentPlayerStatus");
+
+  const profile =
+    currentProfile || currentUser;
+
+  if (avatarContainer) {
+    avatarContainer.replaceChildren(
+      makeAvatar(
+        profile || { username: "Guest" }
+      )
+    );
+  }
+
+  if (name) {
+    name.textContent = currentUser
+      ? getUsername(profile)
+      : "Guest";
+  }
+
+  if (status) {
+    if (!currentUser) {
+      status.textContent = "Not signed in";
+    } else {
+      status.textContent =
+        currentProfile?.custom_status ||
+        currentProfile?.presence_status ||
+        "Online";
+    }
+  }
+}
 
   /* ==========================================
      3. AVATAR PROFILE PREVIEW
@@ -235,6 +273,8 @@ if (presenceSelect) {
     presenceLabel.textContent =
       presenceLabels[presence] || "🟢 Online";
   }
+}
+     updatePersistentPlayerProfile();
 }
      
   /* ==========================================
@@ -4098,6 +4138,7 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
   function updateAccountUI(user) {
   currentUser = user || null;
 
+
   const button = $("#accountButton");
   const logout = $("#logoutButton");
 
@@ -4112,6 +4153,7 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
   if (!currentUser) {
     currentProfile = null;
   }
+      updatePersistentPlayerProfile();
 
   renderAvatarProfile();
   renderCommunityMembers();
@@ -4720,6 +4762,19 @@ const communityMain = $(".hub-main", hub);
 
 if (communityMain) {
   communityMain.prepend(announcementFeed);
+
+   const persistentPlayerMenu =
+  $("#persistentPlayerMenu");
+
+persistentPlayerMenu?.addEventListener("click", () => {
+  if (!currentUser) {
+    showStatus("Please sign in to access your player menu.", true);
+    return;
+  }
+
+  showStatus("Player menu coming soon!");
+});
+   
 }
      async function loadPublicAnnouncements() {
   announcementFeedList.textContent = "Loading announcements...";
@@ -5192,6 +5247,7 @@ function renderCommunityChannels() {
       if (!currentUser || currentUser.id !== userId) return;
 
       currentProfile = data;
+      updatePersistentPlayerProfile();
        
       // Update the Account Center profile
       const accountUsername = $("#accountUsername");
