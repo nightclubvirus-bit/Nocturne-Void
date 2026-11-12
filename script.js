@@ -6623,12 +6623,31 @@ async function loadMainNotifications() {
     return;
   }
 
-  notifications.forEach(notification => {
-    const item = document.createElement("p");
-    item.textContent = notification.message;
-    item.classList.toggle("unread", !notification.is_read);
-    mainNotificationList.appendChild(item);
+ notifications.forEach(notification => {
+  const item = document.createElement("button");
+
+  item.textContent = notification.message;
+  item.className = notification.is_read
+    ? "notification-item"
+    : "notification-item unread";
+
+  item.addEventListener("click", async () => {
+    if (!notification.is_read) {
+      await supabaseClient
+        .from("void_live_notifications")
+        .update({ is_read: true })
+        .eq("id", notification.id);
+
+      await loadMainNotifications();
+    }
+
+    window.location.href =
+      "watch-stream.html?id=" + encodeURIComponent(notification.stream_id);
   });
+
+  mainNotificationList.appendChild(item);
+});
+   
 } 
 
  function initializeWebsite() {
