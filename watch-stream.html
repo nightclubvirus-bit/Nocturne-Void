@@ -57,6 +57,10 @@
   </div>
 </div>
 
+   <button id="vlManageModerators" style="display: none;">
+    MANAGE MODERATORS
+  </button>
+
   <button id="vlEndStream" style="display: none;">
     END STREAM
   </button>
@@ -98,6 +102,7 @@
 const vlChatForm = document.getElementById("vlChatForm");
 const vlChatInput = document.getElementById("vlChatInput");
     const vlEndStream = document.getElementById("vlEndStream");
+    const vlManageModerators = document.getElementById("vlManageModerators");
     const vlViewerCount = document.getElementById("vlViewerCount");
     const vlViewerList = document.getElementById("vlViewerList");
     const vlFollowButton = document.getElementById("vlFollowButton");
@@ -138,6 +143,15 @@ async function loadLiveChat() {
     console.error("Could not load chat usernames:", profileError);
   }
 
+  const { data: moderators, error: moderatorError } = await watchSupabase
+    .from("void_live_chat_moderators")
+    .select("moderator_id")
+    .eq("stream_id", streamId);
+
+  if (moderatorError) {
+    console.error("Could not load moderators:", moderatorError);
+  }
+
   messages.forEach(message => {
     const profile = (profiles || []).find(
       profile => profile.id === message.user_id
@@ -145,6 +159,9 @@ async function loadLiveChat() {
 
     const username = profile?.username || "UNKNOWN MEMBER";
     const isStreamer = message.user_id === streamOwnerId;
+    const isModerator = (moderators || []).some(
+  moderator => moderator.moderator_id === message.user_id
+);
 
     const messageElement = document.createElement("div");
     messageElement.className = "vl-chat-message";
@@ -152,8 +169,13 @@ async function loadLiveChat() {
     const sender = document.createElement("strong");
 
     sender.textContent = isStreamer
-      ? `${username} - STREAMER`
-      : `${username} - VOID MEMBER`;
+  ? `${username} - STREAMER`
+  : isModerator
+    ? `${username} - MODERATOR`
+    : `${username} - VOID MEMBER`;
+    if (isModerator) {
+  sender.style.color = "#60a5fa";
+}
 
     if (isStreamer) {
       sender.style.color = "#c084fc";
@@ -162,7 +184,40 @@ async function loadLiveChat() {
     const content = document.createElement("p");
     content.textContent = message.message;
 
-    messageElement.append(sender, content);
+  messageElement.append(sender, content);
+
+const canModerate = isStreamer ||
+  (moderators || []).some(
+    moderator => moderator.moderator_id === sessionData.session?.user.id
+  );
+
+if (canModerate) {
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "DELETE";
+  deleteButton.className = "vl-chat-delete";
+
+  deleteButton.addEventListener("click", async () => {
+    if (!confirm("Delete this chat message?")) return;
+
+    const { error } = await watchSupabase
+      .from("void_live_chat")
+      .delete()
+      .eq("id", message.id)
+      .eq("stream_id", streamId);
+
+    if (error) {
+      console.error("Could not delete message:", error);
+      alert("Could not delete message.");
+      return;
+    }
+
+    await loadLiveChat();
+  });
+
+  messageElement.appendChild(deleteButton);
+}
+
+vlChatMessages.appendChild(messageElement);
     vlChatMessages.appendChild(messageElement);
   });
 
@@ -234,6 +289,74 @@ const { data: sessionData } = await watchSupabase.auth.getSession();
 
 if (sessionData.session?.user.id === streamOwnerId) {
   vlEndStream.style.display = "inline-block";
+  vlManageModerators.style.display = "inline-block";
+ vlManageModerators.addEventListener("click", async () => {
+  const action = prompt(
+    "Type ADD to promote a moderator or REMOVE to remove one:"
+  );
+
+  if (!action) return;
+
+  const username = prompt("Enter the member's username:");
+
+  if (!username) return;
+
+  const { data: profile, error: profileError } = await watchSupabase
+    .from("community_profiles")
+    .select("id, username")
+    .ilike("username", username.trim())
+    .maybeSingle();
+
+  if (profileError || !profile) {
+    alert("Member not found.");
+    return;
+  }
+
+  if (profile.id === streamOwnerId) {
+    alert("The streamer cannot be a moderator.");
+    return;
+  }
+
+  if (action.trim().toUpperCase() === "ADD") {
+    const { error } = await watchSupabase
+      .from("void_live_chat_moderators")
+      .insert({
+        stream_id: streamId,
+        moderator_id: profile.id,
+        assigned_by: sessionData.session.user.id
+      });
+
+    if (error) {
+      console.error("Could not assign moderator:", error);
+      alert("Could not assign moderator. They may already be one.");
+      return;
+    }
+
+    alert(profile.username + " is now a moderator!");
+
+  } else if (action.trim().toUpperCase() === "REMOVE") {
+    const { error } = await watchSupabase
+      .from("void_live_chat_moderators")
+      .delete()
+      .eq("stream_id", streamId)
+      .eq("moderator_id", profile.id);
+
+    if (error) {
+      console.error("Could not remove moderator:", error);
+      alert("Could not remove moderator.");
+      return;
+    }
+
+    alert(profile.username + " is no longer a moderator!");
+
+  } else {
+    alert("Please type ADD or REMOVE.");
+    return;
+  }
+
+  await loadLiveChat();
+});
+  
 }
 
 const currentUser = sessionData.session?.user;
