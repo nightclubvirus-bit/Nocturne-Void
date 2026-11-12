@@ -148,11 +148,21 @@ async function loadLiveChat() {
     .select("moderator_id")
     .eq("stream_id", streamId);
 
-  if (moderatorError) {
-    console.error("Could not load moderators:", moderatorError);
-  }
+ if (moderatorError) {
+  console.error("Could not load moderators:", moderatorError);
+}
 
-  messages.forEach(message => {
+const { data: restrictions, error: restrictionError } = await watchSupabase
+  .from("void_live_chat_restrictions")
+  .select("user_id, restriction_type, expires_at")
+  .eq("stream_id", streamId);
+
+if (restrictionError) {
+  console.error("Could not load chat restrictions:", restrictionError);
+}
+
+messages.forEach(message => { 
+  
     const profile = (profiles || []).find(
       profile => profile.id === message.user_id
     );
@@ -180,7 +190,47 @@ async function loadLiveChat() {
     if (isStreamer) {
       sender.style.color = "#c084fc";
     }
+    const { data: restrictions, error: restrictionError } = await watchSupabase
+  .from("void_live_chat_restrictions")
+  .select("user_id, restriction_type, expires_at")
+  .eq("stream_id", streamId);
 
+if (restrictionError) {
+  console.error("Could not load chat restrictions:", restrictionError);
+}
+
+const restriction = (restrictions || []).find(
+  item => item.user_id === message.user_id
+);
+
+if (restriction) {
+  if (
+    restriction.restriction_type === "ban" ||
+    (
+      restriction.restriction_type === "timeout" &&
+      restriction.expires_at &&
+      new Date(restriction.expires_at) > new Date()
+    )
+  ) {
+    return;
+  }
+}
+    const restriction = (restrictions || []).find(
+  item => item.user_id === message.user_id
+);
+
+if (restriction) {
+  if (
+    restriction.restriction_type === "ban" ||
+    (
+      restriction.restriction_type === "timeout" &&
+      restriction.expires_at &&
+      new Date(restriction.expires_at) > new Date()
+    )
+  ) {
+    return;
+  }
+}
     const content = document.createElement("p");
     content.textContent = message.message;
 
@@ -215,6 +265,71 @@ if (canModerate) {
   });
 
   messageElement.appendChild(deleteButton);
+}
+  if (canModerate && !isStreamer && message.user_id !== sessionData.session?.user.id) {
+  const timeoutButton = document.createElement("button");
+  timeoutButton.textContent = "TIMEOUT";
+  timeoutButton.className = "vl-chat-delete";
+
+  timeoutButton.addEventListener("click", async () => {
+    const minutes = Number(prompt("Timeout duration in minutes:", "10"));
+
+    if (!minutes || minutes < 1) return;
+
+    const { data: currentUser } = await watchSupabase.auth.getUser();
+
+    const { error } = await watchSupabase
+      .from("void_live_chat_restrictions")
+      .upsert({
+        stream_id: streamId,
+        user_id: message.user_id,
+        restricted_by: currentUser.user.id,
+        restriction_type: "timeout",
+        expires_at: new Date(Date.now() + minutes * 60000).toISOString()
+      }, {
+        onConflict: "stream_id,user_id"
+      });
+
+    if (error) {
+      console.error("Could not timeout member:", error);
+      alert("Could not timeout member.");
+      return;
+    }
+
+    await loadLiveChat();
+  });
+
+  const banButton = document.createElement("button");
+  banButton.textContent = "BAN";
+  banButton.className = "vl-chat-delete";
+
+  banButton.addEventListener("click", async () => {
+    if (!confirm("Permanently ban this member from this stream's chat?")) return;
+
+    const { data: currentUser } = await watchSupabase.auth.getUser();
+
+    const { error } = await watchSupabase
+      .from("void_live_chat_restrictions")
+      .upsert({
+        stream_id: streamId,
+        user_id: message.user_id,
+        restricted_by: currentUser.user.id,
+        restriction_type: "ban",
+        expires_at: null
+      }, {
+        onConflict: "stream_id,user_id"
+      });
+
+    if (error) {
+      console.error("Could not ban member:", error);
+      alert("Could not ban member.");
+      return;
+    }
+
+    await loadLiveChat();
+  });
+
+  messageElement.append(timeoutButton, banButton);
 }
 
 vlChatMessages.appendChild(messageElement);
@@ -520,7 +635,37 @@ if (stream.platform === "youtube" && stream.stream_url) {
     alert("Please sign in to send messages.");
     return;
   }
+    const { data: activeRestriction, error: restrictionCheckError } = await watchSupabase
+  .from("void_live_chat_restrictions")
+  .select("restriction_type, expires_at")
+  .eq("stream_id", streamId)
+  .eq("user_id", sessionData.session.user.id)
+  .maybeSingle();
 
+if (restrictionCheckError) {
+  console.error("Could not check chat restrictions:", restrictionCheckError);
+  alert("Could not verify your chat permissions.");
+  return;
+}
+
+if (
+  activeRestriction &&
+  (
+    activeRestriction.restriction_type === "ban" ||
+    (
+      activeRestriction.restriction_type === "timeout" &&
+      activeRestriction.expires_at &&
+      new Date(activeRestriction.expires_at) > new Date()
+    )
+  )
+) {
+  alert(
+    activeRestriction.restriction_type === "ban"
+      ? "You are banned from this stream's chat."
+      : "You are timed out from this chat."
+  );
+  return;
+}
   const { error } = await watchSupabase
     .from("void_live_chat")
     .insert({
