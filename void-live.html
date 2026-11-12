@@ -252,8 +252,34 @@ if (saveError) {
       return;
     }
 
-    await loadLiveStreams();
-    vlModal.style.display = "none";
+   await loadLiveStreams();
+
+// Notify everyone who follows this streamer
+const { data: followers, error: followerError } = await vlSupabase
+  .from("void_live_follows")
+  .select("follower_id")
+  .eq("streamer_id", sessionData.session.user.id);
+
+if (followerError) {
+  console.error("Could not load followers:", followerError);
+} else if (followers.length > 0) {
+  const notifications = followers.map(follower => ({
+    user_id: follower.follower_id,
+    streamer_id: sessionData.session.user.id,
+    stream_id: savedStream.id,
+    message: title + " is now LIVE!"
+  }));
+
+  const { error: notificationError } = await vlSupabase
+    .from("void_live_notifications")
+    .insert(notifications);
+
+  if (notificationError) {
+    console.error("Could not send notifications:", notificationError);
+  }
+}
+
+vlModal.style.display = "none";
   }
 }
     
