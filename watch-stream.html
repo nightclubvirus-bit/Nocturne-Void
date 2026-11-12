@@ -199,12 +199,55 @@ vlEndStream.addEventListener("click", async () => {
       return;
     }
     
-    streamOwnerId = stream.user_id;
-    const { data: sessionData } = await watchSupabase.auth.getSession();
+   streamOwnerId = stream.user_id;
+
+const { data: sessionData } = await watchSupabase.auth.getSession();
 
 if (sessionData.session?.user.id === streamOwnerId) {
   vlEndStream.style.display = "inline-block";
 }
+
+const currentUser = sessionData.session?.user;
+
+if (currentUser) {
+  const { error: viewerError } = await watchSupabase
+    .from("void_live_viewers")
+    .upsert({
+      stream_id: streamId,
+      user_id: currentUser.id,
+      last_seen: new Date().toISOString()
+    }, {
+      onConflict: "stream_id,user_id"
+    });
+
+  if (viewerError) {
+    console.error("Could not register viewer:", viewerError);
+  }
+}
+    const updateViewerCount = async () => {
+  const activeSince = new Date(Date.now() - 60000).toISOString();
+
+  await watchSupabase
+    .from("void_live_viewers")
+    .update({ last_seen: new Date().toISOString() })
+    .eq("stream_id", streamId)
+    .eq("user_id", currentUser.id);
+
+  const { count, error } = await watchSupabase
+    .from("void_live_viewers")
+    .select("id", { count: "exact", head: true })
+    .eq("stream_id", streamId)
+    .neq("user_id", streamOwnerId)
+    .gte("last_seen", activeSince);
+
+  if (!error) {
+    vlViewerCount.textContent = "👁 " + count + " VIEWERS";
+  }
+};
+
+updateViewerCount();
+setInterval(updateViewerCount, 20000);
+    
     document.getElementById("vlWatchTitle").textContent =
       stream.stream_title;
 
