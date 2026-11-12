@@ -194,40 +194,36 @@ if (presenceSelect) {
     if (username) {
       username.textContent = currentUser
         ? getUsername(currentProfile || currentUser)
-        : "Guest";
+        : "Guest"
     }
-     if (username && currentUser) {
+     
+   if (username) {
   let presenceLabel =
     $(".hub-presence-indicator", hub);
 
-  if (!presenceLabel) {
-    presenceLabel = document.createElement("span");
-    presenceLabel.className = "hub-presence-indicator";
-    username.insertAdjacentElement("afterend", presenceLabel);
+  if (!currentUser) {
+    presenceLabel?.remove();
+  } else {
+    if (!presenceLabel) {
+      presenceLabel = document.createElement("span");
+      presenceLabel.className = "hub-presence-indicator";
+      username.insertAdjacentElement("afterend", presenceLabel);
+    }
+
+    const presence = currentProfile?.presence_status || "online";
+
+    const presenceLabels = {
+      online: "🟢 Online",
+      idle: "🌙 Idle",
+      dnd: "⛔ Do Not Disturb",
+      invisible: "⚫ Invisible"
+    };
+
+    presenceLabel.textContent =
+      presenceLabels[presence] || "🟢 Online";
   }
-
-  const presence = currentProfile?.presence_status || "online";
-
-  const presenceLabels = {
-    online: "🟢 Online",
-    idle: "🌙 Idle",
-    dnd: "⛔ Do Not Disturb",
-    invisible: "⚫ Invisible"
-  };
-
-  presenceLabel.textContent =
-    presenceLabels[presence] || "🟢 Online";
 }
      
-
-    if (button) {
-      button.disabled = !currentUser;
-      button.textContent = currentUser
-        ? "Change Avatar"
-        : "Sign in to upload";
-    }
-  }
-
   /* ==========================================
      4. AVATAR UPLOAD
      ========================================== */
@@ -4579,6 +4575,13 @@ banButton.addEventListener("click", async () => {
 
           <div class="hub-profile-details">
             <strong class="hub-profile-username">Guest</strong>
+            <button
+  class="hub-about-edit-button"
+  type="button"
+  disabled
+>
+  Edit About Me
+</button>
             <button
     class="hub-custom-status-button"
     type="button"
