@@ -172,6 +172,16 @@ if (usernameButton) {
           : "Set Custom Status";
     }
 
+     const presenceSelect =
+  $(".hub-presence-select", hub);
+
+if (presenceSelect) {
+  presenceSelect.disabled = !currentUser;
+
+  presenceSelect.value =
+    currentProfile?.presence_status || "online";
+}
+
     if (preview) {
       preview.replaceChildren(
         makeAvatar(
@@ -4547,12 +4557,18 @@ banButton.addEventListener("click", async () => {
           <div class="hub-profile-details">
             <strong class="hub-profile-username">Guest</strong>
             <button
-  class="hub-custom-status-button"
-  type="button"
-  disabled
->
-  Set Custom Status
-</button>
+    class="hub-custom-status-button"
+    type="button"
+    disabled
+  >
+    Set Custom Status
+  </button>
+           <select class="hub-presence-select" disabled>
+  <option value="online">🟢 Online</option>
+  <option value="idle">🌙 Idle</option>
+  <option value="dnd">⛔ Do Not Disturb</option>
+  <option value="invisible">⚫ Invisible</option>
+</select>
              <button
                  class="hub-username-edit-button"
                 type="button"
@@ -4795,6 +4811,57 @@ adminButton?.addEventListener("click", () => {
         customStatusButton.disabled = !currentUser;
       }
     });
+
+         const presenceSelect =
+      $(".hub-presence-select", hub);
+
+    if (presenceSelect) {
+      presenceSelect.value =
+        currentProfile?.presence_status || "online";
+
+      presenceSelect.disabled = !currentUser;
+
+      presenceSelect.addEventListener("change", async () => {
+        if (!currentUser) return;
+
+        presenceSelect.disabled = true;
+
+        try {
+          const { data, error } = await supabaseClient
+            .from("community_profiles")
+            .update({
+              presence_status: presenceSelect.value
+            })
+            .eq("id", currentUser.id)
+            .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
+            .maybeSingle();
+
+          if (error) throw error;
+          if (!data) throw new Error("Presence status could not be updated.");
+
+          currentProfile = data;
+
+          communityProfiles = communityProfiles.map(profile =>
+            profile.id === data.id ? data : profile
+          );
+
+          renderAvatarProfile();
+          renderCommunityMembers();
+
+          showStatus("Presence status updated!");
+
+        } catch (error) {
+          console.error("Presence update error:", error);
+          showStatus("Unable to update presence status.", true);
+
+          presenceSelect.value =
+            currentProfile?.presence_status || "online";
+
+        } finally {
+          presenceSelect.disabled = !currentUser;
+        }
+      });
+    }
      
      const usernameButton =
   $(".hub-username-edit-button", hub);
@@ -5107,7 +5174,7 @@ if (adminArea) {
     try {
       const { data, error } = await supabaseClient
         .from("community_profiles")
-        .select("id, username, avatar_url, created_at, last_seen, custom_status")
+        .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status")
         .order("username", { ascending: true });
 
       if (error) throw error;
@@ -5783,10 +5850,36 @@ friendButton.addEventListener("click", async () => {
       const dot = document.createElement("span");
       dot.className = "hub-online-dot";
 
-      const isOnline = onlineMembers.has(profile.id);
+      const selectedPresence =
+  profile.presence_status || "online";
 
-      dot.classList.toggle("is-online", isOnline);
-      dot.title = isOnline ? "Online" : "Offline";
+const isOnline =
+  onlineMembers.has(profile.id) &&
+  selectedPresence !== "invisible";
+
+const visiblePresence =
+  isOnline ? selectedPresence : "offline";
+
+dot.classList.toggle(
+  "is-online",
+  visiblePresence === "online"
+);
+
+dot.classList.toggle(
+  "is-idle",
+  visiblePresence === "idle"
+);
+
+dot.classList.toggle(
+  "is-dnd",
+  visiblePresence === "dnd"
+);
+
+dot.title =
+  visiblePresence === "dnd"
+    ? "Do Not Disturb"
+    : visiblePresence.charAt(0).toUpperCase() +
+      visiblePresence.slice(1);
 
      member.append(avatar, name, memberStatus, dot);
        
