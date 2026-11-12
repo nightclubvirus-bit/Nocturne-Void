@@ -3373,3 +3373,11 @@ footer {
   background: #ed4245;
   box-shadow: 0 0 8px rgba(237, 66, 69, 0.7);
 }
+.hub-presence-indicator {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  color: #b9a3e8;
+  vertical-align: middle;
+  white-space: nowrap;
+}
