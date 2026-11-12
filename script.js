@@ -4774,6 +4774,20 @@ persistentPlayerMenu?.addEventListener("click", () => {
 
   showStatus("Player menu coming soon!");
 });
+
+   const persistentPlayerProfile =
+  $("#persistentPlayerProfile");
+
+persistentPlayerProfile?.addEventListener("click", (event) => {
+  if (event.target.closest("#persistentPlayerMenu")) return;
+
+  if (!currentUser) {
+    showStatus("Please sign in to access your player profile.", true);
+    return;
+  }
+
+  showStatus("Player profile menu coming soon!");
+});
    
 }
      async function loadPublicAnnouncements() {
