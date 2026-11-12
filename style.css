@@ -3310,3 +3310,32 @@ footer {
   font-weight: bold;
   border-left: 3px solid #a855f7;
 }
+.vl-search {
+  display: flex;
+  gap: 12px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.vl-search input,
+.vl-search select {
+  flex: 1;
+  min-width: 200px;
+  padding: 13px 16px;
+  background: #100b1c;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: 8px;
+  color: white;
+  outline: none;
+}
+
+.vl-search input:focus,
+.vl-search select:focus {
+  border-color: #c084fc;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+.vl-search select option {
+  background: #100b1c;
+  color: white;
+}
