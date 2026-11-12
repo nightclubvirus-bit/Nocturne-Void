@@ -9,7 +9,7 @@
   --bg: #09070a;
   --panel: #120d12;
   --panel2: #191018;
-  --red: #a51e36;
+  --red: #a51e36; 
   --red2: #e13b53;
   --purple: #6e3b78;
   --text: #eee7e9;
@@ -3363,4 +3363,13 @@ footer {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 150px;
+}
+.hub-online-dot.is-idle {
+  background: #f0b84b;
+  box-shadow: 0 0 8px rgba(240, 184, 75, 0.7);
+}
+
+.hub-online-dot.is-dnd {
+  background: #ed4245;
+  box-shadow: 0 0 8px rgba(237, 66, 69, 0.7);
 }
