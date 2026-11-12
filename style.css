@@ -3191,3 +3191,23 @@ footer {
   box-shadow: 0 0 18px rgba(225, 29, 72, 0.6);
   transform: translateY(-2px);
 }
+.vl-viewer-list {
+  margin-top: 20px;
+  padding: 18px;
+  background: rgba(15, 10, 30, 0.75);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+}
+
+.vl-viewer-list h3 {
+  color: #c084fc;
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.vl-viewer-list p {
+  color: #d8b4fe;
+  font-size: 13px;
+  margin: 8px 0;
+}
