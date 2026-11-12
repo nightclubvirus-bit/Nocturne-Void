@@ -27,6 +27,17 @@
     <button class="vl-go-live" id="vlGoLive">
       GO LIVE
     </button>
+    <button id="liveNotificationBell" class="notification-bell" type="button">
+  🔔
+  <span id="liveNotificationCount">0</span>
+</button>
+
+<div id="liveNotificationPanel" class="notification-panel" hidden>
+  <h3>NOTIFICATIONS</h3>
+  <div id="liveNotificationList">
+    <p>Loading notifications...</p>
+  </div>
+</div>
   </header>
   <!-- VOID LIVE STREAM SETUP -->
 <div id="vlStreamModal" class="vl-modal">
@@ -105,7 +116,19 @@
     </section>
 
     <section class="vl-browse">
-      <h2>LIVE CHANNELS</h2>
+  <h2>LIVE CHANNELS</h2>
+
+  <div class="vl-search">
+    <input
+      type="text"
+      id="vlStreamSearch"
+      placeholder="Search streams or games..."
+    >
+
+    <select id="vlCategoryFilter">
+      <option value="all">ALL CATEGORIES</option>
+    </select>
+  </div>
 
       <div id="vlLiveStreams" class="vl-stream-grid">
         <p class="vl-empty">
@@ -128,7 +151,77 @@
   const vlModal = document.getElementById("vlStreamModal");
   const vlClose = document.getElementById("vlCloseModal");
   const vlStartStream = document.getElementById("vlStartStream");
+  const liveNotificationBell = document.getElementById("liveNotificationBell");
+const liveNotificationCount = document.getElementById("liveNotificationCount");
+const liveNotificationPanel = document.getElementById("liveNotificationPanel");
+const liveNotificationList = document.getElementById("liveNotificationList");
 
+  async function loadLiveNotifications() {
+  const { data: sessionData } = await vlSupabase.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    liveNotificationCount.textContent = "0";
+    liveNotificationList.textContent = "Sign in to view notifications.";
+    return;
+  }
+
+  const { data: notifications, error } = await vlSupabase
+    .from("void_live_notifications")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error("Could not load live notifications:", error);
+    liveNotificationList.textContent = "Could not load notifications.";
+    return;
+  }
+
+  liveNotificationCount.textContent =
+    notifications.filter(item => !item.is_read).length;
+
+  liveNotificationList.innerHTML = "";
+
+  if (notifications.length === 0) {
+    liveNotificationList.textContent = "No notifications yet.";
+    return;
+  }
+
+  notifications.forEach(notification => {
+    const item = document.createElement("button");
+
+    item.textContent = notification.message;
+    item.className = notification.is_read
+      ? "notification-item"
+      : "notification-item unread";
+
+    item.addEventListener("click", async () => {
+      if (!notification.is_read) {
+        await vlSupabase
+          .from("void_live_notifications")
+          .update({ is_read: true })
+          .eq("id", notification.id);
+      }
+
+      window.location.href =
+        "watch-stream.html?id=" +
+        encodeURIComponent(notification.stream_id);
+    });
+
+    liveNotificationList.appendChild(item);
+  });
+}
+  
+liveNotificationBell.addEventListener("click", async () => {
+  liveNotificationPanel.hidden = !liveNotificationPanel.hidden;
+
+  if (!liveNotificationPanel.hidden) {
+    await loadLiveNotifications();
+  }
+});
+  
   vlGoLive.addEventListener("click", () => {
     vlModal.style.display = "flex";
   });
@@ -224,9 +317,35 @@ if (saveError) {
     return;
   }
 
-  await loadLiveStreams();
+    await loadLiveStreams();
+
+  // Notify everyone who follows this streamer
+  const { data: followers, error: followerError } = await vlSupabase
+    .from("void_live_follows")
+    .select("follower_id")
+    .eq("streamer_id", sessionData.session.user.id);
+
+  if (followerError) {
+    console.error("Could not load followers:", followerError);
+  } else if (followers.length > 0) {
+    const notifications = followers.map(follower => ({
+      user_id: follower.follower_id,
+      streamer_id: sessionData.session.user.id,
+      stream_id: savedStream.id,
+      message: title + " is now LIVE!"
+    }));
+
+    const { error: notificationError } = await vlSupabase
+      .from("void_live_notifications")
+      .insert(notifications);
+
+    if (notificationError) {
+      console.error("Could not send notifications:", notificationError);
+    }
+  }
 
 } else if (platform === "twitch" || platform === "youtube") {
+      
   const dashboardURL =
     platform === "twitch"
       ? "https://dashboard.twitch.tv/"
@@ -331,6 +450,8 @@ card.addEventListener("click", () => {
   });
 }
   loadLiveStreams();
+  loadLiveNotifications();
+setInterval(loadLiveNotifications, 30000);
   
 </script>
 </body>
