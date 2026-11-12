@@ -3451,3 +3451,42 @@ footer {
   font-size: 22px;
   cursor: pointer;
 }
+/* PERSISTENT PLAYER DROPDOWN */
+.persistent-player-dropdown {
+  position: fixed;
+  width: 210px;
+  padding: 8px;
+  background: rgba(18, 16, 26, 0.98);
+  border: 1px solid #713cff;
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(113, 60, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.persistent-player-dropdown button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #eee;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.persistent-player-dropdown button:hover {
+  background: rgba(113, 60, 255, 0.18);
+  color: #b99aff;
+}
+
+.persistent-player-dropdown button[data-player-action="delete"] {
+  color: #ff6b79;
+}
+
+.persistent-player-dropdown button[data-player-action="delete"]:hover {
+  background: rgba(255, 60, 80, 0.12);
+}
