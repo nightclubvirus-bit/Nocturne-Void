@@ -148,6 +148,11 @@
 
   const vlGoLive = document.getElementById("vlGoLive");
   const vlLiveStreams = document.getElementById("vlLiveStreams");
+  const vlStreamSearch = document.getElementById("vlStreamSearch");
+const vlCategoryFilter = document.getElementById("vlCategoryFilter");
+
+let allLiveStreams = [];
+  
   const vlModal = document.getElementById("vlStreamModal");
   const vlClose = document.getElementById("vlCloseModal");
   const vlStartStream = document.getElementById("vlStartStream");
@@ -409,6 +414,70 @@ vlModal.style.display = "none";
       vlModal.style.display = "none";
     }
   });
+  function populateStreamCategories() {
+  const selectedCategory = vlCategoryFilter.value;
+
+  const categories = [
+    ...new Set(allLiveStreams.map(stream => stream.game_name).filter(Boolean))
+  ].sort();
+
+  vlCategoryFilter.innerHTML = '<option value="all">ALL CATEGORIES</option>';
+
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    vlCategoryFilter.appendChild(option);
+  });
+
+  if (categories.includes(selectedCategory)) {
+    vlCategoryFilter.value = selectedCategory;
+  }
+}
+
+function renderFilteredStreams() {
+  const searchTerm = vlStreamSearch.value.toLowerCase().trim();
+  const selectedCategory = vlCategoryFilter.value;
+
+  const filteredStreams = allLiveStreams.filter(stream => {
+    const matchesSearch =
+      stream.stream_title.toLowerCase().includes(searchTerm) ||
+      stream.game_name.toLowerCase().includes(searchTerm);
+
+    const matchesCategory =
+      selectedCategory === "all" ||
+      stream.game_name === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  vlLiveStreams.innerHTML = "";
+
+  if (filteredStreams.length === 0) {
+    vlLiveStreams.innerHTML =
+      "<p class='vl-empty'>No matching streams found.</p>";
+    return;
+  }
+
+  filteredStreams.forEach(stream => {
+    const card = document.createElement("div");
+    card.className = "vl-stream-card";
+    card.style.cursor = "pointer";
+
+    card.addEventListener("click", () => {
+      window.location.href =
+        "watch-stream.html?id=" + encodeURIComponent(stream.id);
+    });
+
+    card.innerHTML = `
+      <h3>${stream.stream_title}</h3>
+      <p>${stream.game_name}</p>
+      <span>${stream.platform.toUpperCase()}</span>
+    `;
+
+    vlLiveStreams.appendChild(card);
+  });
+}
   
   async function loadLiveStreams() {
   const { data: streams, error } = await vlSupabase
@@ -424,11 +493,14 @@ vlModal.style.display = "none";
   }
 
   if (!streams || streams.length === 0) {
+    allLiveStreams = [];
     vlLiveStreams.innerHTML = "<p class='vl-empty'>No one is streaming right now.</p>";
     return;
   }
 
-  vlLiveStreams.innerHTML = "";
+  allLiveStreams = streams;
+  populateStreamCategories();
+  renderFilteredStreams();
 
   streams.forEach(stream => {
     const card = document.createElement("div");
@@ -449,6 +521,9 @@ card.addEventListener("click", () => {
     vlLiveStreams.appendChild(card);
   });
 }
+  vlStreamSearch.addEventListener("input", renderFilteredStreams);
+vlCategoryFilter.addEventListener("change", renderFilteredStreams);
+  
   loadLiveStreams();
   loadLiveNotifications();
 setInterval(loadLiveNotifications, 30000);
