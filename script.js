@@ -3818,13 +3818,67 @@ $("#dropdownSignOut")?.addEventListener("click", () => {
      const persistentPlayerMenu =
   $("#persistentPlayerMenu");
 
-persistentPlayerMenu?.addEventListener("click", () => {
-  if (!currentUser) {
-    showStatus("Please sign in to access your player menu.", true);
+persistentPlayerMenu?.addEventListener("click", (event) => {
+  event.stopPropagation();
+
+  let existingMenu = $("#persistentPlayerDropdown");
+
+  if (existingMenu) {
+    existingMenu.remove();
     return;
   }
 
-  showStatus("Player menu coming soon!");
+  const menu = document.createElement("div");
+  menu.id = "persistentPlayerDropdown";
+  menu.className = "persistent-player-dropdown";
+
+  menu.innerHTML = `
+    <button type="button" data-player-action="settings">
+      Account Settings
+    </button>
+
+    <button type="button" data-player-action="privacy">
+      Privacy & Security
+    </button>
+
+    <button type="button" data-player-action="signout">
+      Sign Out
+    </button>
+
+    <button type="button" data-player-action="delete">
+      Delete Account
+    </button>
+  `;
+
+  document.body.appendChild(menu);
+
+   menu.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-player-action]");
+
+  if (!button) return;
+
+  if (button.dataset.playerAction === "signout") {
+  menu.remove();
+  $("#logoutButton")?.click();
+}
+
+if (button.dataset.playerAction === "settings") {
+  menu.remove();
+  window.location.href = "account.html";
+}
+      if (button.dataset.playerAction === "privacy") {
+  menu.remove();
+  window.location.href = "account.html#privacy";
+}
+      
+});
+
+  const rect = persistentPlayerMenu.getBoundingClientRect();
+
+  menu.style.position = "fixed";
+  menu.style.left = `${rect.left}px`;
+  menu.style.bottom = "70px";
+  menu.style.zIndex = "10002";
 });
 
 const persistentPlayerProfile =
