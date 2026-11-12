@@ -318,6 +318,38 @@ if (stream.platform === "youtube" && stream.stream_url) {
   }
  } 
 }
+    vlChatForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const message = vlChatInput.value.trim();
+
+  if (!message) return;
+
+  const { data: sessionData } = await watchSupabase.auth.getSession();
+
+  if (!sessionData.session) {
+    alert("Please sign in to send messages.");
+    return;
+  }
+
+  const { error } = await watchSupabase
+    .from("void_live_chat")
+    .insert({
+      stream_id: streamId,
+      user_id: sessionData.session.user.id,
+      message: message
+    });
+
+  if (error) {
+    console.error("Could not send message:", error);
+    alert("Could not send your message.");
+    return;
+  }
+
+  vlChatInput.value = "";
+  await loadLiveChat();
+});
+    
   loadWatchedStream();
     loadLiveChat();
 
