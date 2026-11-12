@@ -3838,7 +3838,7 @@ persistentPlayerProfile?.addEventListener("click", (event) => {
     return;
   }
 
-  showStatus("Player profile menu coming soon!");
+  openMemberProfile(currentProfile || currentUser);
 });
 
     setAuthMode("login");
