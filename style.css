@@ -3490,3 +3490,57 @@ footer {
 .persistent-player-dropdown button[data-player-action="delete"]:hover {
   background: rgba(255, 60, 80, 0.12);
 }
+/* NOCTURNE VOID COMMUNITY BUTTON THEME */
+
+.community-hub button {
+  padding: 9px 14px;
+  border: 1px solid #713cff;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #21112f, #35152b);
+  color: #e5caff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 8px rgba(113, 60, 255, 0.12);
+}
+
+.community-hub button:hover {
+  border-color: #c45aff;
+  background: linear-gradient(135deg, #48205f, #681c48);
+  color: #ffffff;
+  box-shadow:
+    0 0 8px rgba(170, 75, 255, 0.55),
+    0 0 18px rgba(170, 75, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.community-hub button:active {
+  transform: scale(0.97);
+}
+
+/* Keep channel buttons looking like channel tabs */
+.community-hub .hub-channel {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.community-hub .hub-channel:hover,
+.community-hub .hub-channel.active {
+  background: #381a27;
+  color: #f0cbd5;
+  box-shadow: 0 0 12px rgba(193, 75, 130, 0.2);
+}
+
+/* Preserve the message send button */
+.community-hub .hub-composer button {
+  border: 1px solid #91435b;
+  background: #68283e;
+  color: white;
+}
+
+.community-hub .hub-composer button:hover {
+  background: #8b3854;
+}
