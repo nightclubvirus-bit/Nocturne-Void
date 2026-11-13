@@ -7364,7 +7364,75 @@ function renderAccountSettings() {
   $("#settingsCustomStatus").value = currentProfile?.custom_status || "";
   $("#settingsPresence").value =
     currentProfile?.presence_status || "online";
+
+   const saveButton = $("#saveAccountSettings");
+
+saveButton?.addEventListener("click", async () => {
+  const username = $("#settingsUsername").value.trim();
+  const about = $("#settingsAbout").value.trim();
+  const customStatus = $("#settingsCustomStatus").value.trim();
+  const presence = $("#settingsPresence").value;
+
+  if (username.length < 3 || username.length > 24) {
+    showStatus("Username must be between 3 and 24 characters.", true);
+    return;
+  }
+
+  saveButton.disabled = true;
+  saveButton.textContent = "SAVING...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("community_profiles")
+      .update({
+        username: username,
+        about_me: about,
+        custom_status: customStatus,
+        presence_status: presence
+      })
+      .eq("id", currentUser.id)
+      .select("id, username, avatar_url, created_at, last_seen, custom_status, presence_status, about_me")
+      .maybeSingle();
+
+    if (error) {
+      if (error.code === "23505") {
+        throw new Error("That username is already taken.");
+      }
+      throw error;
+    }
+
+    if (!data) throw new Error("Profile could not be updated.");
+
+    currentProfile = data;
+
+    communityProfiles = communityProfiles.map(profile =>
+      profile.id === data.id ? data : profile
+    );
+
+    conversationProfiles = conversationProfiles.map(profile =>
+      profile.id === data.id ? data : profile
+    );
+
+    renderAvatarProfile();
+    renderCommunityMembers();
+    renderCommunityMessages();
+    renderDirectMessageInbox();
+    updatePersistentPlayerProfile();
+
+    showStatus("Account settings saved!");
+
+  } catch (error) {
+    console.error("Account settings error:", error);
+    showStatus(error.message || "Unable to save settings.", true);
+
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "SAVE CHANGES";
+  }
+});
+
 }
+   window.renderAccountSettings = renderAccountSettings;
    
  function initializeWebsite() {
     initializeAccountButtons();
