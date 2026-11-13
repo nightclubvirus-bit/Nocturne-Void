@@ -3602,3 +3602,55 @@ footer {
 .community-hub .hub-composer button:hover {
   background: #8b3854;
 }
+/* COMMUNITY PROFILE LAYOUT */
+
+.hub-profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 12px;
+  margin: 12px 0;
+  background: rgba(25, 15, 35, 0.85);
+  border: 1px solid rgba(145, 67, 255, 0.3);
+  border-radius: 9px;
+  text-align: center;
+}
+
+.hub-profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.hub-profile-username {
+  color: #f0d9ff;
+  font-size: 15px;
+}
+
+.hub-about-preview {
+  margin: 0;
+  color: #a99ab5;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.hub-profile-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px;
+  margin: 12px 0 18px;
+  background: rgba(18, 11, 26, 0.9);
+  border: 1px solid rgba(145, 67, 255, 0.25);
+  border-radius: 9px;
+}
+
+.hub-profile-controls button,
+.hub-profile-controls select {
+  width: 100%;
+  box-sizing: border-box;
+}
