@@ -2887,6 +2887,7 @@ footer {
 .nv-loading-content {
   position: relative;
   z-index: 10;
+ text-shadow: 0 0 18px rgba(0, 0, 0, .9);
   width: min(90%, 520px);
   margin-top: 28vh;
   text-align: center;
