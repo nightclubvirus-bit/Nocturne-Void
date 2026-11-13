@@ -799,12 +799,20 @@ em {
   gap: 15px;
   min-height: 75px;
   padding: 16px 22px;
-  border-bottom: 1px solid rgba(145, 67, 255, 0.25);
-  background: linear-gradient(
-    90deg,
-    rgba(35, 15, 45, 0.8),
-    rgba(18, 13, 18, 0.95)
-  );
+
+  border-bottom: 1px solid rgba(170, 167, 168, 0.3);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 9, 0.98),
+      rgba(25, 15, 19, 0.97),
+      rgba(8, 8, 9, 0.98)
+    );
+
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 1px 12px rgba(143, 16, 28, 0.12);
 }
 
 .hub-header h3 {
@@ -2288,10 +2296,16 @@ button:hover,
 /* CRIMSON HORROR ACCENTS */
 
 h1,
-h2 {
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1.5px;
   text-shadow:
-    0 0 8px rgba(180, 0, 40, 0.35),
-    0 0 18px rgba(120, 0, 30, 0.2);
+    0 0 8px rgba(143, 16, 28, 0.3),
+    0 0 20px rgba(120, 10, 24, 0.18);
 }
 
 em {
