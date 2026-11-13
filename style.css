@@ -144,24 +144,53 @@ em {
   position: sticky;
   top: 0;
   z-index: 100;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 25px;
+
   padding: 17px 6%;
-  background: rgba(9,7,10,.96);
-  border-bottom: 1px solid var(--line);
+
+  background: linear-gradient(
+    180deg,
+    rgba(17, 17, 20, .99),
+    rgba(8, 8, 9, .97)
+  );
+
+  border-bottom: 1px solid rgba(170, 167, 168, .25);
+
   backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, .55),
+    0 2px 18px rgba(143, 16, 28, .12);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 13px;
+
+  color: var(--ash-white);
   font-family: 'Cinzel', serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
+  text-decoration: none;
+
+  text-shadow:
+    0 0 8px rgba(170, 167, 168, .15),
+    0 0 18px rgba(143, 16, 28, .2);
+
+  transition: .3s ease;
+}
+
+.brand:hover {
+  color: var(--crimson-glow);
+  text-shadow:
+    0 0 10px rgba(194, 29, 43, .55),
+    0 0 22px rgba(143, 16, 28, .35);
 }
 
 .brand b {
@@ -170,16 +199,40 @@ em {
 
 .brand small {
   display: block;
-  margin-top: 3px;
-  color: var(--muted);
+  margin-top: 4px;
+  color: var(--iron-silver);
   font-family: 'Inter', sans-serif;
   font-size: 8px;
-  letter-spacing: 3px;
+  font-weight: 600;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  opacity: .8;
 }
 
 .brand-mark {
-  color: var(--red2);
-  font-size: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  color: var(--crimson-glow);
+  font-size: 29px;
+
+  border: 1px solid rgba(170, 167, 168, .35);
+  background: linear-gradient(
+    145deg,
+    rgba(36, 36, 41, .9),
+    rgba(8, 8, 9, .98)
+  );
+
+  box-shadow:
+    0 0 12px rgba(143, 16, 28, .25),
+    inset 0 0 10px rgba(143, 16, 28, .12);
+
+  text-shadow: 0 0 12px rgba(194, 29, 43, .8);
+  transform: rotate(45deg);
 }
 
 #mainNav,
@@ -237,11 +290,36 @@ em {
 
 .menu-toggle {
   display: none;
-  border: 0;
-  background: transparent;
-  color: white;
+
+  border: 1px solid rgba(170, 167, 168, .3);
+  border-radius: 4px;
+
+  background: linear-gradient(
+    145deg,
+    #242429,
+    #111114
+  );
+
+  color: var(--ash-white);
   font-size: 24px;
+  padding: 6px 12px;
+  cursor: pointer;
+
+  transition: .3s ease;
+
+  box-shadow: 0 0 10px rgba(0, 0, 0, .4);
 }
+
+.menu-toggle:hover {
+  color: var(--crimson-glow);
+  border-color: var(--crimson-glow);
+
+  box-shadow:
+    0 0 12px rgba(194, 29, 43, .3),
+    inset 0 0 8px rgba(143, 16, 28, .15);
+}
+
+
 
 .button {
   display: inline-flex;
@@ -301,12 +379,24 @@ em {
   min-height: 690px;
   padding: 90px 9%;
   overflow: hidden;
+
   background:
-    linear-gradient(90deg,
-      rgba(9,7,10,.98) 0%,
-      rgba(9,7,10,.88) 45%,
-      rgba(9,7,10,.30) 100%),
-    linear-gradient(0deg, var(--bg), transparent 45%),
+    linear-gradient(
+      90deg,
+      rgba(8, 8, 9, .99) 0%,
+      rgba(8, 8, 9, .90) 42%,
+      rgba(8, 8, 9, .48) 100%
+    ),
+    linear-gradient(
+      0deg,
+      #080809 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 75% 45%,
+      rgba(143, 16, 28, .22),
+      transparent 55%
+    ),
     url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2000&q=85')
     center/cover no-repeat;
 }
@@ -327,10 +417,42 @@ em {
 }
 
 .eyebrow {
-  color: var(--red2);
-  font-size: 10px;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  color: var(--iron-silver);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 4px;
+  text-transform: uppercase;
+
+  text-shadow:
+    0 0 8px rgba(170, 167, 168, .2),
+    0 0 14px rgba(143, 16, 28, .2);
+}
+
+.eyebrow span {
+  display: inline-block;
+  width: 38px;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--crimson-glow)
+  );
+
+  box-shadow: 0 0 8px rgba(194, 29, 43, .65);
+}
+
+.eyebrow span:last-child {
+  background: linear-gradient(
+    90deg,
+    var(--crimson-glow),
+    transparent
+  );
 }
 
 .eyebrow span {
@@ -343,15 +465,30 @@ em {
 
 .hero h1 {
   margin: 25px 0;
+
   font-family: 'Cinzel', serif;
-  font-size: clamp(50px, 8vw, 100px);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: 3px;
+  font-size: clamp(54px, 8.5vw, 108px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: 4px;
+
+  color: var(--ash-white);
+
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, .9),
+    0 0 15px rgba(143, 16, 28, .35),
+    0 0 35px rgba(143, 16, 28, .18);
 }
 
 .hero h1 em {
-  text-shadow: 0 0 35px rgba(225,59,83,.25);
+  color: var(--crimson-glow);
+  font-style: normal;
+  font-weight: 700;
+
+  text-shadow:
+    0 0 8px rgba(194, 29, 43, .65),
+    0 0 22px rgba(194, 29, 43, .45),
+    0 0 45px rgba(143, 16, 28, .35);
 }
 
 .hero-copy {
