@@ -5329,6 +5329,7 @@ function renderCommunityChannels() {
       if (!currentUser || currentUser.id !== userId) return;
 
       currentProfile = data;
+       renderAccountSettings();
       updatePersistentPlayerProfile();
        
       // Update the Account Center profile
@@ -7305,7 +7306,66 @@ async function loadMainNotifications() {
 });
    
 } 
+function renderAccountSettings() {
+  const container = document.getElementById("accountSettingsContent");
 
+  if (!container) return;
+
+  if (!currentUser) {
+    container.innerHTML = `
+      <p>Please sign in to manage your account settings.</p>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="account-settings-panel">
+
+      <h3>PROFILE SETTINGS</h3>
+
+      <label for="settingsUsername">Username</label>
+      <input
+        id="settingsUsername"
+        type="text"
+        maxlength="24"
+        value=""
+      >
+
+      <label for="settingsAbout">About Me</label>
+      <textarea
+        id="settingsAbout"
+        maxlength="300"
+      ></textarea>
+
+      <label for="settingsCustomStatus">Custom Status</label>
+      <input
+        id="settingsCustomStatus"
+        type="text"
+        maxlength="80"
+      >
+
+      <label for="settingsPresence">Presence</label>
+      <select id="settingsPresence">
+        <option value="online">Online</option>
+        <option value="idle">Idle</option>
+        <option value="dnd">Do Not Disturb</option>
+        <option value="invisible">Invisible</option>
+      </select>
+
+      <button id="saveAccountSettings" type="button">
+        SAVE CHANGES
+      </button>
+
+    </div>
+  `;
+
+  $("#settingsUsername").value = currentProfile?.username || "";
+  $("#settingsAbout").value = currentProfile?.about_me || "";
+  $("#settingsCustomStatus").value = currentProfile?.custom_status || "";
+  $("#settingsPresence").value =
+    currentProfile?.presence_status || "online";
+}
+   
  function initializeWebsite() {
     initializeAccountButtons();
     initializeMainNotifications();
