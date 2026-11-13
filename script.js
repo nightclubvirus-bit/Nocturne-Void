@@ -4205,10 +4205,11 @@ persistentPlayerProfile?.addEventListener("click", (event) => {
     });
 
     supabaseClient.auth.getSession().then(({ data, error }) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
+  if (error) {
+    console.error(error);
+    window.nvAuthInitialized = true;
+    return;
+  }
 
       const user = data.session?.user || null;
 
@@ -4226,6 +4227,7 @@ persistentPlayerProfile?.addEventListener("click", (event) => {
       if (window.location.hash.includes("type=recovery")) {
         showPasswordUpdateForm();
       }
+       window.nvAuthInitialized = true;
     });
   }
 
@@ -7547,34 +7549,61 @@ initializeMobileNavigation();
     }
   }, 250);
    
-   let hasFinishedLoading = false;
-  function finishLoading() {
-     
-     if (hasFinishedLoading) return;
-hasFinishedLoading = true;
-    clearInterval(progressInterval);
+  
+let hasFinishedLoading = false;
+let pageLoaded = document.readyState === "complete";
 
-    progressBar.style.width = "100%";
+function finishLoading(force = false) {
+  if (hasFinishedLoading) return;
+
+  if (!force && (!pageLoaded || window.nvAuthInitialized !== true)) {
+    return;
+  }
+
+  hasFinishedLoading = true;
+
+  clearInterval(progressInterval);
+  clearInterval(messageInterval);
+  clearInterval(readinessInterval);
+
+  progressBar.style.width = "100%";
+  status.textContent = "THE GATES ARE OPENING";
+
+  // Open the castle doors and reveal the crimson light.
+  loadingScreen.classList.add("nv-gates-open");
+
+  // Allow the castle doors to finish opening.
+  setTimeout(() => {
     status.textContent = "WELCOME TO THE VOID";
 
+    loadingScreen.style.transition = "opacity 1.5s ease";
+    loadingScreen.style.opacity = "0";
+    loadingScreen.style.pointerEvents = "none";
+
     setTimeout(() => {
-      loadingScreen.style.transition = "opacity .8s ease";
-      loadingScreen.style.opacity = "0";
-      loadingScreen.style.pointerEvents = "none";
+      loadingScreen.remove();
+    }, 1500);
 
-      setTimeout(() => {
-        loadingScreen.remove();
-        clearInterval(messageInterval);
-      }, 850);
+  }, 3500);
+}
 
-    }, 500);
-  }
-
-  if (document.readyState === "complete") {
+function checkLoadingReady() {
+  if (pageLoaded && window.nvAuthInitialized === true) {
     finishLoading();
-  } else {
-    window.addEventListener("load", finishLoading, { once: true });
   }
-   // Backup: never leave visitors stuck loading
-setTimeout(finishLoading, 12000);
+}
+
+window.addEventListener("load", () => {
+  pageLoaded = true;
+  checkLoadingReady();
+}, { once: true });
+
+// Check for Supabase authentication readiness.
+const readinessInterval = setInterval(checkLoadingReady, 100);
+
+// Backup: prevent visitors from being stuck indefinitely.
+setTimeout(() => finishLoading(true), 12000);
+
+checkLoadingReady();
+
 })();
