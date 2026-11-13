@@ -2623,225 +2623,358 @@ footer {
     transform: scale(1);
   }
 }
+
 /* ==============================
-   NOCTURNE VOID LOADING SCREEN
+   THE GATES OF THE VOID
+   GOTHIC CASTLE LOADING SCREEN
 ============================== */
 
 #nv-loading-screen {
   position: fixed;
   inset: 0;
   z-index: 999999;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at center, #190d35 0%, #080611 50%, #020207 100%);
-  color: white;
+  background: #050405;
+  isolation: isolate;
+  transition: opacity 1.5s ease, visibility 1.5s ease;
 }
+
+/* Dark Gothic night sky */
+
+#nv-loading-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  background:
+    radial-gradient(ellipse at 50% 65%, rgba(105, 8, 19, .2), transparent 48%),
+    linear-gradient(to bottom, #030304 0%, #100b0e 55%, #080607 100%);
+}
+
+/* Distant moonlight */
+
+#nv-loading-screen::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  top: 7%;
+  right: 16%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180, 165, 165, .12), transparent 70%);
+  filter: blur(8px);
+  z-index: -2;
+}
+
+/* Castle scene */
+
+.nv-castle-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+/* Atmospheric fog */
+
+.nv-castle-fog {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(130, 130, 140, .12), transparent 45%),
+    radial-gradient(ellipse at 80% 75%, rgba(120, 110, 120, .1), transparent 45%);
+  filter: blur(20px);
+  animation: nvFogDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* Distant castle silhouette */
+
+.nv-castle {
+  position: absolute;
+  width: min(1000px, 110vw);
+  height: 75%;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #211c20, #0b090b 85%);
+  clip-path: polygon(
+    0 100%, 0 40%, 8% 40%, 8% 22%,
+    14% 22%, 14% 38%, 22% 38%,
+    22% 15%, 28% 15%, 28% 0,
+    34% 15%, 34% 38%, 42% 38%,
+    42% 28%, 48% 28%, 48% 12%,
+    52% 12%, 52% 28%, 58% 28%,
+    58% 38%, 66% 38%, 66% 15%,
+    72% 15%, 72% 0, 78% 15%,
+    78% 38%, 86% 38%, 86% 22%,
+    92% 22%, 92% 40%, 100% 40%,
+    100% 100%
+  );
+  filter: drop-shadow(0 0 25px #000);
+}
+
+/* Castle entrance */
+
+.nv-castle-entrance {
+  position: absolute;
+  width: clamp(180px, 30vw, 330px);
+  height: clamp(260px, 48vh, 470px);
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  border: 3px solid #393036;
+  border-bottom: none;
+  border-radius: 160px 160px 0 0;
+  background: #050304;
+  box-shadow:
+    0 0 35px rgba(0, 0, 0, .9),
+    inset 0 0 30px #000;
+  overflow: hidden;
+}
+
+/* Red light behind the doors */
+
+.nv-castle-light {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    #ff3344 0%,
+    #a20d20 28%,
+    rgba(80, 0, 12, .8) 55%,
+    transparent 80%
+  );
+  filter: blur(8px);
+  transition: opacity 3s ease;
+}
+
+#nv-loading-screen.nv-gates-open .nv-castle-light {
+  opacity: 1;
+}
+
+/* Heavy castle doors */
+
+.nv-castle-doors {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  perspective: 900px;
+  z-index: 3;
+}
+
+.nv-castle-door {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 28px,
+      rgba(0, 0, 0, .35) 30px,
+      transparent 34px
+    ),
+    linear-gradient(90deg, #100d10, #292126 50%, #100d10);
+  border: 3px solid #51434a;
+  box-shadow: inset 0 0 25px #000;
+  transition: transform 3s cubic-bezier(.7, 0, .2, 1);
+}
+
+.nv-castle-door:first-child {
+  transform-origin: left center;
+  border-right: 2px solid #88727a;
+}
+
+.nv-castle-door:last-child {
+  transform-origin: right center;
+  border-left: 2px solid #88727a;
+}
+
+#nv-loading-screen.nv-gates-open .nv-castle-door:first-child {
+  transform: rotateY(-105deg);
+}
+
+#nv-loading-screen.nv-gates-open .nv-castle-door:last-child {
+  transform: rotateY(105deg);
+}
+
+/* Ornate door detailing */
+
+.nv-castle-door::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 2px solid rgba(170, 150, 155, .35);
+  box-shadow: inset 0 0 15px #000;
+}
+
+.nv-castle-door::after {
+  content: "✦";
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #9d858b;
+  font-size: 28px;
+  text-shadow: 0 0 12px #8f101c;
+}
+
+/* Foreground trees */
+
+.nv-castle-tree {
+  position: absolute;
+  bottom: 0;
+  width: 170px;
+  height: 75%;
+  z-index: 4;
+  transform-origin: bottom center;
+  animation: nvTreeSway 7s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.nv-castle-tree.left {
+  left: -25px;
+}
+
+.nv-castle-tree.right {
+  right: -25px;
+  animation-delay: -3s;
+  transform: scaleX(-1);
+}
+
+.nv-castle-tree::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 13px;
+  height: 85%;
+  background: linear-gradient(90deg, #080708, #242024, #070607);
+  transform: rotate(5deg);
+}
+
+.nv-castle-tree::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    conic-gradient(
+      from 145deg at 50% 15%,
+      transparent 0deg,
+      #09080a 20deg,
+      transparent 45deg,
+      #111013 65deg,
+      transparent 90deg,
+      #080709 120deg,
+      transparent 150deg
+    );
+  clip-path: polygon(
+    50% 0, 15% 28%, 35% 25%,
+    0 50%, 35% 43%, 12% 75%,
+    48% 55%, 80% 90%, 65% 48%,
+    100% 65%, 68% 35%, 90% 20%
+  );
+  filter: drop-shadow(0 0 10px #000);
+}
+
+/* Loading content */
 
 .nv-loading-content {
   position: relative;
-  z-index: 2;
-  width: 90%;
-  max-width: 550px;
+  z-index: 10;
+  width: min(90%, 520px);
+  margin-top: 28vh;
   text-align: center;
+  color: #e5e0df;
 }
 
 .nv-loading-title {
-  margin-top: 35px;
-  color: #d5b5ff;
-  font-size: clamp(28px, 6vw, 48px);
-  letter-spacing: 6px;
-  text-shadow: 0 0 15px #a855ff, 0 0 35px #5424b8;
-  animation: nvGlitch 3s infinite;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: clamp(27px, 5vw, 48px);
+  letter-spacing: .2em;
+  text-shadow: 0 0 20px rgba(180, 20, 40, .45);
 }
 
 .nv-loading-subtitle {
-  color: #8e83b5;
-  font-size: 11px;
-  letter-spacing: 5px;
-}
-
-.nv-portal {
-  position: relative;
-  width: 190px;
-  height: 190px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nv-portal-ring {
-  position: absolute;
-  inset: 0;
-  border: 3px solid transparent;
-  border-top-color: #b56aff;
-  border-bottom-color: #287bff;
-  border-radius: 50%;
-  box-shadow: 0 0 20px #812cff, inset 0 0 20px #3821a0;
-  animation: nvRotate 4s linear infinite;
-}
-
-.nv-portal-ring.ring-two {
-  inset: 13px;
-  border-top-color: #20cfff;
-  border-bottom-color: #a855ff;
-  animation: nvRotateReverse 3s linear infinite;
-}
-
-.nv-portal-core {
-  width: 105px;
-  height: 105px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: radial-gradient(circle, #55249c, #100b28 75%);
-  border: 2px solid #a855ff;
-  box-shadow: 0 0 25px #a855ff, 0 0 55px #245bdb;
-  animation: nvPulse 2s ease-in-out infinite;
-}
-
-.nv-portal-core span {
-  color: white;
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: 3px;
-  text-shadow: 0 0 15px #bd8aff;
+  margin-top: 10px;
+  color: #a99da1;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
 }
 
 .nv-loading-bar {
-  width: 85%;
-  height: 7px;
-  margin: 35px auto 15px;
+  width: min(280px, 80%);
+  height: 3px;
+  margin: 28px auto 12px;
   overflow: hidden;
-  border-radius: 20px;
-  background: #292039;
-  box-shadow: 0 0 10px #5424b8;
+  background: #292126;
+  box-shadow: 0 0 10px rgba(150, 15, 30, .3);
 }
 
 #nv-loading-progress {
   width: 0%;
   height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #7928ca, #20cfff);
-  box-shadow: 0 0 15px #a855ff;
+  background: linear-gradient(90deg, #650914, #e1263b);
+  box-shadow: 0 0 12px #d21c32;
+  transition: width .3s ease;
 }
 
-#nv-loading-status {
-  color: #b98aff;
-  font-size: 12px;
-  letter-spacing: 4px;
-}
-
+#nv-loading-status,
 .nv-loading-message {
-  min-height: 45px;
-  margin-top: 30px;
-  color: #aaa0c5;
-  font-size: 14px;
-  font-style: italic;
+  color: #a99da1;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  letter-spacing: .15em;
 }
 
-/* ANIMATIONS */
+/* Atmospheric animations */
 
-@keyframes nvRotate {
-  to { transform: rotate(360deg); }
+@keyframes nvFogDrift {
+  from { transform: translateX(-3%) translateY(2%); }
+  to { transform: translateX(3%) translateY(-2%); }
 }
 
-@keyframes nvRotateReverse {
-  to { transform: rotate(-360deg); }
+@keyframes nvTreeSway {
+  from { rotate: -2deg; }
+  to { rotate: 2deg; }
 }
 
-@keyframes nvPulse {
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 40px #a855ff, 0 0 75px #245bdb;
+/* Mobile adjustments */
+
+@media (max-width: 600px) {
+  .nv-castle {
+    width: 145vw;
+    height: 60%;
+    bottom: 15%;
+  }
+
+  .nv-castle-entrance {
+    width: 190px;
+    height: 290px;
+    bottom: 15%;
+  }
+
+  .nv-castle-tree {
+    width: 110px;
+    height: 55%;
+  }
+
+  .nv-loading-content {
+    margin-top: 25vh;
+  }
+
+  .nv-loading-subtitle {
+    letter-spacing: .2em;
   }
 }
 
-@keyframes nvGlitch {
-  0%, 94%, 100% { transform: translateX(0); }
-  95% { transform: translateX(-3px); }
-  97% { transform: translateX(3px); }
-}
-/* FLOATING VOID PARTICLES */
-
-#nv-loading-screen::before,
-#nv-loading-screen::after {
-  content: "";
-  position: absolute;
-  inset: -50%;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle, rgba(177, 100, 255, .8) 1px, transparent 2px),
-    radial-gradient(circle, rgba(30, 170, 255, .7) 1px, transparent 2px);
-  background-size: 95px 95px, 145px 145px;
-  animation: nvParticles 18s linear infinite;
-  opacity: .45;
-}
-
-#nv-loading-screen::after {
-  background-size: 125px 125px, 180px 180px;
-  animation-duration: 28s;
-  animation-direction: reverse;
-  opacity: .25;
-}
-
-/* MYSTERIOUS PORTAL SMOKE */
-
-.nv-loading-content::before,
-.nv-loading-content::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: 280px;
-  height: 280px;
-  top: 5px;
-  left: 50%;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(125, 45, 220, .22),
-    rgba(35, 90, 200, .12) 45%,
-    transparent 70%
-  );
-  filter: blur(25px);
-  transform: translateX(-50%);
-  animation: nvSmoke 7s ease-in-out infinite alternate;
-}
-
-.nv-loading-content::after {
-  background: radial-gradient(
-    circle,
-    rgba(30, 150, 255, .16),
-    transparent 70%
-  );
-  animation-delay: -3s;
-}
-
-/* PARTICLE AND SMOKE MOVEMENT */
-
-@keyframes nvParticles {
-  from {
-    transform: translateY(0) rotate(0deg);
-  }
-  to {
-    transform: translateY(-180px) rotate(360deg);
-  }
-}
-
-@keyframes nvSmoke {
-  from {
-    opacity: .35;
-    scale: .85;
-  }
-  to {
-    opacity: .9;
-    scale: 1.2;
-  }
-}
 /* ==============================
    VOID LIVE PAGE
 ============================== */
