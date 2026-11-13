@@ -4719,58 +4719,71 @@ banButton.addEventListener("click", async () => {
 
         <div class="hub-server-name">NOCTURNE VOID</div>
 
-        <div class="hub-profile-card">
-          <div class="hub-profile-preview"></div>
+    <div class="hub-profile-card">
 
-          <div class="hub-profile-details">
-          <p class="hub-about-preview">
-  Add something about yourself...
-</p>
-        <strong class="hub-profile-username">Guest</strong>
-            <button
-  class="hub-about-edit-button"
-  type="button"
-  disabled
->
-  Edit About Me
-</button>
-            <button
+  <div class="hub-profile-preview"></div>
+
+  <div class="hub-profile-details">
+    <strong class="hub-profile-username">Guest</strong>
+
+    <p class="hub-about-preview">
+      Add something about yourself...
+    </p>
+  </div>
+
+</div>
+
+<div class="hub-profile-controls">
+
+  <div class="hub-category">PROFILE CONTROLS</div>
+
+  <button
+    class="hub-about-edit-button"
+    type="button"
+    disabled
+  >
+    Edit About Me
+  </button>
+
+  <button
     class="hub-custom-status-button"
     type="button"
     disabled
   >
     Set Custom Status
   </button>
-           <select class="hub-presence-select" disabled>
-  <option value="online">🟢 Online</option>
-  <option value="idle">🌙 Idle</option>
-  <option value="dnd">⛔ Do Not Disturb</option>
-  <option value="invisible">⚫ Invisible</option>
-</select>
-             <button
-                 class="hub-username-edit-button"
-                type="button"
-               disabled
-             >
-               Change Username
-             </button>
 
-            <button
-              class="hub-avatar-upload-button"
-              type="button"
-              disabled
-            >
-              Sign in to upload
-            </button>
+  <select class="hub-presence-select" disabled>
+    <option value="online">🟢 Online</option>
+    <option value="idle">🌙 Idle</option>
+    <option value="dnd">⛔ Do Not Disturb</option>
+    <option value="invisible">⚫ Invisible</option>
+  </select>
 
-            <input
-              class="hub-avatar-file-input"
-              type="file"
-              accept="image/png,image/jpeg"
-              hidden
-            >
-          </div>
-        </div>
+  <button
+    class="hub-username-edit-button"
+    type="button"
+    disabled
+  >
+    Change Username
+  </button>
+
+  <button
+    class="hub-avatar-upload-button"
+    type="button"
+    disabled
+  >
+    Sign in to upload
+  </button>
+
+  <input
+    class="hub-avatar-file-input"
+    type="file"
+    accept="image/png,image/jpeg"
+    hidden
+  >
+
+</div>
 
         <div class="hub-admin-area" hidden>
   <div class="hub-category">ADMINISTRATION</div>
