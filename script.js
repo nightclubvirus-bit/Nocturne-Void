@@ -4835,10 +4835,13 @@ banButton.addEventListener("click", async () => {
 announcementFeed.className = "hub-announcement-feed";
 
 announcementFeed.style.cssText = `
-  padding: 12px 16px;
+   padding: 10px 14px;
   margin: 10px;
-  background: #181818;
-  border: 1px solid #555;
+  max-height: 190px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  background: #18121c;
+  border: 1px solid rgba(145, 67, 255, 0.4);
   border-radius: 8px;
 `;
 
