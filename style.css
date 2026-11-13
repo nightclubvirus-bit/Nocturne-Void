@@ -5,18 +5,32 @@
    NOCTURNE VOID — GLOBAL DESIGN
    ========================================== */
 
+
 :root {
-  --bg: #09070a;
-  --panel: #120d12;
-  --panel2: #191018;
-  --red: #a51e36; 
-  --red2: #e13b53;
-  --purple: #6e3b78;
-  --text: #eee7e9;
-  --muted: #a89ba1;
-  --line: rgba(220,190,200,.14);
-  --gold: #b99b78;
-  --green: #55b987;
+  /* THE CRIMSON DOMINION */
+
+  --bg: #080809;
+  --panel: #111114;
+  --panel2: #19191e;
+
+  --red: #8f101c;
+  --red2: #c21d2b;
+  --purple: #292027;
+
+  --text: #e5e0df;
+  --muted: #aaa1a3;
+
+  --line: rgba(170, 167, 168, .18);
+  --gold: #aaa7a8;
+  --green: #73977d;
+
+  --void-black: #080809;
+  --obsidian: #111114;
+  --cathedral-gray: #242429;
+  --blood-red: #8f101c;
+  --crimson-glow: #c21d2b;
+  --iron-silver: #aaa7a8;
+  --ash-white: #e5e0df;
 }
 
 * {
@@ -28,13 +42,32 @@ html {
   scroll-padding-top: 90px;
 }
 
+
 body {
   margin: 0;
   background:
-    radial-gradient(ellipse at 15% 20%, rgba(111, 0, 255, 0.16), transparent 40%),
-    radial-gradient(ellipse at 85% 35%, rgba(0, 140, 255, 0.12), transparent 40%),
-    radial-gradient(ellipse at 50% 90%, rgba(180, 0, 35, 0.10), transparent 45%),
-    var(--bg);
+    radial-gradient(
+      ellipse at 15% 20%,
+      rgba(143, 16, 28, 0.13),
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse at 85% 35%,
+      rgba(75, 20, 28, 0.10),
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(120, 10, 24, 0.12),
+      transparent 50%
+    ),
+    linear-gradient(
+      135deg,
+      #080809 0%,
+      #111114 50%,
+      #090809 100%
+    );
+
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Inter', sans-serif;
